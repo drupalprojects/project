@@ -33,6 +33,8 @@ function project_project_form(&$node, &$error) {
   }*/
   $project .= form_textfield(t('Project e-mail'), 'mail', $node->mail, 20, 255, t('E-mail address where the project owners can be contacted.'). theme('error', $error['mail']));
   $project .= form_textfield(t('Homepage'), 'homepage', $node->homepage, 40, 255, t('Link to project homepage.'). theme('error', $error['homepage']));
+  $project .= form_textfield(t('Documentation'), 'documentation', $node->documentation, 40, 255, t('Link to project documentation.'). theme('error', $error['documentation']));
+  $project .= form_textfield(t('License'), 'license', $node->license, 40, 255, t('Link to project license.'). theme('error', $error['license']));
   $project .= form_textfield(t('Screenshots'), 'screenshots', $node->screenshots, 40, 255, t('Link to project screenshots.'). theme('error', $error['screenshots']));
   $project .= form_textfield(t('Changelog'), 'changelog', $node->changelog, 40, 255, t('Link to changelog.'). theme('error', $error['changelog']));
   $project .= form_textfield(t('CVS tree'), 'cvs', $node->cvs, 40, 255, t('Link to webcvs/viewcvs.'). theme('error', $error['cvs']));
@@ -138,6 +140,9 @@ function project_project_validate(&$node) {
 }
 
 function project_project_view($node, $main = 0, $page = 0) {
+  $node->body = check_output($node->body);
+  $node->teaser = check_output($node->teaser);
+
   if (!$main) {
     $breadcrumb[] = l(t('Home'), NULL);
     $breadcrumb[] = l(t('Projects'), 'project');
@@ -147,7 +152,7 @@ function project_project_view($node, $main = 0, $page = 0) {
     drupal_set_breadcrumb($breadcrumb);
     menu_set_active_item("project/$node->uri");
 
-    foreach (array('homepage' => t('homepage'), 'changelog' => t('changelog'), 'cvs' => t('cvs tree'), 'demo' => t('demo site'), 'screenshots' => t('screenshots')) as $uri => $name) {
+    foreach (array('homepage' => t('homepage'), 'documentation' => t('documentation'), 'license' => t('license'), 'changelog' => t('changelog'), 'cvs' => t('cvs tree'), 'demo' => t('demo site'), 'screenshots' => t('screenshots')) as $uri => $name) {
       if (!empty($node->$uri)) {
         $links[] = sprintf('<a href="%s">%s</a>', $node->$uri, $name);
       }
@@ -179,7 +184,7 @@ function project_project_insert($node) {
   $node->components = serialize($node->components);
   $node->mail_copy_filter = serialize($node->mail_copy_filter);
 
-  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, cvs, demo, release_directory, issues, components, mail, mail_digest, mail_reminder, mail_copy, mail_copy_filter, version, help, screenshots) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, '%s', '%s')", $node->nid, $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->issues, $node->components, $node->mail, $node->mail_digest, $node->reminder, $node->mail_copy, $node->mail_copy_filter, $node->version, $node->help, $node->screenshots);
+  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, cvs, demo, release_directory, issues, components, mail, mail_digest, mail_reminder, mail_copy, mail_copy_filter, version, help, screenshots, documentation, license) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, '%s', '%s', '%s', '%s')", $node->nid, $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->issues, $node->components, $node->mail, $node->mail_digest, $node->reminder, $node->mail_copy, $node->mail_copy_filter, $node->version, $node->help, $node->screenshots, $node->documentation, $node->license);
   project_release_scan_directory($node->uri);
 }
 
@@ -187,7 +192,7 @@ function project_project_update($node) {
   $node->components = serialize($node->components);
   $node->mail_copy_filter = serialize($node->mail_copy_filter);
 
-  db_query("UPDATE {project_projects} SET uri = '%s', homepage = '%s', changelog = '%s', cvs = '%s', demo = '%s', release_directory = '%s', issues = %d, components = '%s', mail = '%s', mail_digest = '%s', mail_reminder = %d, mail_copy = '%s', mail_copy_filter = '%s', version = %d, help = '%s', screenshots = '%s' WHERE nid = %d", $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->issues, $node->components, $node->mail, $node->mail_digest, $node->mail_reminder, $node->mail_copy, $node->mail_copy_filter, $node->version, $node->help, $node->screenshots, $node->nid);
+  db_query("UPDATE {project_projects} SET uri = '%s', homepage = '%s', changelog = '%s', cvs = '%s', demo = '%s', release_directory = '%s', issues = %d, components = '%s', mail = '%s', mail_digest = '%s', mail_reminder = %d, mail_copy = '%s', mail_copy_filter = '%s', version = %d, help = '%s', screenshots = '%s', documentation = '%s', license = '%s' WHERE nid = %d", $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->issues, $node->components, $node->mail, $node->mail_digest, $node->mail_reminder, $node->mail_copy, $node->mail_copy_filter, $node->version, $node->help, $node->screenshots, $node->documentation, $node->license, $node->nid);
   project_release_scan_directory($node->uri);
 }
 

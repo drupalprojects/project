@@ -29,7 +29,7 @@ function project_release_scan_directory($project = NULL) {
 function project_release_scan_parse($path = NULL) {
   static $projects = array();
 
-  if (is_null($dir)) {
+  if (is_null($path)) {
     return $projects;
   }
   else {
@@ -71,7 +71,7 @@ function project_release_page() {
   switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
     case 'add':
       $node = node_load(array('nid' => arg(3)));
-      if (node_access($node, 'update')) {
+      if (node_access('update', $node)) {
         $title = t('Add release to %project', array('%project' => $node->title));
         $breadcrumb = array(l(t('Home'), NULL), l(t('Projects'), 'project'));
         if (function_exists('taxonomy_node_get_terms') && $term = reset(taxonomy_node_get_terms($node->nid))) {
@@ -92,7 +92,7 @@ function project_release_page() {
     case 'edit':
       if ($release = project_release_load(arg(3))) {
         $node = node_load(array('nid' => $release->nid));
-        if (node_access($node, 'update')) {
+        if (node_access('update', $node)) {
           $title = t('Edit release %version for %project', array('%version' => $release->version, '%project' => $node->title));
           $output = project_release_view($release);
           $output .= form(project_release_form($release, $error, $param), ($param['method'] ? $param['method'] : 'post'), $param['action'], $param['options']);
@@ -123,8 +123,8 @@ function project_release_page() {
     case t('Preview'):
       $edit = array2object($_POST['edit']);
       $node = node_load(array('nid' => $edit->nid));
-      if (node_access($node, 'update')) {
-        $edit->rid = arg(3);
+      if (node_access('update', $node)) {
+        //$edit->rid = arg(3);
         $error = project_release_validate($edit);
         $output = project_release_view($edit);
         $output .= form(project_release_form($edit, $error, $param), ($param['method'] ? $param['method'] : 'post'), $param['action'], $param['options']);
@@ -135,8 +135,8 @@ function project_release_page() {
     case t('Submit'):
       $edit = array2object($_POST['edit']);
       $node = node_load(array('nid' => $edit->nid));
-      if (node_access($node, 'update')) {
-        $edit->rid = arg(3);
+      if (node_access('update', $node)) {
+        //$edit->rid = arg(3);
         $error = project_release_validate($edit);
         if ($error) {
           $output = project_release_form($edit, $error, $param);
@@ -177,7 +177,7 @@ function project_release_overview($arg = 0) {
 
   $header = array(t('project'), t('downloads'), t('description'));
 
-  $result = db_query("SELECT DISTINCT(n.nid), n.title, n.teaser, r.tid FROM {node} n INNER JOIN {term_node} r ON n.nid = r.nid WHERE n.type = 'project_project' AND n.status = 1 ORDER BY r.tid, n.title");
+  $result = db_query("SELECT DISTINCT(n.nid), n.title, n.teaser, r.tid FROM {node} n LEFT JOIN {term_node} r ON n.nid = r.nid WHERE n.type = 'project_project' AND n.status = 1 ORDER BY r.tid, n.title");
 
   while ($node = db_fetch_object($result)) {
     if ($tid != ($tid = $node->tid)) {
@@ -204,7 +204,7 @@ function project_release_overview($arg = 0) {
       $rows[] = array(
         array('class' => 'project-name', 'data' => l($node->title, "node/view/$node->nid")),
         array('class' => 'project-download', 'data' => theme('item_list', $releases)),
-        array('class' => 'project-teaser', 'data' => strip_tags($node->teaser)),
+        array('class' => 'project-teaser', 'data' => check_output($node->teaser)),
       );
     }
   }
@@ -301,7 +301,7 @@ function project_release_view($project, $main = 0) {
       $links[] = l(t('download'), "project/releases/download/$release->rid", array('title' => t('Download: %size', array('%size' => format_size($file->size)))));
     }
 
-    if (node_access($project, 'update')) {
+    if (node_access('update', $project)) {
       $links[] = l(t('edit'), "project/releases/edit/$release->rid");
     }
 
@@ -324,7 +324,7 @@ function project_release_view($project, $main = 0) {
     $result = db_query('SELECT * FROM {project_releases} WHERE nid = %d AND status = 1 ORDER BY created DESC', $project->nid);
     if (db_num_rows($result)) {
       $header = array(t('version'), t('released'), t('changes'));
-      if (node_access($project, 'update') || node_access($project, 'delete')) {
+      if (node_access('update', $project) || node_access('delete', $project)) {
         $header[] = array('data' => t('operations'), 'colspan' => 2);
       }
       while ($release = db_fetch_object($result)) {
@@ -342,10 +342,10 @@ function project_release_view($project, $main = 0) {
         }
         $row[] = ($release->created) ? array('data' => format_date($release->created, 'custom', 'd M Y'), 'style' => 'vertical-align: top;') : '';
         $row[] = ($release->changes) ? l(t('changes'), "project/releases/view/$release->rid") : '';
-        if (node_access($project, 'update')) {
+        if (node_access('update', $project)) {
           $row[] = l('edit', "project/releases/edit/$release->rid");
         }
-        if (node_access($project, 'delete')) {
+        if (node_access('delete', $project)) {
           $row[] = l('delete', "project/releases/delete/$release->rid");
         }
         $rows[] = $row;
