@@ -343,7 +343,7 @@ function project_release_save($release) {
     // Prepare the query:
     foreach ($release as $key => $value) {
       if (in_array($key, $fields)) {
-        $k[] = db_escape_string($key);
+        $k[] = check_query($key);
         $v[] = $value;
         $s[] = "'%s'";
       }
@@ -370,7 +370,7 @@ function project_release_save($release) {
     // Prepare the query:
     foreach ($release as $key => $value) {
       if (in_array($key, $fields)) {
-        $q[] = db_escape_string($key) ." = '%s'";
+        $q[] = check_query($key) ." = '%s'";
         $v[] = $value;
       }
     }
