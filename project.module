@@ -6,8 +6,7 @@
 * systems.
 *
 * @author Kjartan Mannes
-* @drupal_user natrak@natrak.net
-* @drupal_package Project module
+* @package Project module
 */
 
 // $Id$
