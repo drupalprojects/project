@@ -7,7 +7,7 @@
 *
 * @author Kjartan Mannes
 * @drupal_user natrak@natrak.net
-* @drupal_module Project module
+* @drupal_package Project module
 */
 
 // $Id$
