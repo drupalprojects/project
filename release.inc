@@ -4,7 +4,7 @@
 function project_release_scan() {
   project_release_scan_directory();
   drupal_set_title(t('Release directory scan'));
-  return t('Scan successful.');
+  print theme('page', t('Scan successful.'));
 }
 
 function project_release_scan_directory($project = NULL) {
