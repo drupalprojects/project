@@ -7,7 +7,7 @@ function project_comment_page() {
       if (user_access('create project issues')) {
         $node = node_load(array('nid' => arg(3), 'type' => 'project_issue'));
 
-        foreach (array('nid', 'type', 'pid', 'rid', 'category', 'component', 'priority', 'assigned', 'state', 'title') as $var) {
+        foreach (array('nid', 'type', 'pid', 'rid', 'category', 'component', 'priority', 'assigned', 'sid', 'title') as $var) {
           $comment->$var = $node->$var;
         }
 
@@ -103,7 +103,7 @@ function project_comment_view($node, $main = 0) {
     'category' => 'Category',
     'priority' => 'Priority',
     'assigned' => 'Assigned to',
-    'state' => 'Status'
+    'sid' => 'Status'
   );
 
   $result = db_query('SELECT p.*, u.name FROM {project_comments} p INNER JOIN {users} u USING (uid) WHERE p.nid = %d ORDER BY p.created ASC', $node->nid);
@@ -168,7 +168,7 @@ function project_comment_save($edit) {
     $node = node_load(array('nid' => $edit->nid, 'type' => 'project_issue'));
 
     // Check if comment changed any of the state values and update the node if necessary
-    foreach (array('pid', 'rid', 'category', 'component', 'priority', 'assigned', 'state', 'title') as $var) {
+    foreach (array('pid', 'rid', 'category', 'component', 'priority', 'assigned', 'sid', 'title') as $var) {
       if ($node->$var != $edit->$var) {
         $data['old']->$var = $node->$var;
         $data['new']->$var = $edit->$var;
