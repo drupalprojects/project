@@ -785,7 +785,7 @@ function project_issue_query_user($value) {
 }
 
 function project_issue_query_rss($projects, $result) {
-  global $languages;
+  global $locale;
 
   if (db_num_rows($result)) {
     while ($node = db_fetch_object($result)) {
@@ -815,8 +815,7 @@ function project_issue_query_rss($projects, $result) {
   if (!$channel['title']) $channel['title'] = variable_get('site_name', 'drupal') .' - '. t('issues');
   if (!$channel['link']) $channel['link'] = url();
   if (!$channel['description']) $channel['description'] = variable_get('site_mission', '');
-  foreach ($languages as $key => $value) break;
-  if (!$channel['language']) $channel['language'] = $key ? $key : 'en';
+  if (!$channel['language']) $channel['language'] = $locale;
   $output .= "<rss version=\"$channel[version]\">\n";
   $output .= format_rss_channel($channel['title'], $channel['link'], $channel['description'], $items, $channel['language']);
   $output .= "</rss>\n";
