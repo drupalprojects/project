@@ -130,7 +130,7 @@ function project_comment_view($node, $main = 0) {
       if ($summary || $comment->body) {
         $rows[] = array(array('class' => 'header', 'data' => t('%count submitted by %user on %date', array('%count' => l("#$i", "node/$node->nid", array ('id' => "comment-$comment->cid", 'name' => "comment-$comment->cid"), NULL, "comment-$comment->cid"), '%user' => format_name($comment), '%date' => format_date($comment->created))) . theme('mark', node_mark($node->nid, $node->changed))));
         if ($summary) {
-          $rows[] = array(array('class' => 'summary', 'data' => theme('table', NULL, $summary)));
+          $rows[] = array(array('class' => 'summary', 'data' => theme('table', array(), $summary)));
         }
         if ($comment->body) {
           $rows[] = array(array('class' => 'content', 'data' => '<p>'. check_output($comment->body) .'</p>'));
@@ -141,7 +141,7 @@ function project_comment_view($node, $main = 0) {
       }
     }
     $output = '<div class="project">';
-    $output .= theme('table', NULL, $rows);
+    $output .= theme('table', array(), $rows);
     $output .= '</div>';
 
     return theme('box', t('Updates'), $output);
