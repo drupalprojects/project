@@ -630,7 +630,7 @@ function project_issue_admin_states_page() {
       $output = '<div>' . theme('table', $header, project_issue_admin_states()) . '</div>';
       $output .= form_submit(t('Save'));
  
-      return form($output);
+      print theme('page', form($output));
       break;
   }      
 }
@@ -700,7 +700,7 @@ function project_issue_admin_delete_state() {
       t('Delete'),
       t('Cancel'),
       $extra);
-    return $output;
+    print theme('page', $output);
   }
 }
 
