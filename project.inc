@@ -280,7 +280,7 @@ function project_project_releases() {
   $output = project_release_list($node);
 
   drupal_set_title(check_plain($node->title));
-  return $output;
+  print theme('page', $output);
 }
 
 function project_project_load($node) {
