@@ -334,7 +334,7 @@ function project_releases_list() {
     $versions = unserialize($versions->data);
   }
   else {
-    $result = db_query("SELECT version FROM {project_releases} WHERE status = 1 GROUP BY version ORDER BY created DESC;");
+    $result = db_query("SELECT version FROM {project_releases} WHERE status = 1 GROUP BY version, created ORDER BY created DESC;");
     $versions = array();
     while ($object = db_fetch_object($result)) {
       $version = preg_replace('/^(.+?)\.?(?:\d+)?$/', '\1', $object->version);
