@@ -37,7 +37,7 @@ function project_project_form(&$node) {
   $project .= form_textfield(t('CVS tree'), 'cvs', $node->cvs, 40, 255, t('Link to webcvs/viewcvs.'));
   $project .= form_textfield(t('Demo site'), 'demo', $node->demo, 40, 255, t('Link to a live demo.'));
 
-  $issue .= form_item(t('Issue tracker'), form_checkbox(t('Enable issue tracker'), 'issues', 1, $node->issues, t('Let users submit bug requests, patches, feature requests, support requests, etc.')));
+  $issue .= form_item(t('Issue tracker'), form_checkbox(t('Enable issue tracker'), 'issues', 1, isset($node->issues) ? $node->issues : 1, t('Let users submit bug requests, patches, feature requests, support requests, etc.')));
   if ($releases = project_release_load($node)) {
     $issue .= form_select(t('Default version'), 'version', $node->version, $releases, t('Default version for issues.'));
   }
