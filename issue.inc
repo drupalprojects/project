@@ -748,12 +748,14 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
     $links = array(
       l(t('submit'), "node/add/project_issue/$project->uri"),
       l(t('statistics'), "project/issues/statistics/$project->uri"),
+      l(t('advanced search'), "project/issues/search/$project->uri", array('title' => t('Use the advanced search page to find %project issues.', array('%project' => $project->uri)))),
     );
   }
   else {
     $links = array(
       l(t('submit'), "node/add/project_issue"),
       l(t('statistics'), "project/issues/statistics"),
+      l(t('advanced search'), "project/issues/search/", array('title' => t('Use the advanced search page for finding issues.'))),
     );
   }
 
@@ -806,7 +808,6 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
       form_select(t('Priority'), 'priorities', $query->priorities, $priorities),
       form_select(t('Category'), 'categories', $query->categories, $categories),
       form_hidden('users', $query->users) . form_submit(t('Search')),
-      l(t('advanced search'), 'project/issues/search'. ($project->uri ? "/$project->uri" : ""))
     ));
     $form .= form(theme('table', array(), $rows));
   }
