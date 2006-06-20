@@ -283,6 +283,14 @@ function project_project_releases() {
   print theme('page', $output);
 }
 
+/**
+ * hook_nodeapi() implementation specific for project nodes.
+ * @see project_nodeapi().
+ */
+function project_project_nodeapi(&$node, $op, $arg) {
+  // Empty function at this point, just a stub.
+}
+
 function project_project_load($node) {
   $node = db_fetch_object(db_query('SELECT * FROM {project_projects} WHERE nid = %d', $node->nid));
 

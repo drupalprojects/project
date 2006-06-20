@@ -5,6 +5,10 @@ function project_issue_node_name() {
   return t('issue');
 }
 
+/**
+ * hook_nodeapi() implementation specific for issue nodes.
+ * @see project_nodeapi().
+ */
 function project_issue_nodeapi(&$node, $op, $arg) {
   global $user;
   switch ($op) {

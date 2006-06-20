@@ -266,6 +266,24 @@ function project_menu($may_cache) {
   return $items;
 }
 
+/**
+ * hook_nodeapi() implementation. This just decides what type of node
+ * is being passed, and calls the appropriate type-specific hook.
+ *
+ * @see project_project_nodeapi().
+ * @see project_issue_nodeapi().
+ */
+function project_nodeapi(&$node, $op, $arg) {
+  switch ($node->type) {
+    case 'project_project':
+      project_project_nodeapi(&$node, $op, $arg);
+      break;
+    case 'project_issue':
+      project_issue_nodeapi(&$node, $op, $arg);
+      break;
+  }
+}
+
 function project_page() {
   global $user;
 
