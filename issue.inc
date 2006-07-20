@@ -28,15 +28,6 @@ function project_issue_nodeapi(&$node, $op, $arg) {
 
 function project_issue_page() {
   switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
-    case 'search':
-      $project = project_project_retrieve(arg(3));
-      if ($project->nid && node_access('view', $project)) {
-        print theme('page', project_issue_query($project));
-      }
-      else {
-        print theme('page', project_issue_query());
-      }
-      break;
     case 'rss':
       $project = project_project_retrieve(arg(3));
       if ($project->nid && node_access('view', $project)) {
@@ -552,6 +543,16 @@ function project_issue_count($pid) {
     $state[$data->sid] = $data->count;
   }
   return $state;
+}
+
+function project_issue_search_page($project_name = NULL, $query = NULL) {
+  $project = project_project_retrieve($project_name);
+  if ($project->nid && node_access('view', $project)) {
+     print theme('page', project_issue_query($project, $query));
+  }
+  else {
+    print theme('page', project_issue_query(0, $query));
+  }
 }
 
 function project_issue_query($project = 0, $query = NULL) {
