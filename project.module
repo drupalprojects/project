@@ -292,10 +292,10 @@ function project_menu($may_cache) {
 function project_nodeapi(&$node, $op, $arg) {
   switch ($node->type) {
     case 'project_project':
-      project_project_nodeapi(&$node, $op, $arg);
+      project_project_nodeapi($node, $op, $arg);
       break;
     case 'project_issue':
-      project_issue_nodeapi(&$node, $op, $arg);
+      project_issue_nodeapi($node, $op, $arg);
       break;
   }
 }
