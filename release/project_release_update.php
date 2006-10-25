@@ -156,9 +156,10 @@ function convert_release($old_release) {
   // Now, depending on the project and version, fill in the rest.
   if ($old_release->nid == 3060) {
     if ($old_release->version == 'cvs') {
+      // TODO: maybe we should just leave this "release" alone, 
       $node->version_major = 5;
       $node->version_patch = 0;
-      $node->version_extra = '-dev';
+      $node->version_extra = 'dev';
       $node->rebuild = 1;
       $node->tag = 'TRUNK';
     }
