@@ -670,7 +670,7 @@ function project_release_view(&$release, $teaser = FALSE, $page = FALSE) {
   }
   $output .= theme('links', $links);
 
-  $release->body = '<div class="project-release">' . $output . '</div>' . check_markup($release->body, $release->format);
+  $release->body = '<div class="project-release">' . $output . '</div>' . check_markup($release->body, $release->format, FALSE);
 }
 
 /**
