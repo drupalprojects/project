@@ -387,6 +387,7 @@ function populate_project_release_api_taxonomy() {
   $vocab['hierarchy'] = 0;
   $vocab['required'] = 1;
   $vocab['weight'] = -5;
+  $vocab['module'] = 'project_release';
   taxonomy_save_vocabulary($vocab);
 
   // Now, populate the terms we'll need:
