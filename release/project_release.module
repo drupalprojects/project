@@ -77,6 +77,7 @@ function project_release_settings() {
     '#options' => array('Disabled', 'Enabled'),
   );
 
+  // TODO: this is broken, and is breaking the project browsing pages
   $form['project_release_overview'] = array(
     '#type' => 'radios',
     '#title' => t('Default release overview'),
