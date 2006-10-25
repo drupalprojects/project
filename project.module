@@ -502,9 +502,9 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
 
       if (variable_get('project_browse_releases', 0)) {
         $release_settings = array(
-          'fields' => array('pr.path', 'pr.version', 'MAX(pr.changed) AS changed', 'COUNT(*) AS release_count'),
-          'joins' => array('INNER JOIN {project_release_nodes} pr ON n.nid = pr.nid'),
-          'wheres' => array("pr.path <> ''"),
+          'fields' => array('pr.file_path', 'pr.version', 'MAX(pr.file_date) AS changed', 'COUNT(*) AS release_count'),
+          'joins' => array('INNER JOIN {project_release_nodes} pr ON n.nid = pr.pid'),
+          'wheres' => array("pr.file_path <> ''"),
           'group_bys' => array('n.nid'),
           'parameters' => array($version)
         );
