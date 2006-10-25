@@ -22,7 +22,7 @@ function project_install() {
           KEY project_projects_uri (uri(8))
         ) TYPE=MyISAM
         /*!40100 DEFAULT CHARACTER SET utf8 */;");
-
+      break;
     case 'pgsql':
       db_query("CREATE TABLE {project_projects} (
           nid int NOT NULL default '0',
