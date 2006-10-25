@@ -405,22 +405,6 @@ function project_project_view(&$node, $teaser = false, $page = false) {
   }
 }
 
-function project_project_releases() {
-  $node = node_load(arg(1));
-
-  // Breadcrumb navigation
-  $breadcrumb[] = array('path' => 'node/'. $node->nid .'/', 'title' => $node->title);
-  $breadcrumb[] = array('path' => 'node/'. arg(1) .'/release', 'title' => t('Releases'));
-  $breadcrumb = project_project_set_location($node, $breadcrumb);
-
-  menu_set_location($breadcrumb);
-
-  $output = project_release_list($node);
-
-  drupal_set_title(check_plain($node->title));
-  return $output;
-}
-
 function project_project_load($node) {
   $project = db_fetch_object(db_query('SELECT * FROM {project_projects} WHERE nid = %d', $node->nid));
 
