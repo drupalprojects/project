@@ -339,7 +339,7 @@ function project_project_view(&$node, $teaser = false, $page = false) {
         $links[] = l(t('View other releases'), 'node/'. $node->nid .'/release');
       }
     }
-    if (node_access('update', $node) && !variable_get('project_release_directory', '')) {
+    if (node_access('update', $node) && !variable_get('project_release_directory', '') && $node->releases) {
       $links[] = l(t('Add new release'), 'node/add/project_release/'. $node->nid);
     }
     if ($links) {
