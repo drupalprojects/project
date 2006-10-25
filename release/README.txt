@@ -16,6 +16,12 @@ code that understands your local tag and branch naming conventions.
 This functionality is only available in the DRUPAL-4-7--2 branch of
 the contributions/module/cvslog directory.
 
+If you enable this CVS integration, you can setup a script that
+periodically queries the database for new release nodes and creates
+release packages based on the specified CVS tags or branches. An
+example script (the one in use on drupal.org to package contributions)
+is provided in the package-release-nodes.php script.
+
 Send feature requests and bug reports to the issue tracking system for
 the project module: http://drupal.org/node/add/project_issue/project,
 and specify "Releases" as the component.
