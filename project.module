@@ -72,6 +72,7 @@ function project_block($op = 'list', $delta = 0) {
 function project_node_info() {
   return array(
     'project_project' => array('name' => t('project'), 'base' => 'project_project'),
+    'project_release' => array('name' => t('project release'), 'base' => 'project_release'),
   );
 }
 
