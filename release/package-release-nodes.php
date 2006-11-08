@@ -300,6 +300,7 @@ function package_release_contrib($nid, $id, $rev, $dir, $check_new) {
   // TODO: need better error checking
 
   package_release_update_node($nid, $file_path);
+  return true;
 }
 
 // ------------------------------------------------------------
