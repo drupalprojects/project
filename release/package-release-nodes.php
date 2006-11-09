@@ -170,13 +170,13 @@ function package_releases($type) {
     $nid = $release->nid;
     $rev = ($tag == 'TRUNK' || $tag == 'HEAD') ? '-A' : "-r $tag";
     watchdog('release_package', t("Working on %type release: %id from $type: %tag", array('%type' => $release->rid == 1 ? t('core') : t('contrib'), '%id' => theme_placeholder($id), '%tag' => theme_placeholder($tag))));
-    $id = escapeshellcmd(filter_xss($id, array()));
-    $rev = escapeshellcmd(filter_xss($rev, array()));
+    $id = escapeshellcmd($id);
+    $rev = escapeshellcmd($rev);
     if ($release->rid == 1) {
       $built = package_release_core($nid, $id, $rev, $check_new);
     }
     else {
-      $dir = escapeshellcmd(filter_xss($release->directory, array()));
+      $dir = escapeshellcmd($release->directory);
       $built = package_release_contrib($nid, $id, $rev, $dir, $check_new);
     }
     if ($built) {
