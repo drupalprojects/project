@@ -291,7 +291,7 @@ function project_release_form(&$release, &$param) {
     '#default_value' => $release->body,
     '#rows' => 10,
     '#cols' => 40,
-    '#required' => TRUE,
+    '#required' => $admin ? FALSE : TRUE,
     '#description' => t('Enter a description of this release, such as a list of the major changes or updates.'),
   );
   $form['body_filter']['format'] = filter_form($node->format);
