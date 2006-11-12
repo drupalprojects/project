@@ -390,7 +390,7 @@ function initialize_repository_info() {
  */
 function package_release_update_node($nid, $file_path) {
   global $dest_root;
-  $full_path = $dest_root . '/' . $file;
+  $full_path = $dest_root . '/' . $file_path;
 
   // Now that we have the official file, compute some metadata:
   $file_date = filemtime($full_path);
