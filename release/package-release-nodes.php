@@ -2,6 +2,7 @@
 <?php
 
 // $Id$
+// $Name$
 
 /**
  * @file

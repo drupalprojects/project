@@ -1,5 +1,6 @@
 <?php
-/* $Id$ */
+// $Id$
+// $Name$
 
 define('PROJECT_RELEASE_DEFAULT_VERSION_FORMAT', '!major%minor%patch#extra');
 define('PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG', t("The version format string can only contain letters, numbers, and the characters . _ and - (in addition to the special characters used for identifying variables: % ! and #)."));
