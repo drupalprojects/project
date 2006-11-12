@@ -269,3 +269,6 @@ project.module
 -----------------
 project.module
 - initial commit of project.module.
+
+$Id$
+$Name$

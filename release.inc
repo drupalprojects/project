@@ -1,5 +1,6 @@
 <?php
-/* $Id$ */
+// $Id$
+// $Name$
 
 function project_release_scan() {
   project_release_scan_directory();

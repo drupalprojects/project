@@ -1,5 +1,6 @@
 <?php
-/* $Id$ */
+// $Id$
+// $Name$
 
 /**
  * Implementation of hook_form().
