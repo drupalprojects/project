@@ -439,7 +439,8 @@ function file_find_youngest($dir, $timestamp, $exclude) {
           $timestamp = file_find_youngest("$dir/$file", $timestamp, $exclude);
         }
         else {
-          $timestamp = (filectime("$dir/$file") > $timestamp) ? filectime("$dir/$file") : $timestamp;
+          $mtime = filemtime("$dir/$file");
+          $timestamp = ($mtime > $timestamp) ? $mtime : $timestamp;
         }
       }
     }
