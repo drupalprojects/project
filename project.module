@@ -590,6 +590,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     // TODO: this needs help to handle projects with N branches for the
     // same compatibility version...
     if ($project->release_count > 1) {
+      unset($values);
       $values[] = $project->nid;
       if ($version != -1) {
         $VERSION_JOIN = 'INNER JOIN {term_node} t ON p.nid = t.nid';
