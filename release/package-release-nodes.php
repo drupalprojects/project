@@ -172,7 +172,7 @@ function package_releases($type) {
     $tag = $release->tag;
     $nid = $release->nid;
     $rev = ($tag == 'TRUNK') ? '-r HEAD' : "-r $tag";
-    watchdog($msg_level, t("Working on %type release: %id from $type: %tag", array('%type' => $release->rid == 1 ? t('core') : t('contrib'), '%id' => theme_placeholder($id), '%tag' => theme_placeholder($tag))));
+    watchdog($msg_level, t("Working on %type release: %id from $type: %tag", array('%type' => $release->rid == 1 ? t('core') : t('contrib'), '%id' => theme('placeholder', $id), '%tag' => theme('placeholder', $tag))));
     $id = escapeshellcmd($id);
     $version = escapeshellcmd($release->version);
     $rev = escapeshellcmd($rev);
