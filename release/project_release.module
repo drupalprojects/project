@@ -109,7 +109,8 @@ function project_release_settings() {
       '#required' => TRUE,
       '#description' => t('Default release version to list on the overview page.'),
     );
-    $form['#validate'] = array_merge($form['#validate'], array('project_release_settings_validate' => array()));
+    $setting_valid = array('project_release_settings_validate' => array());
+    $form['#validate'] = isset($form['#validate']) ? array_merge($form['#validate'], $setting_valid) : $setting_valid;
   }
   return $form;
 }
