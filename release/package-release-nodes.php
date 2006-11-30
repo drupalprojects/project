@@ -345,7 +345,7 @@ function package_release_contrib($nid, $id, $version, $rev, $dir) {
       }
     }
     else {
-      watchdog($err_level, t("ERROR: %uri translation does not contain a %uri_po file, not packaging", array('%uri' => theme('placeholder', $uri), '%uri_po' => theme('placeholder', "$uri.po"))));
+      watchdog($err_level, t("ERROR: %uri translation does not contain a %uri_po file for version %version, not packaging", array('%uri' => theme('placeholder', $uri), '%uri_po' => theme('placeholder', "$uri.po"), '%version' => theme('placeholder', $version))));
       return false;
     }
   }
