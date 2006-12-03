@@ -432,7 +432,7 @@ function project_project_access($op, $node) {
       return FALSE;
     case 'update':
     case 'delete':
-      return $user->uid && ($user->uid == $node->uid || user_access('administer projects'));
+      return project_check_admin_access($node);
   }
 }
 
