@@ -7,6 +7,7 @@
  */
 function project_project_form(&$node) {
   global $user;
+  project_project_set_breadcrumb($node);
 
   /*
   ** Allow the following fields to be initialized via $_GET
