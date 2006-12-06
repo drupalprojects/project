@@ -630,8 +630,6 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     }
 
     // Make sure we have the latest release
-    // TODO: this needs help to handle projects with N branches for the
-    // same compatibility version...
     if ($project->release_count > 1) {
       unset($values);
       $values[] = $project->nid;
