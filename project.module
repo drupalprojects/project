@@ -272,8 +272,7 @@ function project_menu($may_cache) {
     theme_add_style(drupal_get_path('module', 'project') .'/project.css');
     if (arg(0) == 'node' && is_numeric(arg(1))) {
       $node = node_load(arg(1));
-      if ($node->type == 'project_project' && 
-          project_check_admin_access($node) &&
+      if ($node->type == 'project_project' && node_access('update', $node) &&
           (module_exist('project_issue') || module_exist('project_release'))) {
         $items[] = array(
           'path' => 'node/'. arg(1) .'/edit/project',
