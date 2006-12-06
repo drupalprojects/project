@@ -16,3 +16,28 @@
 }
 
 .node-form .project-release .version-elements fieldset {display: inline-table;}
+
+/***************************
+* CSS for tables of releases
+*/
+table.releases {
+  width: 100%;
+  margin-top: .5em;
+}
+
+table.releases .release-title {
+  width: 30%;
+}
+
+table.releases .release-date {
+  width: 15%;
+}
+
+table.releases .release-size {
+  width: 15%;
+}
+
+table.releases .release-links {
+  width: 40%;
+}
+
