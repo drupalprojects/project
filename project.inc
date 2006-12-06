@@ -432,8 +432,9 @@ function project_project_access($op, $node) {
       }
       return FALSE;
     case 'update':
-    case 'delete':
       return project_check_admin_access($node);
+    case 'delete':
+      return project_check_admin_access($node, FALSE);
   }
 }
 
