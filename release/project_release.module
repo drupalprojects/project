@@ -1208,7 +1208,7 @@ function project_release_table($project, $versions = 3, $releases_per_version = 
       $links[] = l(t('Edit'), "node/$release->nid/edit");
     }
     if (!is_array($items[$release->tid])) {
-      $items[$release->tid][] = array();
+      $items[$release->tid] = array();
     }
     $items[$release->tid][] = array(
       // class of <tr>
