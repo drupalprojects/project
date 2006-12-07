@@ -1116,10 +1116,12 @@ function project_release_project_nodeapi(&$node, $op, $arg) {
 
 /**
  * Returns the appropriate release download table for a project node.
- * TODO: this should be a full-blown table
  * TODO: this should be themeable.
  */
 function project_release_project_download_table($node) {
+  if (!$node->releases) {
+    return;
+  }
   $output = '<h3>' . t('Releases') . '</h3>';
   $output .= project_release_table($node, 1, 1, FALSE, 'default-official', t('Official releases'));
   $output .= project_release_table($node, 1, 3, FALSE, 'snapshot', t('Development snapshots'));
