@@ -1016,6 +1016,7 @@ function project_release_project_edit_form_submit($form_id, $form_values) {
       }
     }
   }
+  drupal_set_message(t('Release settings have been saved.'));
 }
 
 /**
