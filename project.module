@@ -512,7 +512,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
           'prefix' => NULL,
           'glue' => NULL,
           'pieces' => array(
-            $term->tid
+            $type->tid
           )
         )
       );
