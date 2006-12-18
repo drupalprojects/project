@@ -432,7 +432,7 @@ function project_page_user($arg = 0) {
     }
     $user = db_fetch_object(db_query("SELECT uid, name FROM {users} WHERE $where", $arg));
     if ($user) {
-      drupal_set_title(t('Projects by %user', array('%user' => $user->name)));
+      drupal_set_title(t('Projects by %user', array('%user' => check_plain($user->name))));
     }
   }
 
