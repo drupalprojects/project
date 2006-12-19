@@ -15,15 +15,6 @@ function project_project_form(&$node) {
     $node->components = "Code\nDocumentation\nMiscellaneous\nUser interface";
   }
 
-  /*
-  ** Allow the following fields to be initialized via $_GET
-  */
-  foreach (array('uri', 'mail', 'homepage', 'issues', 'mail_reminder', 'mail_digest') as $field) {
-    if ($_GET['edit'][$field]) {
-      $node->$field = $_GET['edit'][$field];
-    }
-  }
-
   //$output .= form_textfield(t('Full project name'), 'title', $node->title, 40, 255, t('This is the publicly visible project name.'));
   $project .= form_textarea(t('Full description'), 'body', $node->body, 40, 10, null, null, true);
   $project .= filter_form('format', $node->format);
