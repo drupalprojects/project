@@ -404,11 +404,9 @@ function project_project_releases() {
   $node = node_load(arg(1));
 
   // Breadcrumb navigation
-  $breadcrumb[] = array('path' => 'node/'. $node->nid .'/', 'title' => $node->title);
-  $breadcrumb[] = array('path' => 'node/'. arg(1) .'/release', 'title' => t('Releases'));
-  $breadcrumb = project_project_set_location($node, $breadcrumb);
-
-  menu_set_location($breadcrumb);
+  $breadcrumb[] = l($node->title, 'node/' . $node->nid);
+  $breadcrumb[] = l(t('Releases'), 'node/'. $node->nid .'/release');
+  project_project_set_breadcrumb($node, $breadcrumb);
 
   $output = project_release_list($node);
 
