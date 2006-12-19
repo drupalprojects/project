@@ -8,15 +8,6 @@
 function project_project_form(&$node) {
   global $user;
 
-  /*
-  ** Allow the following fields to be initialized via $_GET
-  */
-  foreach (array('uri', 'mail', 'homepage') as $field) {
-    if ($_GET['edit'][$field]) {
-      $node->$field = $_GET['edit'][$field];
-    }
-  }
-
   $form['#prefix'] = '<div class="project">';
 
   /* Project taxonomy */
