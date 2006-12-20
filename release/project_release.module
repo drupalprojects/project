@@ -689,7 +689,7 @@ function project_release_view(&$release, $teaser = FALSE, $page = FALSE) {
   if ($release->created) {
     $output .= '<small>' . t('First released: %created', array('%created' => format_date($release->created))) . '</small><br />';
   }
-  if ($release->changed  && ($release->changed != $release->created)) {
+  if ($release->file_date  && ($release->file_date != $release->created)) {
     $output .= '<small>' . t('Last updated: %changed', array('%changed' => format_date($release->file_date))) . '</small><br />';
   }
   $output .= theme('links', $links);
