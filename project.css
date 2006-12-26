@@ -111,10 +111,6 @@
   display: block;
 }
 
-.node-form .project .form-checkbox {
-  display: inline;
-}
-
 .node-form .project .project-taxonomy-element {
   float: left;
   padding-right: 2em;
