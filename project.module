@@ -640,7 +640,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     $project->links = array();
     if ($version != -1) {
       if ($project->file_path) {
-        $project->links[] = l(t('Download'), file_create_url($project->file_path));
+        $project->links[] = project_release_download_link($project->file_path, t('Download'));
       }
     }
     else {
