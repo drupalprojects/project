@@ -271,7 +271,7 @@ function project_issue_form(&$node, &$param) {
     // Load the project and initialize some support arrays.
     $project = node_load(array('nid' => $node->pid, 'type' => 'project_project'));
     if (trim($project->help)) {
-      drupal_set_message($project->help);
+      drupal_set_message(filter_xss($project->help));
     }
     if ($releases = project_release_load($project)) {
       $releases = array(t('<none>')) + $releases;
