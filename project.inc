@@ -374,7 +374,7 @@ function project_project_view(&$node, $teaser = false, $page = false) {
     }
 
     if ($node->cvs) {
-      $links[] = l(t('Browse the CVS repository'), $node->cvs));
+      $links[] = l(t('Browse the CVS repository'), $node->cvs);
     }
 
     if (module_exist('cvs')) {
