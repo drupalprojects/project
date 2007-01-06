@@ -280,6 +280,7 @@ function project_issue_form(&$node, &$param) {
     if ($project->components) {
       $components = array(t('<none>'));
       foreach ($project->components as $component) {
+        $component = check_plain($component);
         $components[$component] = $component;
       }
     }
@@ -553,6 +554,7 @@ function project_issue_query($project = 0, $query = NULL) {
   $components = array();
   if ($project->nid) {
     foreach ($project->components as $component) {
+      $component = check_plain($component);
       $components[$component] = $component;
     }
     $versions = project_release_load($project, 0);
