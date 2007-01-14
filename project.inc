@@ -316,12 +316,19 @@ function project_project_access($op, $node) {
 
   switch ($op) {
     case 'view':
-      return user_access('access projects') || (user_access('access own projects') && $node->uid == $user->uid);
+      if (user_access('access own projects') && $node->uid == $user->uid) {
+        return TRUE;
+      }
+      if (!user_access('access projects')) {
+        return FALSE;
+      }
     case 'create':
       return user_access('maintain projects') && $user->uid;
     case 'update':
     case 'delete':
-      return $user->uid && ($user->uid == $node->uid || user_access('administer projects'));
+      if ($user->uid && ($user->uid == $node->uid || user_access('administer projects'))) {
+        return TRUE;
+      }
   }
 }
 
