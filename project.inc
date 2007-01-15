@@ -322,6 +322,7 @@ function project_project_access($op, $node) {
       if (!user_access('access projects')) {
         return FALSE;
       }
+      break;
     case 'create':
       return user_access('maintain projects') && $user->uid;
     case 'update':
@@ -329,6 +330,7 @@ function project_project_access($op, $node) {
       if ($user->uid && ($user->uid == $node->uid || user_access('administer projects'))) {
         return TRUE;
       }
+      break;
   }
 }
 
