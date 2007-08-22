@@ -215,7 +215,7 @@ function project_release_form(&$release, &$param) {
     '#type' => 'hidden',
     '#default_value' => $release->nid,
   );
-  
+
   if (!form_get_errors()) {
     $form['submit'] = array(
       '#type' => 'button',
