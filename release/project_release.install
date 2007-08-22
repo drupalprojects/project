@@ -73,7 +73,7 @@ function project_release_install() {
             tid int NOT NULL default '0',
             major int NOT NULL default '0',
             PRIMARY KEY (nid, tid)
-          );"); 
+          );");
       }
       break;
   }
@@ -107,7 +107,7 @@ function project_release_update_1() {
             tid int NOT NULL default '0',
             major int NOT NULL default '0',
             PRIMARY KEY (nid, tid)
-          );"); 
+          );");
       }
       break;
   }
