@@ -1,5 +1,4 @@
 /* $Id$ */
-/* $Name$ */
 
 .project table {
   width: auto;
@@ -51,3 +50,8 @@
 ul.project-terms {
   padding-left: 1.5em;
 }
+
+.project-feed-icon {
+  padding-left: 1em;
+}
+
