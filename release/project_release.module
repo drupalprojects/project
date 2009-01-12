@@ -1795,7 +1795,8 @@ function project_release_table($project, $table_type = 'recommended', $release_t
     return $cached->data;
   }
 
-  $select = $join = $where = $order_by = '';
+  $selects = array();
+  $join = $where = $order_by = '';
   $tids = project_release_compatibility_list();
   if ($tids) {
     unset($tids[-1]); // get rid of that one.
