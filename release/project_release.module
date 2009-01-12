@@ -479,6 +479,7 @@ function _project_release_form_add_text_element(&$form, $title, $value, $is_edit
  * @ingroup project_release_node
  */
 function project_release_validate(&$edit, $form) {
+  global $user;
   global $form_values;
 
   if ($_POST['validate_version']) {
