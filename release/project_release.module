@@ -772,6 +772,7 @@ function project_release_delete($node) {
   if ($node->file_path) {
     file_delete(file_create_path($node->file_path));
   }
+  db_query("DELETE FROM {project_release_package_errors} WHERE nid = %d", $node->nid);
   db_query("DELETE FROM {project_release_nodes} WHERE nid = %d", $node->nid);
 }
 
