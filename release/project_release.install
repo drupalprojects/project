@@ -185,7 +185,7 @@ function project_release_update_1() {
 
   // Now, add in values for any other distinct branches we know about
   // for each project, for all active compatibility terms.
-  $tids = variable_get('project_release_active_compatibility_tids', '');
+  $tids = variable_get('project_release_active_compatibility_tids', array());
   if (!empty($tids)) {
     $where_tid = 'AND tn.tid IN (' . implode(',', array_filter($tids)) . ') ';
   }
