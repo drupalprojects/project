@@ -168,6 +168,18 @@ class ProjectTestCase extends ProjectWebTestCase {
     $this->assertRaw($edit['project[demo]'], t('Project changelog displayed properly.'));
     $this->assertText($edit['body'], t('Project description found.'));
   }
+
+  function testProjectEdit() {
+    $project = $this->createProject();
+
+    // Check the the URI is properly hidden when updates are not allowed
+    $this->drupalGet('node/'. $project->nid .'/edit');
+    $this->assertFieldByName('project[uri]', '', 'Shortname field displayed correctly');
+
+    variable_set('project_allow_uri_update', FALSE);
+    $this->drupalGet('node/'. $project->nid .'/edit');
+    $this->assertNoFieldByName('project[uri]', '', 'Shortname field locked from editing');
+  }
 }
 
 class ProjectDrupalOrgWebTestCase extends ProjectWebTestCase {
