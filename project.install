@@ -98,6 +98,12 @@ function project_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'sandbox' => array(
+        'description' => 'Indicate whether or not this project is sandboxed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'primary key' => array('nid'),
     'indexes' => array(
@@ -223,6 +229,34 @@ function project_update_6002() {
   // per-project permissions.
   if (module_exists('cvs')) {
     $ret[] = update_sql("INSERT INTO {project_maintainer} (nid, uid, edit_project, administer_maintainers) SELECT cpm.nid, cpm.uid, 1, 0 FROM {cvs_project_maintainers} cpm INNER JOIN {node} n ON cpm.nid = n.nid WHERE cpm.uid != n.uid");
+  }
+
+  return $ret;
+}
+
+/**
+ * Add {project_projects}.sandbox column and update permissions.
+ */
+function project_update_6003() {
+  $ret = array();
+
+  // Add the new sandbox column to the project_projects table.
+  $field = array(
+    'description' => 'Indicate whether or not this project is sandboxed.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field($ret, 'project_projects', 'sandbox', $field);
+
+  // Update permissions from 'maintain projects' to 'create full projects'
+  $results = db_query("SELECT * FROM {permission}");
+  while ($row = db_fetch_object($results)) {
+    if (strpos($row->perm, 'maintain projects') !== FALSE) {
+       db_query('DELETE FROM {permission} WHERE rid = %d', $row->rid);
+      $perms = str_replace('maintain projects', 'create full projects', $row->perm);
+      db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $row->rid, $perms);
+    }
   }
 
   return $ret;

@@ -168,7 +168,8 @@ function project_node_info() {
 function project_perm() {
   $perms = array(
     'administer projects',
-    'maintain projects',
+    'create sandbox projects',
+    'create full projects',
     'access projects',
     'access own projects',
     'delete any projects',
@@ -350,6 +351,20 @@ function project_settings_form() {
       '#default_value' => variable_get('project_solr_project_release_api_tids_alias', 'drupal_core'),
     );
   }
+
+  $form['sandbox'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sandbox settings'),
+    '#collapsible' => TRUE,
+  );
+  $form['sandbox']['project_sandbox_numeric_shortname'] = array(
+    '#title' => t('Auto generate short name for sandboxes'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('project_sandbox_numeric_shortname', FALSE),
+    '#description' => t('If checked, projects marked as sandboxes will be have their shortname automatically generated using a unique numeric identifier.'),
+  );
+
+
   return system_settings_form($form);
 }
 
@@ -542,6 +557,15 @@ function project_menu() {
     'access arguments' => array('update', 1),
     'weight' => -5, 'type' => MENU_DEFAULT_LOCAL_TASK,
   );
+  $items['node/%project_edit_project/edit/promote'] = array(
+    'title' => 'Promote',
+    'page callback' => 'project_promote_project_page',
+    'page arguments' => array(1),
+    'access callback' => 'project_promote_project_access',
+    'access arguments' => array(1),
+    'file' => 'project.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
   return $items;
 }
 
@@ -604,6 +628,19 @@ function project_edit_project_load($nid) {
 }
 
 /**
+ * Menu access callback for the promote tab at node/%project_node/edit/promote.
+ *
+ * @param $node
+ *   The project object to check access against.
+ */
+function project_promote_project_access($node) {
+  // This callback is only valid for projects that are sandboxes. Further, 
+  // restrict to users with either 'administer projects' or users that have
+  // access to edit the project and 'create full projects' permission.
+  return ($node->project['sandbox'] && (user_access('administer projects') || (project_user_access($node, 'edit project') && user_access('create full projects'))));
+}
+
+/**
  * See if the current user has the given permission on a given project.
  *
  * @param $project
@@ -628,7 +665,7 @@ function project_user_access($project, $permission) {
      return TRUE;
   }
 
-  if (user_access('maintain projects')) {
+  if (user_access('create sandbox projects') || user_access('create full projects')) {
     // Project owners are treated as super users and can always access.
     if ($user->uid == $project_obj->uid) {
        return TRUE;
@@ -741,7 +778,7 @@ function project_project_access($op, $node, $account) {
       }
       break;
     case 'create':
-      if ($account->uid && user_access('maintain projects')) {
+      if ($account->uid && (user_access('create sandbox projects') || user_access('create full projects'))) {
         // Since this CVS access checking is non-standard, we need to
         // special-case uid 1 to always allow everything.
         if ($account->uid != 1 && module_exists('cvs') && variable_get('cvs_restrict_project_creation', 1)) {
@@ -1503,3 +1540,48 @@ function project_token_values($type = 'all', $object = NULL) {
   }
 }
 
+/**
+ * Validate the short name (uri) of a project node.
+ *
+ * @param $node
+ *   A project node with relevant fields pre-filled
+ * @return
+ *   A string containing an error message, or FALSE if no errors were found.
+ */
+function project_validate_project_shortname(&$node) {
+  if (empty($node->project['uri'])) {
+    if (variable_get('project_sandbox_numeric_shortname', FALSE) && $node->project['sandbox']) {
+      $node->project['uri'] = '';
+    }
+    else {
+      return t('A short project name is required.');
+    }
+  }
+  else {
+    // Make sure uri only includes valid characters
+    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $node->project['uri'])) {
+      return t('Please only use alphanumeric characters for the project name.');
+    }
+
+    // Make sure uri isn't already in use, or reserved.  Includes all X from
+    // project/issues/X paths used in project_issues module
+    $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
+    if (project_use_taxonomy()) {
+      $terms = taxonomy_get_tree(_project_get_vid());
+      foreach ($terms as $i => $term) {
+        if ($term->depth == 0) {
+          $reserved_names[] = strtolower($term->name);
+        }
+      }
+    }
+    if (in_array(strtolower($node->project['uri']), $reserved_names)) {
+      return t('This project name is reserved.');
+    }
+    $existing_nid = project_get_nid_from_uri($node->project['uri']);
+    if (!empty($existing_nid) && $existing_nid != $node->nid) {
+      return t('This project name is already in use.');
+    }
+  }
+
+  return FALSE;
+}

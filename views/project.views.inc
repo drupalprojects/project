@@ -189,6 +189,26 @@ function project_views_data() {
     ),
   );
 
+  // sandbox
+  $data['project_projects']['sandbox'] = array(
+    'title' => t('Sandbox'),
+    'help' => t('Indicate whether or not this project is a sandbox.'),
+    'field' => array(
+      'group' => t('Project'),
+      'handler' => 'views_handler_field_boolean',
+      'click sortable' => TRUE,
+     ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_boolean_operator ',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+  );
+
   return $data;
 }
 

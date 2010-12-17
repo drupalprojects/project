@@ -41,3 +41,31 @@ Drupal.projectSetTaxonomy = function (tid) {
     }
   });
 }
+
+Drupal.behaviors.projectSandboxShortname = function (context) {
+
+  $('div#edit-project-sandbox-wrapper input:not(.projectSandboxShortname-processed)', context).addClass('projectSandboxShortname-processed').each(function() {
+    // Add required markup to field label
+    Drupal.projectMarkUriRequired();
+    // Only toggle the field and required label if numeric short name is turned on
+    if (Drupal.settings.project.project_sandbox_numeric_shortname) {
+      $(this).click(function () {
+        if (this.checked) {
+          $('div#edit-project-uri-wrapper').hide();
+        }
+        else {
+          $('div#edit-project-uri-wrapper').show();
+        }
+      });
+      // Set the default value when loading the page
+      if (this.checked) {
+        $('div#edit-project-uri-wrapper').hide();
+      }
+    }
+  });
+}
+
+Drupal.projectMarkUriRequired = function() {
+  var required = Drupal.t('This field is required.')
+  $('div#edit-project-uri-wrapper label').append('<span title="' + required + '" class="form-required">*</span>');
+}

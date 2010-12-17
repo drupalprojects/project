@@ -13,7 +13,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
     // this ugly call_user_func_array().
     call_user_func_array(array($this, 'parent::setUp'), $modules);
 
-    $perms = array('maintain projects', 'access user profiles', 'access projects');
+    $perms = array('create full projects', 'access user profiles', 'access projects');
 
     $this->owner = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->owner);
@@ -123,7 +123,7 @@ class ProjectTestCase extends ProjectWebTestCase {
   function setUp() {
     parent::setUp('path');
 
-    $maintain_user = $this->drupalCreateUser(array('maintain projects'));
+    $maintain_user = $this->drupalCreateUser(array('create full projects'));
     $this->drupalLogin($maintain_user);
   }
 
@@ -228,7 +228,7 @@ class ProjectDrupalOrgWebTestCase extends ProjectWebTestCase {
     $this->admin_user = $this->drupalCreateUser(array(
       'access projects',
       'administer projects',
-      'maintain projects',
+      'create full projects',
       'access project issues',
       'create project issues',
       'administer content types',
