@@ -119,10 +119,11 @@ class project_release_handler_field_files extends views_handler_field_prerender_
     $tokens['[' . $this->options['id'] . '-time' . ']'] = $item['timestamp'];
     $file_parts = explode('.', basename($item['filename']));
     $ext = array_pop($file_parts);
-    // Special cases for 'gz' and 'bz2', since you really need to know the
-    // thing before that, too (e.g. '.tar.gz').
-    if ($ext == 'gz' || $ext == 'bz2') {
-      $ext = array_pop($file_parts) . '.' . $ext;
+    // See if the previous extension is '.tar' and if so, add that, so we see
+    // 'tar.gz' or 'tar.bz2' instead of just 'gz'.
+    $ext2 = array_pop($file_parts);
+    if ($ext2 == 'tar') {
+      $ext = $ext2 . '.' . $ext;
     }
     $tokens['[' . $this->options['id'] . '-ext' . ']'] = $ext;
   }
