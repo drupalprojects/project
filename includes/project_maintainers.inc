@@ -37,7 +37,7 @@
  */
 function project_maintainers_form($form_state, $project) {
   // Load all the info about per-project permissions on this site.
-  $project_perms = project_permission_load();
+  $project_perms = project_permission_load($project);
 
   $form = array();
   $form['#tree'] = TRUE;
@@ -159,7 +159,7 @@ function theme_project_maintainers_form($form) {
   // keys. So we ditch the keys at this point to avoid notices.
   $output .= theme('table', array_values($header), $rows);
 
-  $project_perms = project_permission_load();
+  $project_perms = project_permission_load($form['#project']);
   $output .= '<dl class="description">';
   foreach ($project_perms as $perm => $perm_info) {
     $output .= ' <dt>' . $perm_info['title'] . '</dt>';
@@ -209,7 +209,7 @@ function project_maintainers_form_submit($form, &$form_state) {
     foreach ($form_state['values']['maintainers'] as $uid => $maintainer) {
       // Just to be extra safe, always give the project owner full permissions.
       if ($uid == $form['#project']->uid) {
-        $perms = array_fill_keys(array_keys(project_permission_load()), 1);
+        $perms = array_fill_keys(array_keys(project_permission_load($form['#project'])), 1);
       }
       else {
         $perms = $maintainer['permissions'];

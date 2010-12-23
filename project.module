@@ -808,23 +808,27 @@ function project_project_access($op, $node, $account) {
  * This invokes hook_project_permission_info() and
  * hook_project_permission_alter(), and caches the results in RAM.
  *
+ * @param $project
+ *   A project object to pass to hook_project_permission_info().
+ *
  * @see hook_project_permission_info()
  * @see hook_project_permission_alter()
  * @see drupal_alter()
  */
-function project_permission_load() {
+function project_permission_load($project) {
   static $project_permissions = array();
-  if (empty($project_permissions)) {
-    $project_permissions = module_invoke_all('project_permission_info');
-    drupal_alter('project_permission', $project_permissions);
+  if (empty($project_permissions[$project->nid])) {
+    $permissions = module_invoke_all('project_permission_info', $project);
+    drupal_alter('project_permission', $permissions, $project);
+    $project_permissions[$project->nid] = $permissions;
   }
-  return $project_permissions;
+  return $project_permissions[$project->nid];
 }
 
 /**
  * Implement hook_project_permission_info()
  */
-function project_project_permission_info() {
+function project_project_permission_info($project = NULL) {
   return array(
     'edit project' => array(
       'title' => t('Edit project'),

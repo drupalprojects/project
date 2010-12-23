@@ -9,6 +9,9 @@
 /**
  * Info hook to advertise per-project permissions supported by a module.
  *
+ * @param $project
+ *   The project for which permissions are being fetched.
+ *
  * @return
  *   Nested array of permission information. The keys of this array should be
  *   the lower-case English version of the permission name, as used throughout
@@ -19,7 +22,7 @@
  *   'description' key for a description of what the permission allows a
  *   project maintainer to do.
  */
-function hook_project_permission_info() {
+function hook_project_permission_info($project = NULL) {
   return array(
     'some permission name' => array(
       'title' => t('Name of this permission'),
@@ -34,12 +37,14 @@ function hook_project_permission_info() {
  * @param $permissions
  *   Reference to an array of all the permissions defined via
  *   hook_project_permission_info().
+ * @param $project
+ *   The project for which permissions are being fetched.
  *
  * @see hook_project_permission_info().
  * @see project_permission_load().
  * @see drupal_alter()
  */
-function hook_project_permission_alter(&$permissions) {
+function hook_project_permission_alter(&$permissions, $project = NULL) {
   // I can't yet fathom why we need an alter hook here, but we might need it
   // and it was free to include it, so why not? ;)
 }

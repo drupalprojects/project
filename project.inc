@@ -467,7 +467,7 @@ function project_project_insert($node) {
   }
   db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, cvs, demo, screenshots, documentation, license, sandbox) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", $node->nid, $node->project['uri'], $node->project['homepage'], $node->project['changelog'], $node->project['cvs'], $node->project['demo'], $node->project['screenshots'], $node->project['documentation'], $node->project['license'], $node->project['sandbox']);
 //  project_release_scan_directory($node->project['uri']);
-  $perms = array_fill_keys(array_keys(project_permission_load()), 1);
+  $perms = array_fill_keys(array_keys(project_permission_load($node)), 1);
   project_maintainer_save($node->nid, $node->uid, $perms);
 }
 
@@ -479,7 +479,7 @@ function project_project_update($node) {
   }
   db_query("UPDATE {project_projects} SET uri = '%s', homepage = '%s', changelog = '%s', cvs = '%s', demo = '%s', screenshots = '%s', documentation = '%s', license = '%s', sandbox = %d WHERE nid = %d", $node->project['uri'], $node->project['homepage'], $node->project['changelog'], $node->project['cvs'], $node->project['demo'], $node->project['screenshots'], $node->project['documentation'], $node->project['license'], $node->project['sandbox'], $node->nid);
 //  project_release_scan_directory($node->project['uri']);
-  $perms = array_fill_keys(array_keys(project_permission_load()), 1);
+  $perms = array_fill_keys(array_keys(project_permission_load($node)), 1);
   project_maintainer_save($node->nid, $node->uid, $perms);
 }
 

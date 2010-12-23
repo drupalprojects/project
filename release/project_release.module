@@ -144,7 +144,7 @@ function project_release_node_info() {
 /**
  * Implement hook_project_permission_info()
  */
-function project_release_project_permission_info() {
+function project_release_project_permission_info($project = NULL) {
   return array(
     'administer releases' => array(
       'title' => t('Administer releases'),
