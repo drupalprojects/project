@@ -346,7 +346,7 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
     }
 
     // Need to fetch list of files for this release
-    $files_query = db_query("SELECT prf.filehash, f.filepath, f.filesize, f.timestamp FROM {project_release_file} prf INNER JOIN {files} f on prf.fid = f.fid WHERE prf.nid = %d ORDER BY prf.fid", $release->nid);
+    $files_query = db_query("SELECT prf.filehash, f.filepath, f.filesize, f.timestamp FROM {project_release_file} prf INNER JOIN {files} f on prf.fid = f.fid WHERE prf.nid = %d ORDER BY prf.weight", $release->nid);
 
     $files = array();
     while ($file = db_fetch_object($files_query)) {
