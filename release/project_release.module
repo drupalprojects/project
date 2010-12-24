@@ -210,7 +210,7 @@ function project_release_node_form_validate(&$form, &$form_state) {
 function project_release_load($node) {
   $additions = db_fetch_array(db_query("SELECT * FROM {project_release_nodes} WHERE nid = %d", $node->nid));
   // Add in file info.
-  $file_info = db_query("SELECT f.*, prf.filehash FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE prf.nid = %d", $node->nid);
+  $file_info = db_query("SELECT f.*, prf.filehash, prf.weight FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE prf.nid = %d", $node->nid);
   $files = array();
   while ($file = db_fetch_object($file_info)) {
     $files[$file->fid] = $file;
@@ -673,7 +673,7 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
 }
 
 function project_release_load_file($fid) {
-  return db_fetch_object(db_query("SELECT f.*, prf.filehash FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE f.fid = %d", $fid));
+  return db_fetch_object(db_query("SELECT f.*, prf.filehash, prf.weight FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE f.fid = %d", $fid));
 }
 
 function theme_project_release_download_file($file, $download_link = TRUE) {
