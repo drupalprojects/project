@@ -79,6 +79,7 @@ $dest_rel = 'files/projects';
 // the script will find these tools in your PATH.
 $tar = '/usr/bin/tar';
 $gzip = '/usr/bin/gzip';
+$zip = '/usr/bin/zip';
 $cvs = '/usr/bin/cvs';
 $ln = '/bin/ln';
 $rm = '/bin/rm';
@@ -314,7 +315,7 @@ function package_releases($type, $project_id = 0) {
 
 function package_release_core($type, $nid, $project_short_name, $version, $tag) {
   global $tmp_dir, $repositories, $dest_root, $dest_rel;
-  global $cvs, $tar, $gzip, $rm;
+  global $cvs, $tar, $gzip, $zip, $rm;
 
   if (!drupal_chdir($tmp_dir)) {
     return 'error';
@@ -324,6 +325,8 @@ function package_release_core($type, $nid, $project_short_name, $version, $tag) 
   $release_node_view_link = l(t('view'), 'node/' . $nid);
   $file_path_tgz = $dest_rel . '/' . $release_file_id . '.tar.gz';
   $full_dest_tgz = $dest_root . '/' . $file_path_tgz;
+  $file_path_zip = $dest_rel . '/' . $release_file_id . '.zip';
+  $full_dest_zip = $dest_root . '/' . $file_path_zip;
 
   // Remember if the tar.gz version of this release file already exists.
   $tgz_exists = is_file($full_dest_tgz);
@@ -358,6 +361,11 @@ function package_release_core($type, $nid, $project_short_name, $version, $tag) 
   }
   $files[$file_path_tgz] = 0;
 
+  if (!drupal_exec("$zip -rq $full_dest_zip $release_file_id")) {
+    return 'error';
+  }
+  $files[$file_path_zip] = 1;
+
   // As soon as the tarball exists, we want to update the DB about it.
   package_release_update_node($nid, $files);
 
@@ -375,7 +383,7 @@ function package_release_core($type, $nid, $project_short_name, $version, $tag) 
 
 function package_release_contrib($type, $nid, $project_short_name, $version, $tag, $release_dir) {
   global $tmp_dir, $repositories, $dest_root, $dest_rel;
-  global $cvs, $tar, $gzip, $rm, $ln;
+  global $cvs, $tar, $gzip, $zip, $rm, $ln;
   global $drush, $drush_make_dir;
   global $license, $trans_install;
 
@@ -395,6 +403,8 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   $release_node_view_link = l(t('view'), 'node/' . $nid);
   $file_path_tgz = $dest_rel . '/' . $release_file_id . '.tar.gz';
   $full_dest_tgz = $dest_root . '/' . $file_path_tgz;
+  $file_path_zip = $dest_rel . '/' . $release_file_id . '.zip';
+  $full_dest_zip = $dest_root . '/' . $file_path_zip;
 
   // Remember if the tar.gz version of this release file already exists.
   $tgz_exists = is_file($full_dest_tgz);
@@ -438,8 +448,10 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
     return 'error';
   }
   // Do we want a subdirectory in the tarball or not?
+  $is_translation = FALSE;
   $tarball_needs_subdir = TRUE;
   if ($contrib_type == 'translations' && $project_short_name != 'drupal-pot') {
+    $is_translation = TRUE;
     // Translation projects are packaged differently based on core version.
     if (intval($version) > 5) {
       if (!($to_tar = package_release_contrib_d6_translation($project_short_name, $version, $release_node_view_link))) {
@@ -470,6 +482,13 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   }
   $files[$file_path_tgz] = 0;
 
+  if (!$is_translation) { 
+    if (!drupal_exec("$zip -rq $full_dest_zip $to_tar")) {
+      return 'error';
+    }
+    $files[$file_path_zip] = 1;
+  }
+
   // Start with no package contents, since this is only valid for profiles.
   $package_contents = array();
 
@@ -490,6 +509,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
       // the heaviest weight in the {project_release_file} table so it sinks
       // to the bottom of various listings.
       $files[$file_path_tgz] = 10;
+      $files[$file_path_zip] = 11;
 
       // Search the .make file for the required 'core' attribute.
       $info = drupal_parse_info_file($drupalorg_makefile);
@@ -524,9 +544,12 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         // NO-CORE DISTRIBUTION.
 
         $no_core_id = "$release_file_id-no-core";
-        // Build the drupal file path and the full file path.
-        $no_core_file_path = "$dest_rel/$no_core_id.tar.gz";
-        $no_core_full_dest = "$dest_root/$no_core_file_path";
+
+        // Build the drupal file path and the full file path for tgz and zip.
+        $no_core_file_path_tgz = "$dest_rel/$no_core_id.tar.gz";
+        $no_core_full_dest_tgz = "$dest_root/$no_core_file_path_tgz";
+        $no_core_file_path_zip = "$dest_rel/$no_core_id.zip";
+        $no_core_full_dest_zip = "$dest_root/$no_core_file_path_zip";
 
         // Run drush_make to build the profile's contents.
         // --drupal-org: Invoke drupal.org specific validation/processing.
@@ -561,6 +584,12 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         }
         $files[$no_core_file_path] = 6;
 
+        if (!drupal_exec("$zip -rq $no_core_full_dest_tgz $project_short_name")) {
+          return 'error';
+        }
+        $files[$no_core_file_path_zip] = 7;
+
+
         // CORE DISTRIBUTION.
 
         // Write a small .make file used to build core.
@@ -582,9 +611,12 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         }
 
         $core_id = "$release_file_id-core";
-        // Build the drupal file path and the full file path.
-        $core_file_path = "$dest_rel/$core_id.tar.gz";
-        $core_full_dest = "$dest_root/$core_file_path";
+
+        // Build the drupal file path and the full file path for tgz and zip.
+        $core_file_path_tgz = "$dest_rel/$core_id.tar.gz";
+        $core_full_dest_tgz = "$dest_root/$core_file_path_tgz";
+        $core_file_path_zip = "$dest_rel/$core_id.zip";
+        $core_full_dest_zip = "$dest_root/$core_file_path_zip";
 
         // Package the core distribution.
         // 'h' is for dereference, we want to include the files, not the links
@@ -593,6 +625,13 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         }
         // We want this to float to the top, so give it the lightest weight.
         $files[$core_file_path] = 0;
+
+        if (!drupal_exec("$zip -rq $core_full_dest_zip $core_build_dir")) {
+          return 'error';
+        }
+        // We want the .zip version with core to be ligher than the non-core
+        // files, but heavier than .tar.gz.
+        $files[$core_file_path_zip] = 1;
 
         // Development releases may have changed package contents -- clear out
         // their package item summary so a fresh item summary will be inserted.
@@ -630,7 +669,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
     }
   }
 
-  // As soon as the tarball exists, update the DB
+  // Now that all the files exist, update the DB about them.
   package_release_update_node($nid, $files, $package_contents);
 
   if ($tgz_exists) {
