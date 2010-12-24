@@ -20,6 +20,7 @@ class project_release_handler_field_files extends views_handler_field_prerender_
     $options = parent::option_definition();
     $options['link_to_file'] = array('default' => FALSE);
     $options['max_files'] = array('default' => 0);
+    $options['max_weight'] = array('default' => '');
     $options['file_sort'] = array('default' => 'filename');
     $options['file_sort_order'] = array('default' => 'DESC');
     return $options;
@@ -41,6 +42,13 @@ class project_release_handler_field_files extends views_handler_field_prerender_
       '#type' => 'select',
       '#options' => $max_options,
       '#default_value' => $this->options['max_files'],
+    );
+    $form['max_weight'] = array(
+      '#title' => t('Maximum file weight to display'),
+      '#type' => 'textfield',
+      '#default_value' => $this->options['max_weight'],
+      '#size' => 2,
+      '#description' => t('Leave blank to display files regardless of weight.'),
     );
     $form['file_sort'] = array(
       '#title' => t('Sort files by'),
@@ -79,7 +87,13 @@ class project_release_handler_field_files extends views_handler_field_prerender_
         $order_by = 'f.' . $this->options['file_sort'];
       }
       $order_by .= ' ' . $this->options['file_sort_order'];
-      $result = db_query("SELECT prf.nid, prf.fid, prf.filehash, prf.weight, f.uid, f.filename, f.filepath, f.filesize, f.filemime, f.timestamp FROM {project_release_file} prf LEFT JOIN {files} f ON prf.fid = f.fid WHERE prf.nid IN (" . implode(', ', $nids) . ") ORDER BY $order_by");
+      $wheres[] = 'prf.nid IN (' . implode(', ', $nids) . ')';
+      if (is_numeric($this->options['max_weight'])) {
+        // We just checked it's numeric, but to be extra safe, cast to an int.
+        $wheres[] = 'prf.weight <= ' . (int)$this->options['max_weight'];
+      }
+      $where = implode(' AND ', $wheres);
+      $result = db_query("SELECT prf.nid, prf.fid, prf.filehash, prf.weight, f.uid, f.filename, f.filepath, f.filesize, f.filemime, f.timestamp FROM {project_release_file} prf LEFT JOIN {files} f ON prf.fid = f.fid WHERE $where ORDER BY $order_by");
       while ($file = db_fetch_array($result)) {
         $file['filename'] = check_plain($file['filename']);
         $file['filemime'] = check_plain($file['filemime']);
