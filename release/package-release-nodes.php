@@ -356,7 +356,7 @@ function package_release_core($type, $nid, $project_short_name, $version, $tag) 
   if (!drupal_exec("$tar -c --file=- $release_file_id | $gzip -9 --no-name > $full_dest_tgz")) {
     return 'error';
   }
-  $files[] = $file_path_tgz;
+  $files[$file_path_tgz] = 0;
 
   // As soon as the tarball exists, we want to update the DB about it.
   package_release_update_node($nid, $files);
@@ -468,7 +468,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   if (!drupal_exec("$tar -ch --file=- $to_tar | $gzip -9 --no-name > $full_dest_tgz")) {
     return 'error';
   }
-  $files[] = $file_path_tgz;
+  $files[$file_path_tgz] = 0;
 
   // Start with no package contents, since this is only valid for profiles.
   $package_contents = array();
@@ -486,7 +486,12 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
     $drupalorg_makefile = 'drupal-org.make';
 
     if (file_exists($drupalorg_makefile)) {
-    // Search the .make file for the required 'core' attribute.
+      // On packaged install profiles, we want the profile-only tarball to be
+      // the heaviest weight in the {project_release_file} table so it sinks
+      // to the bottom of various listings.
+      $files[$file_path_tgz] = 10;
+
+      // Search the .make file for the required 'core' attribute.
       $info = drupal_parse_info_file($drupalorg_makefile);
 
       // Only proceed if a core release was found.
@@ -554,7 +559,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         if (!drupal_exec("$tar -ch --file=- $project_short_name | $gzip -9 --no-name > $no_core_full_dest")) {
           return 'error';
         }
-        $files[] = $no_core_file_path;
+        $files[$no_core_file_path] = 6;
 
         // CORE DISTRIBUTION.
 
@@ -586,7 +591,8 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         if (!drupal_exec("$tar -ch --file=- $core_build_dir | $gzip -9 --no-name > $core_full_dest")) {
           return 'error';
         }
-        $files[] = $core_file_path;
+        // We want this to float to the top, so give it the lightest weight.
+        $files[$core_file_path] = 0;
 
         // Development releases may have changed package contents -- clear out
         // their package item summary so a fresh item summary will be inserted.
@@ -1033,7 +1039,8 @@ function fix_info_file_version($file, $project_short_name, $version) {
  * @param $nid
  *   The node ID of the release node to update.
  * @param $files
- *   Array of files to add to the release node.
+ *   Array of files to add to the release node. The keys are filenames, and
+ *   the values are the weight for the {project_release_file}.weight column.
  * @param $package_contents
  *   Optional. Array of nids of releases contained in a release package.
  */
@@ -1063,7 +1070,7 @@ function package_release_update_node($nid, $files, $package_contents = array()) 
     return FALSE;
   }
 
-  foreach ($files as $file_path) {
+  foreach ($files as $file_path => $file_weight) {
     // Compute the metadata for this file that we care about.
     $full_path = $dest_root . '/' . $file_path;
     $file_name = basename($file_path);
@@ -1080,12 +1087,12 @@ function package_release_update_node($nid, $files, $package_contents = array()) 
       // Don't have this file, insert a new record.
       db_query("INSERT INTO {files} (uid, filename, filepath, filemime, filesize, status, timestamp) VALUES (%d, '%s', '%s', '%s', %d, %d, %d)", $node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date);
       $fid = db_last_insert_id('files', 'fid');
-      db_query("INSERT INTO {project_release_file} (fid, nid, filehash) VALUES (%d, %d, '%s')", $fid, $node->nid, $file_hash);
+      db_query("INSERT INTO {project_release_file} (fid, nid, filehash, weight) VALUES (%d, %d, '%s', %d)", $fid, $node->nid, $file_hash, $file_weight);
     }
     else {
       // Already have this file for this release, update it.
       db_query("UPDATE {files} SET uid = %d, filename = '%s', filepath = '%s', filemime = '%s', filesize = %d, status = %d, timestamp = %d WHERE fid = %d", $node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date, $file_data->fid);
-      db_query("UPDATE {project_release_file} SET filehash = '%s' WHERE fid = %d", $file_hash, $file_data->fid);
+      db_query("UPDATE {project_release_file} SET filehash = '%s', weight = %d WHERE fid = %d", $file_hash, $file_weight, $file_data->fid);
     }
   }
 

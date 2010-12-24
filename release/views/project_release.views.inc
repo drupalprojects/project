@@ -406,6 +406,20 @@ function project_release_views_data() {
       'handler' => 'views_handler_argument_string',
     ),
   );
+  $data['project_release_file']['weight'] = array(
+    'title' => t('Release file weight'),
+    'help' => t('The weight of a file attached to a release node.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+  );
 
   $data['project_release_supported_versions']['table']['group']  = t('Project release');
   // We only want to JOIN on this table via explicit relationships.

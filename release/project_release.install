@@ -176,6 +176,13 @@ function project_release_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Weight of this file in relation to other files in this release.',
+      ),
     ),
     'primary key' => array('fid'),
     'indexes' => array('nid' => array('nid')),
@@ -782,5 +789,21 @@ function project_release_update_6010() {
     $ret[] = update_sql("INSERT INTO {project_release_project_maintainer} (nid, uid, administer_releases) SELECT cpm.nid, cpm.uid, 1 FROM {cvs_project_maintainers} cpm INNER JOIN {node} n ON cpm.nid = n.nid WHERE cpm.uid != n.uid");
   }
 
+  return $ret;
+}
+
+/**
+ * Add the 'weight' column to {project_release_file}.
+ */
+function project_release_update_6011() {
+  $ret = array();
+  $spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'size' => 'tiny',
+    'description' => 'Weight of this file in relation to other files in this release.',
+  );
+  db_add_field($ret, 'project_release_file', 'weight', $spec);
   return $ret;
 }

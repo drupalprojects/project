@@ -46,6 +46,7 @@ class project_release_handler_field_files extends views_handler_field_prerender_
       '#title' => t('Sort files by'),
       '#type' => 'select',
       '#options' => array(
+        'weight' => t('File weight'),
         'filename' => t('File name'),
         'filesize' => t('File size'),
         'timestamp' => t('File timestamp'),
@@ -71,9 +72,14 @@ class project_release_handler_field_files extends views_handler_field_prerender_
       $nids[] = $result->{$this->field_alias};
     }
     if (!empty($nids)) {
-      $order_by = 'f.' . $this->options['file_sort'];
+      if ($this->options['file_sort'] == 'weight') {
+        $order_by = 'prf.weight';
+      }
+      else {
+        $order_by = 'f.' . $this->options['file_sort'];
+      }
       $order_by .= ' ' . $this->options['file_sort_order'];
-      $result = db_query("SELECT prf.nid, prf.fid, prf.filehash, f.uid, f.filename, f.filepath, f.filesize, f.filemime, f.timestamp FROM {project_release_file} prf LEFT JOIN {files} f ON prf.fid = f.fid WHERE prf.nid IN (" . implode(', ', $nids) . ") ORDER BY $order_by");
+      $result = db_query("SELECT prf.nid, prf.fid, prf.filehash, prf.weight, f.uid, f.filename, f.filepath, f.filesize, f.filemime, f.timestamp FROM {project_release_file} prf LEFT JOIN {files} f ON prf.fid = f.fid WHERE prf.nid IN (" . implode(', ', $nids) . ") ORDER BY $order_by");
       while ($file = db_fetch_array($result)) {
         $file['filename'] = check_plain($file['filename']);
         $file['filemime'] = check_plain($file['filemime']);
@@ -107,6 +113,7 @@ class project_release_handler_field_files extends views_handler_field_prerender_
     $tokens['[' . $this->options['id'] . '-size' . ']'] = t('The size of the attached file.');
     $tokens['[' . $this->options['id'] . '-hash' . ']'] = t('The MD5 hash of the attached file.');
     $tokens['[' . $this->options['id'] . '-time' . ']'] = t('The date and time when the file was created or uploaded.');
+    $tokens['[' . $this->options['id'] . '-weight' . ']'] = t('The weight of this file relative to others attached to the release.');
   }
 
   function add_self_tokens(&$tokens, $item) {
@@ -117,6 +124,7 @@ class project_release_handler_field_files extends views_handler_field_prerender_
     $tokens['[' . $this->options['id'] . '-size' . ']'] = $item['filesize'];
     $tokens['[' . $this->options['id'] . '-hash' . ']'] = $item['filehash'];
     $tokens['[' . $this->options['id'] . '-time' . ']'] = $item['timestamp'];
+    $tokens['[' . $this->options['id'] . '-weight' . ']'] = $item['weight'];
     $file_parts = explode('.', basename($item['filename']));
     $ext = array_pop($file_parts);
     // See if the previous extension is '.tar' and if so, add that, so we see
@@ -128,4 +136,3 @@ class project_release_handler_field_files extends views_handler_field_prerender_
     $tokens['[' . $this->options['id'] . '-ext' . ']'] = $ext;
   }
 }
-

@@ -113,11 +113,11 @@ $handler->override_option('fields', array(
   ),
 ));
 $handler->override_option('sorts', array(
-  'fid' => array(
-    'order' => 'DESC',
-    'id' => 'fid',
-    'table' => 'files',
-    'field' => 'fid',
+  'weight' => array(
+    'order' => 'ASC',
+    'id' => 'weight',
+    'table' => 'project_release_file',
+    'field' => 'weight',
     'relationship' => 'none',
   ),
 ));
