@@ -579,12 +579,12 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
 
         // Package the no-core distribution.
         // 'h' is for dereference, we want to include the files, not the links
-        if (!drupal_exec("$tar -ch --file=- $project_short_name | $gzip -9 --no-name > $no_core_full_dest")) {
+        if (!drupal_exec("$tar -ch --file=- $project_short_name | $gzip -9 --no-name > $no_core_full_dest_tgz")) {
           return 'error';
         }
-        $files[$no_core_file_path] = 6;
+        $files[$no_core_file_path_tgz] = 6;
 
-        if (!drupal_exec("$zip -rq $no_core_full_dest_tgz $project_short_name")) {
+        if (!drupal_exec("$zip -rq $no_core_full_dest_zip $project_short_name")) {
           return 'error';
         }
         $files[$no_core_file_path_zip] = 7;
@@ -620,11 +620,11 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
 
         // Package the core distribution.
         // 'h' is for dereference, we want to include the files, not the links
-        if (!drupal_exec("$tar -ch --file=- $core_build_dir | $gzip -9 --no-name > $core_full_dest")) {
+        if (!drupal_exec("$tar -ch --file=- $core_build_dir | $gzip -9 --no-name > $core_full_dest_tgz")) {
           return 'error';
         }
         // We want this to float to the top, so give it the lightest weight.
-        $files[$core_file_path] = 0;
+        $files[$core_file_path_tgz] = 0;
 
         if (!drupal_exec("$zip -rq $core_full_dest_zip $core_build_dir")) {
           return 'error';
