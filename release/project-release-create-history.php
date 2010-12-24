@@ -288,6 +288,8 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
     'prn.version_minor',
     'prn.version_patch',
     'prn.version_extra',
+    'prn.version_extra_weight',
+    'prn.version_extra_delta',
     'prn.tag',
     'n.title',
     'n.status',
@@ -667,7 +669,8 @@ function _release_sort($a, $b) {
     'rebuild' => -1,
     'version_minor' => 1,
     'version_patch' => 1,
-    'timestamp' => 1,
+    'version_extra_weight' => 1,
+    'version_extra_delta' => 1,
   );
   foreach ($fields as $field => $sign) {
     if (!isset($a->$field) && !isset($b->$field)) {
