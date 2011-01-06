@@ -483,6 +483,11 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   $files[$file_path_tgz] = 0;
 
   if (!$is_translation) { 
+    // If we're rebuilding, make sure the previous .zip is gone, since just
+    // running zip again with the same zip archive won't give us the semantics
+    // we want. For example, files that are removed in CVS will still be left
+    // in the .zip archive.
+    @unlink($full_dest_zip);
     if (!drupal_exec("$zip -rq $full_dest_zip $to_tar")) {
       return 'error';
     }
@@ -584,6 +589,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         }
         $files[$no_core_file_path_tgz] = 6;
 
+        @unlink($no_core_full_dest_zip);
         if (!drupal_exec("$zip -rq $no_core_full_dest_zip $project_short_name")) {
           return 'error';
         }
@@ -626,6 +632,7 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
         // We want this to float to the top, so give it the lightest weight.
         $files[$core_file_path_tgz] = 0;
 
+        @unlink($core_full_dest_zip);
         if (!drupal_exec("$zip -rq $core_full_dest_zip $core_build_dir")) {
           return 'error';
         }
@@ -1302,24 +1309,30 @@ function core_make_file($core) {
 function cleanup_failed_build($type, $nid, $project_short_name, $version, $tag, $release_dir) {
   global $dest_root, $dest_rel;
 
-  $release_file_base_name = $dest_root . '/' . $dest_rel . '/' . $project_short_name . '-' . $version;
-  $base_tarball = $release_file_base_name . '.tar.gz';
+  $extensions = array('.tar.gz', '.zip');
 
-  // Remove the tarball generated from the CVS checkout.
-  if (file_exists($base_tarball)) {
-    unlink($base_tarball);
+  $release_file_base = $dest_root . '/' . $dest_rel . '/' . $project_short_name . '-' . $version;
+
+  // Remove the main release files.
+  foreach ($extensions as $extension) {
+    $filename = $release_file_base . $extension;
+    if (file_exists($filename)) {
+      unlink($filename);
+    }
   }
 
-  // For profiles, clean up any other profile-specific tarballs.
+  // For profiles, clean up any other profile-specific files.
   if (!empty($release_dir)) {
     $parts = split('/', $release_dir);
     // modules, themes, theme-engines, profiles, or translations
     $contrib_type = $parts[1];
     if ($contrib_type == 'profiles') {
-      foreach (array('no-core', 'core') as $type) {
-        $profile_tarball = "$release_file_base_name-$type.tar.gz";
-        if (file_exists($profile_tarball)) {
-          unlink($profile_tarball);
+      foreach (array('no-core', 'core') as $variant) {
+        foreach ($extensions as $extension) {
+          $filename = $release_file_base . '-' . $variant . $extension;
+          if (file_exists($filename)) {
+            unlink($filename);
+          }
         }
       }
     }
