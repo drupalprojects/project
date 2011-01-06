@@ -11,7 +11,6 @@
  *
  * TODO:
  * - translation stats
- * - Package to .zip and .tgz, etc.
  *
  */
 
