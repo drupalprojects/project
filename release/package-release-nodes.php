@@ -74,9 +74,6 @@ $zip = '/usr/bin/zip';
 $cvs = '/usr/bin/cvs';
 $ln = '/bin/ln';
 $rm = '/bin/rm';
-$msgcat = 'msgcat';
-$msgattrib = 'msgattrib';
-$msgfmt = 'msgfmt';
 $php = '/usr/bin/php';
 
 // If you are using project-release-create-history.php to generate XML release
