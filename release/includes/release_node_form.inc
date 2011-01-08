@@ -70,6 +70,10 @@ function _project_release_form(&$release, &$form_state) {
   // preview, and submit.
   $form['rel_id']['version']['#parents'] = array('project_release', 'version');
 
+  $tag = isset($release->project_release['tag']) ? $release->project_release['tag'] : '';
+  _project_release_form_add_text_element($form['rel_id']['tag'], t('Tag'), $tag, $is_edit, $admin, TRUE, 40, 255);
+  $form['rel_id']['tag']['#parents'] = array('project_release', 'tag');
+
   $form['project_release'] = array(
     '#type' => 'fieldset',
     '#tree' => TRUE,
@@ -167,10 +171,6 @@ function _project_release_form(&$release, &$form_state) {
   $form['body_field'] = node_body_field($release, t('Release notes'), !$admin);
   // Add a description to the body field.
   $form['body_field']['body']['#description'] = t('Enter a description of this release, such as a list of the major changes or updates.');
-
-  $tag = isset($release->project_release['tag']) ? $release->project_release['tag'] : '';
-  _project_release_form_add_text_element($form['tag']['tag'], t('Tag'), $tag, $is_edit, $admin, TRUE, 40, 255);
-  $form['tag']['tag']['#parents'] = array('project_release', 'tag');
 
   // Add a custom validation function.
   $form['#validate'][] = 'project_release_node_form_validate';
