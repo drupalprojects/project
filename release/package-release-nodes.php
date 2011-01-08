@@ -8,10 +8,6 @@
  * Automated packaging script to generate tarballs from release nodes.
  *
  * @author Derek Wright (http://drupal.org/user/46549)
- *
- * TODO:
- * - translation stats
- *
  */
 
 // ------------------------------------------------------------
@@ -40,10 +36,6 @@ $tmp_root = '';
 
 // Location of the LICENSE.txt file you want included in all packages.
 $license = '';
-
-// Location of the INSTALL.txt file you want included in all
-// translation packages.
-$trans_install = '';
 
 // -------------------------
 // drush/drush_make settings
@@ -111,7 +103,6 @@ $vars = array(
   'cvs_root' => $cvs_root,
   'tmp_root' => $tmp_root,
   'license' => $license,
-  'trans_install' => $trans_install,
 );
 foreach ($vars as $name => $val) {
   if (empty($val)) {
@@ -384,13 +375,13 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   global $tmp_dir, $repositories, $dest_root, $dest_rel;
   global $cvs, $tar, $gzip, $zip, $rm, $ln;
   global $drush, $drush_make_dir;
-  global $license, $trans_install;
+  global $license;
 
   // Files to ignore when checking timestamps:
   $exclude = array('.', '..', 'LICENSE.txt');
 
   $parts = split('/', $release_dir);
-  // modules, themes, theme-engines, profiles, or translations
+  // modules, themes, theme-engines, or profiles.
   $contrib_type = $parts[1];
   // specific directory (same as uri)
   $project_short_name = $parts[2];
@@ -446,52 +437,22 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   if (!drupal_exec("$ln -sf $license $project_short_name/LICENSE.txt")) {
     return 'error';
   }
-  // Do we want a subdirectory in the tarball or not?
-  $is_translation = FALSE;
-  $tarball_needs_subdir = TRUE;
-  if ($contrib_type == 'translations' && $project_short_name != 'drupal-pot') {
-    $is_translation = TRUE;
-    // Translation projects are packaged differently based on core version.
-    if (intval($version) > 5) {
-      if (!($to_tar = package_release_contrib_d6_translation($project_short_name, $version, $release_node_view_link))) {
-        // Return on error.
-        return 'error';
-      }
-      $tarball_needs_subdir = FALSE;
-    }
-    elseif (!($to_tar = package_release_contrib_pre_d6_translation($project_short_name, $version, $release_node_view_link))) {
-      // Return on error.
-      return 'error';
-    }
-  }
-  else {
-    // Not a translation: just grab the whole directory.
-    $to_tar = $project_short_name;
-  }
-
-  if (!$tarball_needs_subdir) {
-    if (!drupal_chdir($project_short_name)) {
-      return 'error';
-    }
-  }
 
   // 'h' is for dereference, we want to include the files, not the links
-  if (!drupal_exec("$tar -ch --file=- $to_tar | $gzip -9 --no-name > $full_dest_tgz")) {
+  if (!drupal_exec("$tar -ch --file=- $project_short_name | $gzip -9 --no-name > $full_dest_tgz")) {
     return 'error';
   }
   $files[$file_path_tgz] = 0;
 
-  if (!$is_translation) { 
-    // If we're rebuilding, make sure the previous .zip is gone, since just
-    // running zip again with the same zip archive won't give us the semantics
-    // we want. For example, files that are removed in CVS will still be left
-    // in the .zip archive.
-    @unlink($full_dest_zip);
-    if (!drupal_exec("$zip -rq $full_dest_zip $to_tar")) {
-      return 'error';
-    }
-    $files[$file_path_zip] = 1;
+  // If we're rebuilding, make sure the previous .zip is gone, since just
+  // running zip again with the same zip archive won't give us the semantics
+  // we want. For example, files that are removed in CVS will still be left
+  // in the .zip archive.
+  @unlink($full_dest_zip);
+  if (!drupal_exec("$zip -rq $full_dest_zip $project_short_name")) {
+    return 'error';
   }
+  $files[$file_path_zip] = 1;
 
   // Start with no package contents, since this is only valid for profiles.
   $package_contents = array();
@@ -690,114 +651,6 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
   return 'success';
 }
 
-function package_release_contrib_pre_d6_translation($project_short_name, $version, $release_node_view_link) {
-  global $msgcat, $msgattrib, $msgfmt;
-
-  if ($handle = opendir($project_short_name)) {
-    $po_files = array();
-    while ($file = readdir($handle)) {
-      if ($file == 'general.po') {
-        $found_general_po = TRUE;
-      }
-      elseif ($file == 'installer.po') {
-        $found_installer_po = TRUE;
-      }
-      elseif (preg_match('/.*\.po/', $file)) {
-        $po_files[] = "$project_short_name/$file";
-      }
-    }
-    if ($found_general_po) {
-      @unlink("$project_short_name/$project_short_name.po");
-      $po_targets = "$project_short_name/general.po ";
-      $po_targets .= implode(' ', $po_files);
-      if (!drupal_exec("$msgcat --use-first $po_targets | $msgattrib --no-fuzzy -o $project_short_name/$project_short_name.po")) {
-        return FALSE;
-      }
-    }
-  }
-  if (is_file("$project_short_name/$project_short_name.po")) {
-    if (!drupal_exec("$msgfmt --statistics $project_short_name/$project_short_name.po 2>> $project_short_name/STATUS.txt")) {
-      return FALSE;
-    }
-    $to_tar = "$project_short_name/*.txt $project_short_name/$project_short_name.po";
-    if ($found_installer_po) {
-      $to_tar .= " $project_short_name/installer.po";
-    }
-  }
-  else {
-    wd_err("ERROR: %project_short_name translation does not contain a %project_short_name_po file for version %version, not packaging", array('%project_short_name' => $project_short_name, '%project_short_name_po' => "$project_short_name.po", '%version' => $version), $release_node_view_link);
-    return FALSE;
-  }
-
-  // Return with list of files to package.
-  return $to_tar;
-}
-
-function package_release_contrib_d6_translation($project_short_name, $version, $release_node_view_link) {
-  global $msgattrib, $msgfmt;
-
-  if ($handle = opendir($project_short_name)) {
-    $po_files = array();
-    while ($file = readdir($handle)) {
-      if (preg_match('!(.*)\.txt$!', $file, $name) && ($file != "STATUS.$project_short_name.txt")) {
-        // Rename text files to $name[1].$project_short_name.txt so there will be no conflict
-        // with core text files when the package is deployed.
-        if (!rename("$project_short_name/$file", "$project_short_name/$name[1].$project_short_name.txt")) {
-          wd_err("ERROR: Unable to rename text files in %project_short_name translation in version %version, not packaging", array('%project_short_name' => $project_short_name, '%version' => $version), $release_node_view_link);
-          return FALSE;
-        }
-      }
-      elseif (preg_match('!.*\.po$!', $file)) {
-
-        // Generate stats information about the .po file handled.
-        if (!drupal_exec("$msgfmt --statistics $project_short_name/$file 2>> $project_short_name/STATUS.$project_short_name.txt")) {
-          wd_err("ERROR: Unable to generate statistics for %file in %project_short_name translation in version %version, not packaging", array('%project_short_name' => $project_short_name, '%version' => $version, '%file' => $file), $release_node_view_link);
-          return FALSE;
-        }
-
-        // File names are formatted in directory-subdirectory.po or
-        // directory.po format and aggregate files from the named directory.
-        // The installer.po file is special in that it aggregates all strings
-        // possibly used in the installer. We move that to the default install
-        // profile. We move all other root directory files (misc.po,
-        // includes.po, etc) to the system module and all remaining files to
-        // the corresponding subdirectory in the named directory.
-        if (!strpos($file, '-')) {
-          if ($file == 'installer.po') {
-            // Special file, goes to install profile.
-            $target = 'profiles/default/translations/'. $project_short_name .'.po';
-          }
-          else {
-            // 'Root' files go to system module.
-            $target = 'modules/system/translations/'. str_replace('.po', '.'. $project_short_name .'.po', $file);
-          }
-        }
-        else {
-          // Other files go to their module or theme folder.
-          $target = str_replace(array('-', '.po'), array('/', ''), $file) .'/translations/'. str_replace('.po', '.'. $project_short_name .'.po', $file);
-        }
-        $project_short_name_target = "$project_short_name/$target";
-
-        // Create target folder and copy file there, while removing fuzzies.
-        $target_dir = dirname($project_short_name_target);
-        if (!is_dir($target_dir) && !mkdir($target_dir, 0777, TRUE)) {
-          wd_err("ERROR: Unable to generate directory structure in %project_short_name translation in version %version, not packaging", array('%project_short_name' => $project_short_name, '%version' => $version), $release_node_view_link);
-          return FALSE;
-        }
-        if (!drupal_exec("$msgattrib --no-fuzzy $project_short_name/$file -o $project_short_name_target")) {
-          wd_err("ERROR: Unable to filter fuzzy strings and copying the translation files in %project_short_name translation in version %version, not packaging", array('%project_short_name' => $project_short_name, '%version' => $version), $release_node_view_link);
-          return FALSE;
-        }
-
-        // Add file to package.
-        $to_tar .= ' '. $target;
-      }
-    }
-  }
-
-  // Return with list of files to package.
-  return "*.txt". $to_tar;
-}
 
 // ------------------------------------------------------------
 // Functions: metadata validation functions
@@ -1192,81 +1045,6 @@ function file_find_youngest($dir, $timestamp, $exclude, &$info_files) {
     closedir($fp);
   }
   return $timestamp;
-}
-
-
-// ------------------------------------------------------------
-// Functions: translation-status-related methods
-// TODO: get all this working. ;)
-// ------------------------------------------------------------
-
-
-/**
- * Extract some translation statistics:
- */
-function translation_status($dir, $version) {
-  global $translations;
-
-  $number_of_strings = translation_number_of_strings('drupal-pot', $version);
-
-  $line = exec("$msgfmt --statistics $dir/$dir.po 2>&1");
-  $words = preg_split('[\s]', $line, -1, PREG_SPLIT_NO_EMPTY);
-
-  if (is_numeric($words[0]) && is_numeric($number_of_strings)) {
-    $percentage = floor((100 * $words[0]) / ($number_of_strings));
-    if ($percentage >= 100) {
-      $translations[$dir][$version] = "<td style=\"color: green; font-weight: bold;\">100% (complete)</td>";
-    }
-    else {
-      $translations[$dir][$version] = "<td>". $percentage ."% (". ($number_of_strings - $words[0]). " missing)</td>";
-    }
-  }
-  else {
-    $translations[$dir][$version] = "<td style=\"color: red; font-weight: bold;\">translation broken</td>";
-  }
-}
-
-function translation_report($versions) {
-  global $dest, $translations;
-
-  $output  = "<table>\n";
-  $output .= " <tr><th>Language</th>";
-  foreach ($versions as $version) {
-    $output .= "<th>$version</th>";
-  }
-  $output .= " </tr>\n";
-
-  ksort($translations);
-  foreach ($translations as $language => $data) {
-    $output .= " <tr><td><a href=\"project/$language\">$language</a></td>";
-    foreach ($versions as $version) {
-      if ($data[$version]) {
-        $output .= $data[$version];
-      }
-      else {
-        $output .= "<td></td>";
-      }
-    }
-    $output .= "</tr>\n";
-  }
-  $output .= "</table>";
-
-  $fd = fopen("$dest/translation-status.txt", 'w');
-  fwrite($fd, $output);
-  fclose($fd);
-  wprint("wrote $dest/translation-status.txt");
-}
-
-function translation_number_of_strings($dir, $version) {
-  static $number_of_strings = array();
-  if (!isset($number_of_strings[$version])) {
-    drupal_exec("$msgcat $dir/general.pot $dir/[^g]*.pot | $msgattrib --no-fuzzy -o $dir/$dir.pot");
-    $line = exec("$msgfmt --statistics $dir/$dir.pot 2>&1");
-    $words = preg_split('[\s]', $line, -1, PREG_SPLIT_NO_EMPTY);
-    $number_of_strings[$version] = $words[3];
-    @unlink("$dir/$dir.pot");
-  }
-  return $number_of_strings[$version];
 }
 
 /**
