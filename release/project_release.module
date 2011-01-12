@@ -1706,7 +1706,21 @@ function _project_release_get_release_type_vid() {
   return variable_get('project_release_release_type_vid', '');
 }
 
+/**
+ * Determine if a release already exists with the given version.
+ *
+ * @param stdClass $version
+ *   An object containing fields that define the version for a release. Must
+ *   include 'pid', the project node ID. Can also include 'version_api_tid',
+ *   'version_major', 'version_minor', 'version_patch', 'version_extra',
+ *   and/or 'version' (the full version string itself).
+ *
+ * @return integer
+ *   The node ID of an existing release with the given version information, or
+ *   FALSE if no such release already exists.
+ */
 function project_release_exists($version) {
+  $values = array();
   $fields = array('version_major', 'version_minor', 'version_patch', 'version_api_tid');
   foreach ($fields as $field) {
     if (isset($version->$field) && is_numeric($version->$field)) {
@@ -1734,7 +1748,7 @@ function project_release_exists($version) {
     return false;
   }
 
-  $sql = 'SELECT COUNT(*) FROM {project_release_nodes} WHERE pid = %d';
+  $sql = 'SELECT nid FROM {project_release_nodes} WHERE pid = %d';
   if (!empty($types)) {
     foreach ($types as $field => $type) {
       $sql .= " AND $field = $type";
