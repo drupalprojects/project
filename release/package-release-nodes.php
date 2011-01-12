@@ -125,8 +125,6 @@ else {
 switch($task) {
   case 'tag':
   case 'branch':
-  case 'check':
-  case 'repair':
     break;
   default:
     print "ERROR: $argv[0] invoked with invalid argument: \"$task\"\n";
@@ -161,25 +159,16 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 // We have to initialize the theme() system before we leave $drupal_root
 $hack = theme('placeholder', 'hack');
 
-if ($task == 'check' || $task == 'repair') {
-  verify_packages($task, $project_id);
-}
-else {
-  initialize_tmp_dir($task);
-  initialize_repository_info();
-  package_releases($task, $project_id);
-  // Now that we're done, clean out the tmp/task dir we created
-  chdir($tmp_root);
-  drupal_exec("$rm -rf $tmp_dir");
-}
+initialize_tmp_dir($task);
+initialize_repository_info();
+package_releases($task, $project_id);
+// Now that we're done, clean out the tmp/task dir we created
+chdir($tmp_root);
+drupal_exec("$rm -rf $tmp_dir");
 
 if ($task == 'branch') {
   // Clear any cached data set to expire.
   cache_clear_all(NULL, 'cache_project_release');
-}
-elseif ($task == 'repair') {
-  // Clear all cached data
-  cache_clear_all('*', 'cache_project_release', TRUE);
 }
 
 // ------------------------------------------------------------
@@ -650,136 +639,6 @@ function package_release_contrib($type, $nid, $project_short_name, $version, $ta
 
 
 // ------------------------------------------------------------
-// Functions: metadata validation functions
-// ------------------------------------------------------------
-
-/**
- * Check that file metadata on disk matches the values stored in the DB.
- */
-function verify_packages($task, $project_id) {
-  global $dest_root;
-  $do_repair = $task == 'repair' ? TRUE : FALSE;
-  $args = array(1);
-  $where = '';
-  if (!empty($project_id)) {
-    $where = ' AND prn.pid = %d';
-    $args[] = $project_id;
-  }
-  $query = db_query("SELECT prn.nid, f.filepath, f.timestamp, prf.filehash FROM {project_release_nodes} prn INNER JOIN {node} n ON prn.nid = n.nid INNER JOIN {project_release_file} prf ON prn.nid = prf.nid INNER JOIN {files} f ON prf.fid = f.fid WHERE n.status = %d AND f.filepath <> '' $where", $args);
-  while ($release = db_fetch_object($query)) {
-    // Grab all the results into RAM to free up the DB connection for
-    // when we need to update the DB to correct metadata or log messages.
-    $releases[] = $release;
-  }
-
-  $num_failed = 0;
-  $num_repaired = 0;
-  $num_not_exist = 0;
-  $num_need_repair = 0;
-  $num_considered = 0;
-  $num_wrong_date = 0;
-  $num_wrong_hash = 0;
-
-  // Now, process the files, and check metadata
-  foreach ($releases as $release) {
-    $valid_hash = TRUE;
-    $valid_date = TRUE;
-    $num_considered++;
-    $nid = $release->nid;
-    $release_node_view_link = l(t('view'), 'node/' . $nid);
-    $file_path = $release->filepath;
-    $full_path = $dest_root . '/' . $file_path;
-    $db_date = (int)$release->timestamp;
-    $db_hash = $release->filehash;
-
-    if (!is_file($full_path)) {
-      $num_not_exist++;
-      wd_err('WARNING: %file does not exist.', array('%file' => $full_path), $release_node_view_link);
-      continue;
-    }
-    $real_date = filemtime($full_path);
-    $real_hash = md5_file($full_path);
-
-    $variables = array();
-    $variables['%file'] = $file_path;
-    if ($real_hash != $db_hash) {
-      $valid_hash = FALSE;
-      $num_wrong_hash++;
-      $variables['@db_hash'] = $db_hash;
-      $variables['@real_hash'] = $real_hash;
-    }
-    if ($real_date != $db_date) {
-      $valid_date = FALSE;
-      $num_wrong_date++;
-      $variables['!db_date'] = format_date($db_date);
-      $variables['!db_date_raw'] = $db_date;
-      $variables['!real_date'] = format_date($real_date);
-      $variables['!real_date_raw'] = $real_date;
-    }
-    if ($valid_date && $valid_hash) {
-      // Nothing else to do.
-      continue;
-    }
-
-    if (!$valid_date && !$valid_hash) {
-      wd_check('All file meta data for %file is incorrect: saved date: !db_date (!db_date_raw), real date: !real_date (!real_date_raw); saved md5hash: @db_hash, real md5hash: @real_hash', $variables, $release_node_view_link);
-    }
-    else if (!$valid_date) {
-      wd_check('File date for %file is incorrect: saved date: !db_date (!db_date_raw), real date: !real_date (!real_date_raw)', $variables, $release_node_view_link);
-    }
-    else { // !$valid_hash
-      wd_check('File md5hash for %file is incorrect: saved: @db_hash, real: @real_hash', $variables, $release_node_view_link);
-    }
-
-    if (!$do_repair) {
-      $num_need_repair++;
-    }
-    else {
-      $ret1 = $ret2 = FALSE;
-      // TODO: Broken for N>1 files per release.
-      $fid = db_result(db_query("SELECT fid FROM {project_release_file} WHERE nid = %d", $nid));
-      if (!empty($fid)) {
-        $ret1 = db_query("UPDATE {project_release_file} SET filehash = '%s' WHERE fid = %d", $real_hash, $fid);
-        $ret2 = db_query("UPDATE {files} SET timestamp = %d WHERE fid = %d", $real_date, $fid);
-      }
-      if ($ret1 && $ret2) {
-        $num_repaired++;
-      }
-      else {
-        wd_err('ERROR: db_query() failed trying to update metadata for %file', array('%file' => $file_path), $release_node_view_link);
-        $num_failed++;
-      }
-    }
-  }
-
-  $num_vars = array(
-    '!num_considered' => $num_considered,
-    '!num_repaired' => $num_repaired,
-    '!num_need_repair' => $num_need_repair,
-    '!num_wrong_date' => $num_wrong_date,
-    '!num_wrong_hash' => $num_wrong_hash,
-  );
-  if ($num_failed) {
-    wd_err('ERROR: unable to repair !num_failed releases due to db_query() failures.', array('!num_failed' => $num_failed));
-  }
-  if ($num_not_exist) {
-    wd_err('ERROR: !num_not_exist files are in the database but do not exist on disk.', array('!num_not_exist' => $num_not_exist));
-  }
-  if ($do_repair) {
-    wd_check('Done checking releases: !num_repaired repaired, !num_wrong_date invalid dates, !num_wrong_hash invalid md5 hashes, !num_considered considered.', $num_vars);
-  }
-  else {
-    if (empty($project_id)) {
-      wd_check('Done checking releases: !num_need_repair need repairing, !num_wrong_date invalid dates, !num_wrong_hash invalid md5 hashes, !num_considered considered.', $num_vars);
-    }
-    else {
-      $num_vars['@project_id'] = $project_id;
-      wd_check('Done checking releases for project id @project_id: !num_need_repair need repairing, !num_wrong_date invalid dates, !num_wrong_hash invalid md5 hashes, !num_considered considered.', $num_vars, l(t('view'), 'node/' . $project_id));
-    }
-  }
-}
-
-// ------------------------------------------------------------
 // Functions: utility methods
 // ------------------------------------------------------------
 
@@ -839,15 +698,6 @@ function wd_err($msg, $variables = array(), $link = NULL) {
   watchdog('package_error', $msg, $variables, WATCHDOG_ERROR, $link);
   echo t($msg, $variables) . "\n";
   $wd_err_msg[] = t($msg, $variables);
-}
-
-/**
- * Wrapper function for watchdog() to log messages about checking
- * package metadata.
- */
-function wd_check($msg, $variables = array(), $link = NULL) {
-  watchdog('package_check', $msg, $variables, WATCHDOG_NOTICE, $link);
-  echo t($msg, $variables) . "\n";
 }
 
 /**
