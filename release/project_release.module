@@ -155,14 +155,20 @@ function project_release_node_info() {
 
 /**
  * Implement hook_project_permission_info()
+ *
+ * This advertises an 'Administer releases' permission if the site is
+ * configured to allow sandboxes to have releases, if the project is not a
+ * sandbox, or if the project already has releases enabled.
  */
 function project_release_project_permission_info($project = NULL) {
-  return array(
-    'administer releases' => array(
-      'title' => t('Administer releases'),
-      'description' => t('Allows a user to create and update releases, and to control which branches are recommended or supported.'),
-    ),
-  );
+  if (variable_get('project_release_sandbox_allow_release', TRUE) || empty($project->project['sandbox']) || !empty($project->project_release['releases'])) {
+    return array(
+      'administer releases' => array(
+        'title' => t('Administer releases'),
+        'description' => t('Allows a user to create and update releases, and to control which branches are recommended or supported.'),
+      ),
+    );
+  }
 }
 
 /**
