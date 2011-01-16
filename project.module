@@ -329,17 +329,16 @@ function project_settings_form() {
   }
 
   $vocabs = project_get_related_tids_map();
-  $project_vid = _project_get_vid();
-  $tree = taxonomy_get_tree($project_vid, 0, -1, 1);
-  $top_level = array(t('- None -'));
-  foreach ($tree as $term) {
-    $top_level[$term->tid] = $term->name;
+  $project_types = project_get_project_types();
+  $project_type_options[0] = t('- None -');
+  foreach ($project_types as $tid => $term) {
+    $project_type_options[$tid] = $term->name;
   }
   foreach ($vocabs as $vid => $vocab) {
     $form['project_type_associated_tid_' . $vid] = array(
       '#title' => t('Associated Project type taxonomy term for @vocab', array('@vocab' => $vocab->name)),
       '#type' => 'select',
-      '#options' => $top_level,
+      '#options' => $project_type_options,
       '#default_value' => variable_get('project_type_associated_tid_' . $vid, NULL),
       '#description' => t('If this vocabulary is specific to a project type, set the term here to allow Project to automatically show and hide the form as necessary.'),
     );
@@ -421,6 +420,27 @@ function _project_get_vid() {
   }
 
   return $vid;
+}
+
+/**
+ * Find the top-level terms in the project vocabulary (the project types).
+ *
+ * @return array
+ *   An associative array of top-level terms in the project vocabulary keyed
+ *   by term ID (tid), the values are the fully-loaded term objects.
+ *
+ * @see taxonomy_get_tree()
+ */
+function project_get_project_types() {
+  static $project_types = array();
+  if (empty($project_types)) {
+    $project_vid = _project_get_vid();
+    $tree = taxonomy_get_tree($project_vid, 0, -1, 1);
+    foreach ($tree as $term) {
+      $project_types[$term->tid] = $term;
+    }
+  }
+  return $project_types;
 }
 
 /**
@@ -604,10 +624,10 @@ function project_node_load($arg) {
  */
 function project_type_load($arg) {
   // Get all of the top-level terms in the project type vocabulary.
-  $tree = taxonomy_get_tree(_project_get_vid(), 0, -1, 1);
-  foreach ($tree as $project_type_term) {
-    if (strcasecmp($project_type_term->name, $arg) == 0) {
-      return $project_type_term;
+  $project_types = project_get_project_types();
+  foreach ($project_types as $term) {
+    if (strcasecmp($term->name, $arg) == 0) {
+      return $term;
     }
   }
   return FALSE;
@@ -1571,11 +1591,9 @@ function project_validate_project_shortname(&$node) {
     // project/issues/X paths used in project_issues module
     $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
     if (project_use_taxonomy()) {
-      $terms = taxonomy_get_tree(_project_get_vid());
-      foreach ($terms as $i => $term) {
-        if ($term->depth == 0) {
-          $reserved_names[] = strtolower($term->name);
-        }
+      $project_types = project_get_project_types();
+      foreach ($project_types as $term) {
+        $reserved_names[] = strtolower($term->name);
       }
     }
     if (in_array(strtolower($node->project['uri']), $reserved_names)) {

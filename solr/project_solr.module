@@ -255,10 +255,9 @@ function project_solr_apachesolr_prepare_query(&$query, &$params) {
  * Summary project browsing page.
  */
 function project_solr_browse_summary_page() {
-  $vid = _project_get_vid();
-  $tree = taxonomy_get_tree($vid, 0, -1, 1);
   $items = array();
-  foreach ($tree as $term) {
+  $project_types = project_get_project_types();
+  foreach ($project_types as $term) {
     $items[] = theme('project_type', $term);
   }
   drupal_set_title(t('Project types'));
@@ -650,9 +649,9 @@ function project_solr_browse_projects_form(&$form_state, $project_type, $path) {
       }
 
       // Build checkbox items for all terms in related vocabularies.
-      $tree = taxonomy_get_tree($vid, 0, -1, 1);
       $terms = array();
-      foreach ($tree as $term) {
+      $project_types = project_get_project_types();
+      foreach ($project_types as $term) {
         $terms[$term->tid] = $term->name;
       }
       asort($terms);
