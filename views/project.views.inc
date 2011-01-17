@@ -89,26 +89,6 @@ function project_views_data() {
     ),
   );
 
-  // cvs
-  $data['project_projects']['cvs'] = array(
-    'title' => t('CVS directory'),
-    'help' => t("The project's cvs directory."),
-    'field' => array(
-      'group' => t('Project'),
-      //'handler' => 'views_handler_field_node',
-      'click sortable' => TRUE,
-     ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_string',
-    ),
-    'argument' => array(
-      'handler' => 'views_handler_argument_string',
-    ),
-  );
-
   // demo
   $data['project_projects']['demo'] = array(
     'title' => t('Demonstration'),

@@ -1525,7 +1525,6 @@ function project_token_list($type) {
       'project_shortname' => t("A project's short name"),
       'project_homepage' => t("Link to a project's home page"),
       'project_changelog' => t("Link to a project's changelog"),
-      'project_cvs' => t("Link to a project's cvs tree"),
       'project_demo' => t('Demonstration link for a project'),
       'project_documentation' => t("Link to a project's documentation"),
       'project_screenshots' => t("Link to a project's screenshots"),
@@ -1544,7 +1543,6 @@ function project_token_values($type = 'all', $object = NULL) {
       $values['project_shortname'] = check_plain($object->project['uri']);
       $values['project_homepage'] = check_url($object->project['homepage']);
       $values['project_changelog'] = check_url($object->project['changelog']);
-      $values['project_cvs'] = check_url($object->project['cvs']);
       $values['project_demo'] = check_url($object->project['demo']);
       $values['project_documentation'] = check_url($object->project['documentation']);
       $values['project_screenshots'] = check_url($object->project['screenshots']);
@@ -1554,7 +1552,6 @@ function project_token_values($type = 'all', $object = NULL) {
       $values['project_shortname'] = '';
       $values['project_homepage'] = '';
       $values['project_changelog'] = '';
-      $values['project_cvs'] = '';
       $values['project_demo'] = '';
       $values['project_documentation'] = '';
       $values['project_screenshots'] = '';

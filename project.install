@@ -63,13 +63,6 @@ function project_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'cvs' => array(
-        'description' => 'An external link to the CVS repository for the project.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
       'demo' => array(
         'description' => 'An external link to a demonstration site for the project.',
         'type' => 'varchar',

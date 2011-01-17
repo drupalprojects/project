@@ -99,7 +99,6 @@ class ProjectWebTestCase extends DrupalWebTestCase {
       'project[license]' => 'http://example.com/' . $this->randomName(),
       'project[screenshots]' => 'http://example.com/' . $this->randomName(),
       'project[changelog]' => 'http://example.com/' . $this->randomName(),
-      'project[cvs]' => 'http://example.com/' . $this->randomName(),
       'project[demo]' => 'http://example.com/' . $this->randomName(),
     );
 
@@ -145,7 +144,6 @@ class ProjectTestCase extends ProjectWebTestCase {
     $edit['project[license]'] = 'http://example.com/' . $this->randomName();
     $edit['project[screenshots]'] = 'http://example.com/' . $this->randomName();
     $edit['project[changelog]'] = 'http://example.com/' . $this->randomName();
-    $edit['project[cvs]'] = 'http://example.com/' . $this->randomName();
     $edit['project[demo]'] = 'http://example.com/' . $this->randomName();
     $this->createProject($edit);
 
@@ -162,8 +160,6 @@ class ProjectTestCase extends ProjectWebTestCase {
     $this->assertRaw($edit['project[screenshots]'], t('Project screenshots displayed properly.'));
     $this->assertLink(t('Read complete log of changes'));
     $this->assertRaw($edit['project[changelog]'], t('Project changelog displayed properly.'));
-    $this->assertLink(t('Browse the CVS repository'));
-    $this->assertRaw($edit['project[cvs]'], t('Project changelog displayed properly.'));
     $this->assertLink(t('Try out a demonstration'));
     $this->assertRaw($edit['project[demo]'], t('Project changelog displayed properly.'));
     $this->assertText($edit['body'], t('Project description found.'));
