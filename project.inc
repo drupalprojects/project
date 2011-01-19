@@ -456,7 +456,7 @@ function project_project_insert($node) {
   if (variable_get('project_sandbox_numeric_shortname', FALSE) && $node->project['sandbox']) {
     $node->project['uri'] = $node->nid;
   }
-  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, demo, screenshots, documentation, license, sandbox) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", $node->nid, $node->project['uri'], $node->project['homepage'], $node->project['changelog'], $node->project['demo'], $node->project['screenshots'], $node->project['documentation'], $node->project['license'], $node->project['sandbox']);
+  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, demo, screenshots, documentation, license, sandbox) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", $node->nid, $node->project['uri'], $node->project['homepage'], $node->project['changelog'], $node->project['demo'], $node->project['screenshots'], $node->project['documentation'], $node->project['license'], $node->project['sandbox']);
 //  project_release_scan_directory($node->project['uri']);
   $perms = array_fill_keys(array_keys(project_permission_load($node)), 1);
   project_maintainer_save($node->nid, $node->uid, $perms);
