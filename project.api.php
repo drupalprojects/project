@@ -118,3 +118,15 @@ function hook_project_maintainer_project_load($nid, &$maintainers) {
     $maintainers[$maintainer->uid]['permissions']['some project permission'] = $maintainer->some_project_permission;
   }
 }
+
+/**
+ * Notify when a project is promoted from sandbox to full project status.
+ *
+ * @param stdClass $project
+ *   The fully-loaded project node which is undergoing promotion.
+ */
+function hook_project_promote_sandbox($project) {
+  // This is purely a notification hook, implementations will vary from use
+  // case to use case. On Drupal.org, we use it to trigger actions on the
+  // underlying Git repositories attached to project nodes.
+}

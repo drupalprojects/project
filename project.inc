@@ -683,4 +683,6 @@ function project_promote_project_form_submit($form, &$form_state) {
   drupal_set_message(t('The project %project_name has been promoted to a full project.', array('%project_name' => $project->title)));
   $form_state['redirect'] = 'node/'. $project->nid;
 
+  // Notify that this promotion has occurred.
+  module_invoke_all('project_promote_sandbox', $project);
 }
