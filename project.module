@@ -1077,11 +1077,31 @@ function _project_date($timestamp) {
  *   enabled.
  * @param $key_prefix
  *   Prefix to prepend to all keys in the returned array.
+ * @param string $include_sandbox
+ *   Should sandboxes be included in the listing? Can be either 'no' (exclude
+ *   sandboxes from the list, the default), 'yes' (include sandboxes) , 'only'
+ *   (only show sandboxes).
  */
-function project_projects_select_options(&$project_urls, $issues = TRUE, $key_prefix = NULL) {
+function project_projects_select_options(&$project_urls, $issues = TRUE, $key_prefix = NULL, $include_sandbox = 'no') {
   $projects = array();
   $ISSUE_JOIN = '';
   $ISSUE_WHERE = '';
+
+  switch ($include_sandbox) {
+    case 'no':
+      $SANDBOX_WHERE = 'AND p.sandbox = 0';
+      break;
+
+    case 'only':
+      $SANDBOX_WHERE = 'AND p.sandbox = 1';
+      break;
+      
+    default:
+      // Otherwise, ignore sandboxes entirely.
+      $SANDBOX_WHERE = '';
+      break;
+  }
+
   $args_use_taxonomy = array(1, 0);    // n.status, h.parent
   $args_no_taxonomy = array(1);        // n.status
   if ($issues && module_exists('project_issue')) {
@@ -1093,7 +1113,7 @@ function project_projects_select_options(&$project_urls, $issues = TRUE, $key_pr
   if (project_use_taxonomy()) {
     $vid = _project_get_vid();
     $args_use_taxonomy[] = $vid;
-    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, d.name, p.uri FROM {project_projects} p INNER JOIN {node} n ON n.nid = p.nid $ISSUE_JOIN LEFT JOIN {term_node} t ON t.vid = n.vid INNER JOIN {term_data} d ON t.tid = d.tid INNER JOIN {term_hierarchy} h ON t.tid = h.tid WHERE n.status = %d AND h.parent = %d $ISSUE_WHERE AND d.vid = %d GROUP BY n.nid, n.title, d.name, p.uri, d.weight ORDER BY d.weight, n.title"), $args_use_taxonomy);
+    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, d.name, p.uri FROM {project_projects} p INNER JOIN {node} n ON n.nid = p.nid $ISSUE_JOIN LEFT JOIN {term_node} t ON t.vid = n.vid INNER JOIN {term_data} d ON t.tid = d.tid INNER JOIN {term_hierarchy} h ON t.tid = h.tid WHERE n.status = %d AND h.parent = %d $SANDBOX_WHERE $ISSUE_WHERE AND d.vid = %d GROUP BY n.nid, n.title, d.name, p.uri, d.weight ORDER BY d.weight, n.title"), $args_use_taxonomy);
     while ($project = db_fetch_object($result)) {
       if (isset($project->name)) {
         if (!isset($projects[$project->name])) {
@@ -1110,7 +1130,7 @@ function project_projects_select_options(&$project_urls, $issues = TRUE, $key_pr
     }
   }
   else {
-   $result = db_query(db_rewrite_sql("SELECT n.nid, p.uri, n.title FROM {project_projects} p INNER JOIN {node} n ON n.nid = p.nid $ISSUE_JOIN WHERE n.status = %d $ISSUE_WHERE ORDER BY n.title"), $args_no_taxonomy);
+   $result = db_query(db_rewrite_sql("SELECT n.nid, p.uri, n.title FROM {project_projects} p INNER JOIN {node} n ON n.nid = p.nid $ISSUE_JOIN WHERE n.status = %d $SANDBOX_WHERE $ISSUE_WHERE ORDER BY n.title"), $args_no_taxonomy);
     while ($project = db_fetch_object($result)) {
       $projects[$key_prefix . $project->nid] = $project->title;
       if (is_array($project_urls)) {
