@@ -115,7 +115,7 @@ function project_project_form($node, $form_state) {
   );
   $form['project_node']['title'] = array(
     '#type' => 'textfield',
-    '#title' => t('Full project name'),
+    '#title' => t('Project title'),
     '#default_value' => isset($node->title) ? $node->title : NULL,
     '#maxlength' => 128,
     '#required' => TRUE,
@@ -213,7 +213,7 @@ function project_project_form($node, $form_state) {
   }
   drupal_add_js(array('project' => array('project_sandbox_numeric_shortname' => variable_get('project_sandbox_numeric_shortname', FALSE))), 'setting');
 
-  $form['project_node']['body_field'] = node_body_field($node, t('Full description'), 1);
+  $form['project_node']['body_field'] = node_body_field($node, t('Description'), 1);
 
   $form['project'] = array(
     '#type' => 'fieldset',
