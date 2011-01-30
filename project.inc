@@ -668,10 +668,61 @@ function project_promote_project_form_validate($form, &$form_state) {
 }
 
 /**
- * Submit handler for project promote form.
+ * Submit handler for project promote form. Redirects to a confirm form.
  */
 function project_promote_project_form_submit($form, &$form_state) {
-  $project = node_load($form_state['values']['pid']);
+  if (isset($form_state['values']['shortname'])) {
+    $_SESSION['project_promote_project_shortname'] = $form_state['values']['shortname'];
+  }
+  $form_state['redirect'] = 'node/' . $form_state['values']['pid'] . '/edit/promote/confirm';
+}
+
+/**
+ * Build a confirmation form for promoting sandbox projects to full projects.
+ */
+function project_promote_project_confirm_form($form_state, $project) {
+  if (empty($project)) {
+    drupal_set_message(t('Error: you cannot confirm promoting a sandbox to a full project without specifying the project.'), 'error');
+    return drupal_goto();
+  }
+  $form['nid'] = array(
+    '#type' => 'value',
+    '#value' => $project->nid,
+  );
+
+  if (isset($_SESSION['project_promote_project_shortname'])) {
+    $shortname = $_SESSION['project_promote_project_shortname'];
+    unset($_SESSION['project_promote_project_shortname']);
+  }
+  else {
+    $shortname = $project->project['uri'];
+  }
+  $form['shortname'] = array(
+    '#type' => 'value',
+    '#value' => $shortname,
+  );
+
+  // If the shortname can't otherwise be changed, make sure they understand
+  // this is *really* permanent once they press "Promote".
+  if (!variable_get('project_allow_uri_update', TRUE)) {
+    $confirm_text = t('The project will use the shortname %shortname which can not be changed later. Furthermore, once a project is promoted, it can not be turned back into a sandbox.', array('%shortname' => $shortname));
+  }
+  else {
+    $confirm_text = t('Once a project is promoted, it can not be turned back into a sandbox.');
+  }
+  return confirm_form(
+    $form,
+    t('Are you sure you want to promote %title from a sandbox to a full project with the shortname %shortname?', array('%title' => $project->title, '%shortname' => $shortname)),
+    'node/' . $project->nid . '/edit/promote',
+    $confirm_text, t('Promote'), t('Cancel')
+  );
+}
+
+/**
+ * Submit handler for project promote form.
+ */
+function project_promote_project_confirm_form_submit($form, &$form_state) {
+  $project = node_load($form_state['values']['nid']);
   $project->project['sandbox'] = 0;
 
   // Only update the shortname if it is relevant, and included in the original
@@ -679,9 +730,10 @@ function project_promote_project_form_submit($form, &$form_state) {
   if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
     $project->project['uri'] = $form_state['values']['shortname'];
   }
+
   node_save($project);
   drupal_set_message(t('The project %project_name has been promoted to a full project.', array('%project_name' => $project->title)));
-  $form_state['redirect'] = 'node/'. $project->nid;
+  $form_state['redirect'] = 'node/' . $project->nid;
 
   // Notify that this promotion has occurred.
   module_invoke_all('project_promote_sandbox', $project);

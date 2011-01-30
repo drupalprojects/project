@@ -586,6 +586,15 @@ function project_menu() {
     'file' => 'project.inc',
     'type' => MENU_LOCAL_TASK,
   );
+  $items['node/%project_edit_project/edit/promote/confirm'] = array(
+    'title' => 'Promote',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('project_promote_project_confirm_form', 1),
+    'access callback' => 'project_promote_project_access',
+    'access arguments' => array(1),
+    'file' => 'project.inc',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
