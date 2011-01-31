@@ -619,8 +619,11 @@ function project_promote_project_form($form_state, $project) {
     '#description' => t('Please confirm that you understand the implications of promoting this project.')
   );
 
-  // Only show the shortname field if it is auto-generate for sandboxed projects.
+  // Only show the shortname field if it's auto-generated for sandbox projects.
   if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
+    // Unset this in case the user cancels on the confirm form so we don't leak
+    // this into the $_SESSION permanently. Also ensures we start clean.
+    unset($_SESSION['project_promote_project_shortname']);
     $form['shortname'] = array(
       '#type' => 'textfield',
       '#title' => t('Short project name'),
@@ -692,7 +695,9 @@ function project_promote_project_confirm_form($form_state, $project) {
 
   if (isset($_SESSION['project_promote_project_shortname'])) {
     $shortname = $_SESSION['project_promote_project_shortname'];
-    unset($_SESSION['project_promote_project_shortname']);
+    // Note: we can't unset this value from the $_SEESSION here, or this form
+    // element won't be included when building the form during submission. So,
+    // we'll unset once we actually submit the confirm form.
   }
   else {
     $shortname = $project->project['uri'];
@@ -725,6 +730,7 @@ function project_promote_project_confirm_form_submit($form, &$form_state) {
   $project = node_load($form_state['values']['nid']);
   $project->project['sandbox'] = 0;
 
+  unset($_SESSION['project_promote_project_shortname']);
   // Only update the shortname if it is relevant, and included in the original
   // form.
   if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
