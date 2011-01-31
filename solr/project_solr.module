@@ -703,9 +703,7 @@ function project_solr_browse_projects_form(&$form_state, $project_type, $path) {
     }
   }
 
-  if (variable_get('project_solr_hide_sandbox_ui', TRUE)) {
-    $form['is_project_sandbox']['#access'] = FALSE;
-  }
+  $form['is_project_sandbox']['#access'] = variable_get('project_solr_show_sandbox_ui', FALSE);
 
   $form['text'] = array(
     '#title' => t('Search @project_type', array('@project_type' => $project_type->name)),
