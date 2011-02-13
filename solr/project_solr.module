@@ -138,11 +138,11 @@ function project_solr_apachesolr_update_index(&$document, $node) {
     $document->ss_project_uri = $node->project['uri'];
   }
   if (!empty($node->project)) {
-    // The initial "is" is for integer/single.
-    $document->is_project_sandbox = !empty($node->project['sandbox']) ? 1 : 0;
+    // The initial "bs" is for boolean/single.
+    $document->bs_project_sandbox = !empty($node->project['sandbox']) ? '1' : '0';
   }
   if (module_exists('project_release') && !empty($node->project_release['releases'])) {
-    $document->is_project_has_releases = 1;
+    $document->bs_project_has_releases = '1';
 
     $max_filetime = 0;
     $max_official_filetime = 0;
@@ -233,18 +233,10 @@ function project_solr_apachesolr_modify_query(&$query, &$params) {
 
   // If we don't have any explicit filter for the sandbox status of the
   // projects, add an explicit exclusion for sandbox projects.
-  foreach ($query->get_filters() as $filter) {
-    if ($filter['#name'] == 'is_project_sandbox') {
-      if ($filter['#value'] == 'all') {
-        // If the user manually selected 'All', remove the filter.
-        $query->remove_filter($filter['#name'], $filter['#value']);
-      }
-      $has_filter = TRUE;
-    }
-  }
-  if (!$has_filter) {
-    // If not defined, we want to *hide* sandboxes, hence 0.
-    $query->add_filter('is_project_sandbox', 0, TRUE);
+  if (!$query->get_filters('bs_project_sandbox')) {
+    // If not defined, we want to *hide* sandboxes, hence 1, with the
+    // third 'exclude' parameter set to TRUE (inverts the sense of the filter).
+    $query->add_filter('bs_project_sandbox', '1', TRUE);
   }
 }
 
@@ -343,7 +335,7 @@ function project_solr_browse_page($term_name) {
     $query->add_filter('type', 'project_project');
     $query->add_filter('im_vid_'. _project_get_vid(), $project_type->tid);
     if (module_exists('project_release')) {
-      $query->add_filter('is_project_has_releases', '1');
+      $query->add_filter('bs_project_has_releases', '1');
     }
 
     // Allow modules to alter the query prior to statically caching it.
@@ -685,25 +677,26 @@ function project_solr_browse_projects_form(&$form_state, $project_type, $path) {
     }
   }
 
-  // Add the project sandbox fields.
-  $form['is_project_sandbox'] = array(
+  // Add the project sandbox fields. Solr allows use of 0 and 1 to match false and true.
+  $form['bs_project_sandbox'] = array(
     '#title' => t('Status'),
     '#type' => 'select',
     '#options' => array(
-      0 => t('Official projects'),
-      'all' => t('All projects'),
-      1 => t('Only sandbox projects'),
+      '0' => t('Official projects'),
+      '[* TO *]' => t('All projects'),
+      '1' => t('Only sandbox projects'),
     ),
+    '#default_value' => '0',
   );
 
   // Extract the project sandbox value from our filters.
-  foreach ($query->get_filters() as $filter) {
-    if ($filter['#name'] == 'is_project_sandbox') {
-      $form['is_project_sandbox']['#default_value'] = $filter['#value'];
-    }
+  if ($filters = $query->get_filters('bs_project_sandbox')) {
+    // There can be only one.
+    $filter = end($filters);
+    $form['bs_project_sandbox']['#default_value'] = $filter['#value'];
   }
 
-  $form['is_project_sandbox']['#access'] = variable_get('project_solr_show_sandbox_ui', FALSE);
+  $form['bs_project_sandbox']['#access'] = variable_get('project_solr_show_sandbox_ui', FALSE);
 
   $form['text'] = array(
     '#title' => t('Search @project_type', array('@project_type' => $project_type->name)),
@@ -799,7 +792,7 @@ function project_solr_browse_projects_form_submit($form, &$form_state) {
   }
 
   // Add the project sandbox filter.
-  $query->add_filter('is_project_sandbox', $form_state['values']['is_project_sandbox']);
+  $query->add_filter('bs_project_sandbox', $form_state['values']['bs_project_sandbox']);
 
   // Add all project-specific sorts so that the sort set in set_solrsort() will
   // work as intended.
