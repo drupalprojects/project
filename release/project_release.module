@@ -934,7 +934,7 @@ function project_release_alter_project_promote_form(&$form, &$form_state) {
       '#return_value' => 1,
       '#weight' => 10,
       '#default_value' => $node->project_release['releases'],
-      '#description' => t('Allow releases of this project with specific versions.'),
+      '#description' => t('Allow releases of this project with specific versions. This can be changed later.'),
     );
     $form['#submit'][] = 'project_release_project_promote_form_submit';
   }
