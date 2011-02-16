@@ -8,10 +8,15 @@ function project_project_form($node, $form_state) {
   global $user;
   project_project_set_breadcrumb($node);
 
+  $form = array();
+
+  // Set an #after_build where we load JS used for this form so that the JS is
+  // always loaded, even when the form is cached (e.g. after a validation
+  // failure).
+  $form['#after_build'] = array('project_project_form_after_build');
+
   /* Project taxonomy */
   if (project_use_taxonomy()) {
-    // Since this form is used relatively infrequently, don't allow the js to be aggregated.
-    drupal_add_js(drupal_get_path('module', 'project') .'/project.js', 'module', 'header', FALSE, TRUE, FALSE);
     $project_type_vid = _project_get_vid();
     $tree = taxonomy_get_tree($project_type_vid);
     $top_level = array();
@@ -211,7 +216,6 @@ function project_project_form($node, $form_state) {
   if (variable_get('project_sandbox_numeric_shortname', FALSE) && $is_sandbox && isset($node->nid)) {
     $form['project_node']['project']['uri']['#disabled'] = TRUE;
   }
-  drupal_add_js(array('project' => array('project_sandbox_numeric_shortname' => variable_get('project_sandbox_numeric_shortname', FALSE))), 'setting');
 
   $form['project_node']['body_field'] = node_body_field($node, t('Description'), 1);
 
@@ -270,6 +274,23 @@ function project_project_form($node, $form_state) {
     '#maxlength' => 255,
     '#description' => t('Link to a live demo.'),
   );
+
+  return $form;
+}
+
+/**
+ * After-build callback for the project_project node form.
+ *
+ * Add JS for use on the project_project form because with the form cached
+ * the main form function isn't called again (and so JS isn't loaded).
+ */
+function project_project_form_after_build($form, &$form_state) {
+  // Since this form is used infrequently, don't allow the js to be aggregated.
+  drupal_add_js(drupal_get_path('module', 'project') .'/project.js', 'module', 'header', FALSE, TRUE, FALSE);
+
+  // The sandbox JS logic depends on a setting, so we need to pass that down
+  // to the JS here as well.
+  drupal_add_js(array('project' => array('project_sandbox_numeric_shortname' => variable_get('project_sandbox_numeric_shortname', FALSE))), 'setting');
 
   return $form;
 }
