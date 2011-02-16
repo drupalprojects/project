@@ -336,7 +336,7 @@ function project_solr_browse_page($term_name) {
     $query->add_filter('im_vid_'. _project_get_vid(), $project_type->tid);
     // We can only filter on bs_project_has_releases for just official projects,
     // since sandbox projects can never have releases.
-    if (module_exists('project_release') && $query->get_filters('bs_project_sandbox', '0')) {
+    if (module_exists('project_release') && $query->has_filter('bs_project_sandbox', '0')) {
       $query->add_filter('bs_project_has_releases', '1');
     }
 
