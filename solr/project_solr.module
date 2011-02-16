@@ -234,9 +234,19 @@ function project_solr_apachesolr_modify_query(&$query, &$params) {
   // If we don't have any explicit filter for the sandbox status of the
   // projects, add an explicit exclusion for sandbox projects.
   if (!$query->get_filters('bs_project_sandbox')) {
-    // If not defined, we want to *hide* sandboxes, hence 1, with the
-    // third 'exclude' parameter set to TRUE (inverts the sense of the filter).
+    // If not defined, we want to *hide* sandboxes (to match the
+    // #default_value for the exposed filter), hence 1, with the third
+    // 'exclude' parameter set to TRUE (inverts the sense of the filter).
     $query->add_filter('bs_project_sandbox', '1', TRUE);
+
+    // As we're building the query for the project browsing pages, we try to
+    // add this filter to hide projects without releases, but only if the
+    // query already has a filter that hides sandboxes. The default filter
+    // above won't have been added yet, so we won't have the filter for
+    // releases, either, unless we add it here ourselves.
+    if (module_exists('project_release')) {
+      $query->add_filter('bs_project_has_releases', '1');
+    }
   }
 }
 
