@@ -231,8 +231,9 @@ function project_solr_apachesolr_modify_query(&$query, &$params) {
     $query->add_subquery($tid_query, 'OR');
   }
 
-  // If we don't have any explicit filter for the sandbox status of the
-  // projects, add an explicit exclusion for sandbox projects.
+  // If we don't have any explicit filter for the sandbox status projects,
+  // add an explicit exclusion for sandbox projects or their related content
+  // (e.g. issues from sandbox projects). We want this for all solr queries.
   if (!$query->get_filters('bs_project_sandbox')) {
     // If not defined, we want to *hide* sandboxes (to match the
     // #default_value for the exposed filter), hence 1, with the third
@@ -242,9 +243,10 @@ function project_solr_apachesolr_modify_query(&$query, &$params) {
     // As we're building the query for the project browsing pages, we try to
     // add this filter to hide projects without releases, but only if the
     // query already has a filter that hides sandboxes. The default filter
-    // above won't have been added yet, so we won't have the filter for
-    // releases, either, unless we add it here ourselves.
-    if (module_exists('project_release')) {
+    // above to exclude sandbox content won't have been added yet, so we won't
+    // have the filter for releases, either, unless we add it here ourselves
+    // (but only if we're building a query for project nodes).
+    if ($query->has_filter('type', 'project_project') && module_exists('project_release')) {
       $query->add_filter('bs_project_has_releases', '1');
     }
   }
