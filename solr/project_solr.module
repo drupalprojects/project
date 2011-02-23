@@ -696,7 +696,7 @@ function project_solr_browse_projects_form(&$form_state, $project_type, $path) {
     '#title' => t('Status'),
     '#type' => 'select',
     '#options' => array(
-      '0' => t('Official projects'),
+      '0' => t('Full projects'),
       '[* TO *]' => t('All projects'),
       '1' => t('Only sandbox projects'),
     ),
