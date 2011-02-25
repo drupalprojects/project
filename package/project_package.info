@@ -1,4 +1,3 @@
-; $Id$
 name = Project package
 description = Provides support for packages made up of releases from separate projects.
 package = Project

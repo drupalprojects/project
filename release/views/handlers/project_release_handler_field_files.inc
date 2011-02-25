@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to provide a list of files associated with a release node.

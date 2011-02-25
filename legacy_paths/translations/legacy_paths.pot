@@ -1,4 +1,3 @@
-# $Id$
 #
 # LANGUAGE translation of Drupal (legacy_paths)
 # Copyright YEAR NAME <EMAIL@ADDRESS>

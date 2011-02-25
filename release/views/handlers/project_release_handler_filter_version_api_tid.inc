@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Filter release nodes based on their API compatibility term.

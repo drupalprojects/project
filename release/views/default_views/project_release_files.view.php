@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 $view = new view;
 $view->name = 'project_release_files';

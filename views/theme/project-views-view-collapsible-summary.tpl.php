@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file project-views-view-collapsible-summary.tpl.php
  * Default simple view template to display a list of summary lines within

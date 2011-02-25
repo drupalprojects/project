@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display the current update status of a release.

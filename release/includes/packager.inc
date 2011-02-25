@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Code required during release node packaging.

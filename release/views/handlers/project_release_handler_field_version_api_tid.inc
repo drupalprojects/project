@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display the API compatibility term for a release.

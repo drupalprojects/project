@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Views handler for relationships between releases and supported version info.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Redirect project browsing paths from the Drupal 5 form to the Drupal 6 form.

@@ -1,4 +1,3 @@
-/* $Id$ */
 
 Drupal.behaviors.projectAuto = function (context) {
   // The initially selected term, if any.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 $view = new view;
 $view->name = 'project_package_items';

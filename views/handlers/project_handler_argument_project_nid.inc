@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Argument handler for Project node IDs.

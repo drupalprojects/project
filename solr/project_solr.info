@@ -1,4 +1,3 @@
-; $Id$
 name = Project Solr
 description = Provides integration with ApacheSolr for facet-based project browsing
 package = Project

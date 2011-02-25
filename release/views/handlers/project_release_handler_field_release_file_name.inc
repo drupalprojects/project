@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler for release files that honors project_release_download_link.

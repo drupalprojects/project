@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function project_usage_install() {
   // Create the database tables.

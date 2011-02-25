@@ -1,4 +1,3 @@
-/* $Id$ */
 
 // IE doesn't support hiding or disabling select options, so we have to rebuild the list. :(
 Drupal.projectReleaseRebuildSelect = function() {

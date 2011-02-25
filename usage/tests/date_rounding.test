@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 class ProjectUsageGetDateTests extends DrupalTestCase {
   function get_info() {

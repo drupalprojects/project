@@ -1,4 +1,3 @@
-; $Id$
 name = Project Legacy Paths
 description = Provides redirection from project browsing paths in the Drupal 5 version of the project module to equivalent paths in the Drupal 6 version.
 package = Project

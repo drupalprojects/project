@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Views filter handler for matching project release nodes.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file project-views-view-project-list.tpl.php
  * Default simple view template to display a list of project rows.
