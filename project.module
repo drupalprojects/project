@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 // Drupal hooks
 function project_system($field) {
