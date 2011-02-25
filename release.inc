@@ -1,5 +1,4 @@
 <?php
-// $Id$
 // $Name$
 
 function project_release_scan() {

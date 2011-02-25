@@ -33,5 +33,4 @@ Upgrading
    your database to prepare your data for use with the project_issue
    module.  See modules/project_issue/INSTALL.txt for more information.
 
-$Id$
 $Name$
