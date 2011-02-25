@@ -1,5 +1,4 @@
 <?php
-/* $Id$ */
 
 function project_comment_page() {
   switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
