@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function project_issue_node($field) {
   $info["name"] = t("Issue");
