@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function project_release_cron() {
   // TODO: should be able to optimize this to use less file system calls.
