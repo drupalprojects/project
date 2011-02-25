@@ -35,5 +35,4 @@ http://drupal.org/node/58066
 http://drupal.org/node/75053
 http://drupal.org/node/86694
 
-$Id$
 $Name$

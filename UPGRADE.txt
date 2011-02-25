@@ -1,4 +1,3 @@
-$Id$
 
 ======================================================================
 This file contains specific instructions for upgrading your site's

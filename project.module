@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 $path = drupal_get_path('module', 'project');
 if (file_exists("$path/project.inc")) {

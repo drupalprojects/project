@@ -270,7 +270,6 @@ project.module
 - revisions are complex!
 - fixed a crash bug and did some parsing changes
 
-$Id$
 $Name$
 
 16. December 2001

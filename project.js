@@ -1,4 +1,3 @@
-/* $Id$ */
 
 Drupal.projectAutoAttach = function () {
   // The initially selected term, if any.

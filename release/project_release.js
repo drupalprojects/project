@@ -1,4 +1,3 @@
-/* $Id$ */
 
 Drupal.projectReleaseAutoAttach = function () {
   // Set handler for clicking a radio to change the recommended version.
