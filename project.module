@@ -9,7 +9,6 @@
 * @package Project module
 */
 
-// $Id$
 
 // Drupal hooks
 function project_system($field) {
