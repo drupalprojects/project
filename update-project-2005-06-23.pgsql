@@ -1,4 +1,3 @@
--- $Id$
 
 ALTER TABLE project_issues RENAME state TO sid;
 ALTER TABLE project_issues ALTER COLUMN sid SET smallint;

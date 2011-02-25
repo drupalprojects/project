@@ -1,5 +1,4 @@
 <?php
-// $Id$
 // $Name$
 
 define('PROJECT_RELEASE_DEFAULT_VERSION_FORMAT', '!major%minor%patch#extra');
