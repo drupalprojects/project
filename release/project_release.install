@@ -182,6 +182,12 @@ function project_release_schema() {
         'size' => 'tiny',
         'description' => 'Weight of this file in relation to other files in this release.',
       ),
+      'downloads' => array(
+        'description' => 'Number of times this file has been downloaded. This value is updated by site specific means.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'primary key' => array('fid'),
     'indexes' => array('nid' => array('nid')),
@@ -804,5 +810,20 @@ function project_release_update_6011() {
     'description' => 'Weight of this file in relation to other files in this release.',
   );
   db_add_field($ret, 'project_release_file', 'weight', $spec);
+  return $ret;
+}
+
+/**
+ * Add the 'downloads' column to {project_release_file}.
+ */
+function project_release_update_6012() {
+  $ret = array();
+  $spec = array(
+    'description' => 'Number of times this file has been downloaded. This value is updated by site specific means.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field($ret, 'project_release_file', 'downloads', $spec);
   return $ret;
 }
