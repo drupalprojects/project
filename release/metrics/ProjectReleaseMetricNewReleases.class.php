@@ -17,19 +17,11 @@ class ProjectReleaseMetricNewReleases extends SamplerMetric {
    *   current sample period.
    */
   public function computeSample() {
-    // Load options.
-    $options = $this->currentSample->options;
 
-    // Figure out the date range we're using for this sample.
-    if ($previous = $this->getPreviousSample()) {
-      $start = $previous->timestamp;
-      $end = $this->currentSample->timestamp;
-    }
-    else {
-      return FALSE;
-    }
+    $sample = $this->currentSample;
+    $options = $sample->options;
 
-    $args = array($start, $end);
+    $args = array($sample->sample_startstamp, $sample->sample_endstamp);
 
     // Restrict to only the passed project nids.
     if (!empty($options['object_ids'])) {
@@ -46,8 +38,8 @@ class ProjectReleaseMetricNewReleases extends SamplerMetric {
     // and then GROUP by the project nid so we can get release counts.
     $nodes = db_query("SELECT np.nid, COUNT(nr.nid) AS count FROM {node} np LEFT JOIN {project_release_nodes} prn ON np.nid = prn.pid LEFT JOIN {node} nr ON prn.nid = nr.nid AND nr.created > %d AND nr.created < %d$where GROUP BY np.nid ORDER BY NULL", $args);
     while ($node = db_fetch_object($nodes)) {
-      $this->currentSample->values[$node->nid] = array($node->count);
+      $this->currentSample->values[$node->nid]['releases'] = $node->count;
     }
   }
-
 }
+

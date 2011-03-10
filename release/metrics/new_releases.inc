@@ -8,7 +8,11 @@
 $plugin = array(
   'title' => t('New releases per project'),
   'description' => t("Counts how many new releases were created for each project during each sample period."),
+  'data_type' => array(
+    'releases' => 'int',
+  ),
   'handler' => array(
     'class' => 'ProjectReleaseMetricNewReleases',
   ),
 );
+
