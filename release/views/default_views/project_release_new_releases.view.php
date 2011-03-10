@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 if (module_exists('sampler')) {
 $view = new view;
