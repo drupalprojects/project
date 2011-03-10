@@ -10,7 +10,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
     $modules = array_merge(array('project'), $modules);
     // We can't call parent::setUp() with a single array argument, so we need
     // this ugly call_user_func_array().
-    call_user_func_array(array($this, 'parent::setUp'), $modules);
+    call_user_func_array(array('ProjectWebTestCase', 'parent::setUp'), $modules);
 
     $perms = array('create full projects', 'access user profiles', 'access projects');
 
