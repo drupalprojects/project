@@ -170,8 +170,8 @@ function project_views_data() {
 
   // sandbox
   $data['project_projects']['sandbox'] = array(
-    'title' => t('Sandbox'),
-    'help' => t('Indicate whether or not this project is a sandbox.'),
+    'title' => t('Project status'),
+    'help' => t('Filters full projects from sandbox projects.'),
     'field' => array(
       'group' => t('Project'),
       'handler' => 'views_handler_field_boolean',
@@ -181,7 +181,8 @@ function project_views_data() {
       'handler' => 'views_handler_sort',
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_boolean_operator ',
+      'label' => t('Project status'),
+      'handler' => 'project_handler_filter_project_status',
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
@@ -272,8 +273,8 @@ function project_views_handlers() {
       'project_handler_filter_project_sort_method' => array(
         'parent' => 'views_handler_filter',
       ),
-      'project_handler_filter_project_type_vid' => array(
-        'parent' => 'views_handler_filter_in_operator',
+      'project_handler_filter_project_status' => array(
+        'parent' => 'views_handler_filter_boolean_operator',
       ),
       'project_handler_filter_project_type_vid' => array(
         'parent' => 'views_handler_filter_in_operator',

@@ -9,10 +9,10 @@ $view = new view;
 $view->name = 'project_index';
 $view->description = 'Listing of all projects by title';
 $view->tag = '';
-$view->view_php = '';
 $view->base_table = 'node';
 $view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->core = 0;
+$view->api_version = '2';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 $handler = $view->new_display('default', 'Defaults', 'default');
 $handler->override_option('fields', array(
@@ -78,19 +78,16 @@ $handler->override_option('arguments', array(
     'table' => 'term_node',
     'field' => 'tid',
     'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(
-    ),
+    'validate_user_roles' => array(),
     'relationship' => 'none',
     'default_options_div_prefix' => '',
     'default_argument_fixed' => '',
     'default_argument_user' => 0,
     'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-    ),
+    'validate_argument_node_type' => array(),
     'validate_argument_node_access' => 0,
     'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(
-    ),
+    'validate_argument_vocabulary' => array(),
     'validate_argument_type' => 'convert',
     'validate_argument_transform' => 0,
     'validate_user_restrict_roles' => 0,
@@ -130,6 +127,23 @@ $handler->override_option('filters', array(
     'id' => 'type',
     'table' => 'node',
     'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'sandbox' => array(
+    'operator' => '=',
+    'value' => '0',
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'operator' => '',
+      'identifier' => 'project-status',
+      'label' => 'Project status',
+      'optional' => 1,
+      'remember' => 0,
+    ),
+    'id' => 'sandbox',
+    'table' => 'project_projects',
+    'field' => 'sandbox',
     'relationship' => 'none',
   ),
 ));
@@ -185,19 +199,16 @@ $handler->override_option('arguments', array(
     'table' => 'term_node',
     'field' => 'tid',
     'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(
-    ),
+    'validate_user_roles' => array(),
     'relationship' => 'none',
     'default_options_div_prefix' => '',
     'default_argument_fixed' => '',
     'default_argument_user' => 0,
     'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-    ),
+    'validate_argument_node_type' => array(),
     'validate_argument_node_access' => 0,
     'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(
-    ),
+    'validate_argument_vocabulary' => array(),
     'validate_argument_type' => 'convert',
     'validate_argument_transform' => 0,
     'validate_user_restrict_roles' => 0,
