@@ -2286,3 +2286,14 @@ function project_release_views_default_views_alter(&$views) {
   _project_release_views_default_views_alter($views);
 }
 
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function project_release_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'sampler') {
+    switch ($plugin) {
+      case 'metric':
+        return 'metrics';
+    }
+  }
+}
