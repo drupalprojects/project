@@ -39,7 +39,7 @@ class ProjectReleaseMetricNewReleases extends ProjectReleaseMetric {
     // Pull all release nodes created during the specified time.
     $nodes = db_query("SELECT prn.pid, COUNT(nr.nid) AS releases FROM {project_release_nodes} prn INNER JOIN {node} nr ON prn.nid = nr.nid AND nr.created >= %d AND nr.created < %d$where GROUP BY prn.pid", $args);
     while ($node = db_fetch_object($nodes)) {
-      $this->currentSample->values[$node->pid]['releases'] = $node->releases;
+      $this->currentSample->values[$node->pid]['releases'] = (int)$node->releases;
     }
   }
 }
