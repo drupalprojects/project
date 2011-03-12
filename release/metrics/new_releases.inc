@@ -12,6 +12,7 @@ $plugin = array(
   ),
   'handler' => array(
     'class' => 'ProjectReleaseMetricNewReleases',
+    'parent' => 'project_release_metric',
   ),
 );
 

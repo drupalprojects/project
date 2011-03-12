@@ -5,7 +5,7 @@
  * Class for new_releases metric.
  */
 
-class ProjectReleaseMetricNewReleases extends SamplerMetric {
+class ProjectReleaseMetricNewReleases extends ProjectReleaseMetric {
 
   /**
    * Counts new releases made for each project during any given sample period.
@@ -21,6 +21,12 @@ class ProjectReleaseMetricNewReleases extends SamplerMetric {
     $options = $sample->options;
     $args = array($sample->sample_startstamp, $sample->sample_endstamp);
 
+    // Initialize the projects array.
+    $data_types = array(
+      'releases' => 0,
+    );
+    $this->projectReleaseMetricInitProjects($data_types);
+
     // Restrict to only the passed project nids.
     if (!empty($options['object_ids'])) {
       $where = " WHERE prn.pid IN (". db_placeholders($options['object_ids']) .")";
@@ -30,23 +36,11 @@ class ProjectReleaseMetricNewReleases extends SamplerMetric {
       $where = '';
     }
 
-    // We pull all project nodes from {node}, LEFT JOIN with release nodes
-    // from {project_release_nodes} to get releases per project, LEFT JOIN
-    // with {node} each release node to filter by release node creation date,
-    // and then GROUP by the project nid so we can get release counts.
-    $nodes = db_query("SELECT pp.nid, COUNT(nr.nid) as count FROM {project_projects} pp LEFT JOIN {project_release_nodes} prn ON pp.nid = prn.pid LEFT JOIN {node} nr ON prn.nid = nr.nid AND nr.type = 'project_release' AND nr.created >= %d AND nr.created < %d$where GROUP BY pp.nid", $args);
+    // Pull all release nodes created during the specified time.
+    $nodes = db_query("SELECT prn.pid, COUNT(nr.nid) AS releases FROM {project_release_nodes} prn INNER JOIN {node} nr ON prn.nid = nr.nid AND nr.created >= %d AND nr.created < %d$where GROUP BY prn.pid", $args);
     while ($node = db_fetch_object($nodes)) {
-      $this->currentSample->values[$node->nid]['releases'] = $node->count;
+      $this->currentSample->values[$node->pid]['releases'] = $node->releases;
     }
-  }
-
-  public function trackObjectIDs() {
-    $nids = array();
-    $releases = db_query("SELECT nid FROM {project_projects}");
-    while ($release = db_fetch_object($releases)) {
-      $nids[] = $release->nid;
-    }
-    return $nids;
   }
 }
 
