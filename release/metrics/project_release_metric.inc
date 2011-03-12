@@ -11,6 +11,7 @@
 $plugin = array(
   'title' => t('Project release metrics'),
   'description' => t("Base plugin for all Project release metrics."),
+  'non_metric' => TRUE,
   'handler' => array(
     'class' => 'ProjectReleaseMetric',
   ),
