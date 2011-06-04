@@ -137,8 +137,8 @@ function project_release_get_packager_plugin($release_node, $file_destination_ro
 /**
  * Update the DB with the new file info for a given release node.
  *
- * @param $nid
- *   The node ID of the release node to update.
+ * @param $release_node
+ *   The fully loaded release node to update.
  * @param $file_destination_directory
  *   The full path to the directory where packaged release files are stored.
  * @param $files
@@ -190,7 +190,7 @@ function project_release_packager_update_node($release_node, $file_destination_d
   // Store package contents if necessary.
   if (!empty($package_contents) && module_exists('project_package')) {
     foreach ($package_contents as $item_nid) {
-      db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (%d, %d)", $nid, $item_nid);
+      db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (%d, %d)", $release_node->nid, $item_nid);
     }
   }
 
