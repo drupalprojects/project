@@ -245,6 +245,7 @@ function package_releases($type, $project_id = 0) {
       case 'success':
       case 'rebuild':
         project_release_packager_update_node($release_node, $dest_root, $files, $contents);
+        module_invoke_all('project_release_create_package', $project_node, $release_node);
         $num_built++;
         $packager->cleanupSuccessfulBuild();
         $release_pid = $release_node->project_release['pid'];

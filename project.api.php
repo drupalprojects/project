@@ -129,3 +129,16 @@ function hook_project_promote_sandbox($project) {
   // case to use case. On Drupal.org, we use it to trigger actions on the
   // underlying Git repositories attached to project nodes.
 }
+
+/**
+ * Notify when a project release node is packaged.
+ *
+ * @param $project_node
+ *   The fully-loaded project node of the related project.
+ * @param $release_node
+ *   The fully-loaded project release node that has been packaged.
+ */
+function hook_project_release_create_package($project_node, $release_node) {
+  // This is purely a notification hook, implementations will vary from use
+  // case to use case.
+}
