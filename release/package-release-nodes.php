@@ -226,8 +226,11 @@ function package_releases($type, $project_id = 0) {
       continue;
     }
 
+    // Load the corresponding project node.
+    $project_node = project_release_packager_node_load($release_node->project_release['pid']);
+
     $packager = project_release_get_packager_plugin($release_node, $dest_root, $dest_rel, $tmp_dir);
-    if (empty($packager)) {
+    if (empty($project_node) || empty($packager)) {
       wd_err("ERROR: Can't find packager plugin to use for %release", array('%release' => $release_node->title));
       continue;
     }
