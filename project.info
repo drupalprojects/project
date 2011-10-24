@@ -1,5 +1,5 @@
 name = Project
-description = Provides a project node type and browsing of projects.
+description = Will provide a project entity type, some custom fields, and project browsing.
 package = Project
 dependencies[] = views
-core = 6.x
+core = 7.x
