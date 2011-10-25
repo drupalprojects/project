@@ -1,10 +1,29 @@
 <?php
 
 function project_install() {
+  $field = array(
+    'label' => t('Project machine name'),
+    'field_name' => 'field_project_machine_name',
+    'type' => 'machine_name',
+    'cardinality' => 1,
+    'settings' => array(
+      'replace_pattern' => '[^a-zA-Z0-9_-]+',
+    ),
+  );
+  field_create_field($field);
+  // TODO: this instance should be created on the default project bundle.
+  $instance = array(
+    'field_name' => 'field_project_machine_name',
+    'bundle' => 'page',
+    'entity_type' => 'node',
+  );
+  field_create_instance($instance);
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function project_uninstall() {
+  field_delete_field('field_project_machine_name');
+  watchdog('project', 'Deleted the :field_name field from all content type instances.', array(':field_name' => $field_name));
 }

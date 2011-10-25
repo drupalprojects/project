@@ -1,5 +1,5 @@
 name = Project
-description = Will provide a project entity type, some custom fields, and project browsing.
+description = Make node types into Projects.
 package = Project
-dependencies[] = views
+dependencies[] = machine_name
 core = 7.x
