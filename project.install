@@ -1,0 +1,10 @@
+<?php
+
+function project_install() {
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function project_uninstall() {
+}
