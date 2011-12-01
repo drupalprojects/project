@@ -491,7 +491,7 @@ function project_release_db_save($node, $is_new) {
 
     if (($type_vid = _project_release_get_release_type_vid()) && ($security_tid = variable_get('project_release_security_update_tid', 0))) {
       $types['security_update'] = '%d';
-      $values['security_update'] = !empty($node->taxonomy[$type_vid][$security_tid]);
+      $values['security_update'] = (array_search($security_tid, $node->taxonomy[$type_vid]) !== FALSE);
     }
   }
 
