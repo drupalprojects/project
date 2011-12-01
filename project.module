@@ -896,7 +896,7 @@ function project_maintainer_save($nid, $uid, $permissions = array()) {
   db_query("UPDATE {project_maintainer} SET edit_project = %d, administer_maintainers = %d WHERE nid = %d AND uid = %d", !empty($permissions['edit project']), !empty($permissions['administer maintainers']), $nid, $uid);
   if (!db_affected_rows()) {
     // Didn't update anything, add this as a new maintainer, instead.
-    db_query("INSERT INTO {project_maintainer} (nid, uid, edit_project, administer_maintainers) VALUES (%d, %d, %d, %d)", $nid, $uid, !empty($permissions['edit project']), !empty($permissions['administer maintainers']));
+    @db_query("INSERT INTO {project_maintainer} (nid, uid, edit_project, administer_maintainers) VALUES (%d, %d, %d, %d)", $nid, $uid, !empty($permissions['edit project']), !empty($permissions['administer maintainers']));
   }
 
   // Invoke hook_project_maintainer_save() to let other modules know this
