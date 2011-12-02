@@ -281,8 +281,7 @@ function project_release_views_data() {
   );
 
   // version_api_tid
-  if (module_exists('taxonomy')) {
-    $vocabulary = taxonomy_vocabulary_load(_project_release_get_api_vid());
+  if (module_exists('taxonomy') && $vocabulary = taxonomy_vocabulary_load(_project_release_get_api_vid())) {
     $data['project_release_nodes']['version_api_tid'] = array(
       // We don't want to use the vocabulary name in the title here, since
       // that will show up in the labels of exported views and get confusing.
