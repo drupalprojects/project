@@ -46,6 +46,86 @@ function project_package_schema() {
     ),
     'primary key' => array('package_nid', 'item_nid'),
   );
+
+  $schema['project_package_remote_item'] = array(
+    'description' => 'Keeps track of what remote items (or libraries) are included in a release of a given package project.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key: The primary identifier for a remote item.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'package_nid' => array(
+        'description' => 'The {node}.nid of the package release node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => 'A name to describe this remote item.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'url' => array(
+        'description' => 'The URL of a remote item (or library) included as an item in the package.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array('project_package_remote_item_package_nid' => array('package_nid')),
+  );
+
   return $schema;
 }
 
+/**
+ * Add table for remote items.
+ */
+function project_package_update_6001() {
+  $ret = array();
+
+  $remote_item_schema = array(
+    'description' => 'Keeps track of what remote items (or libraries) are included in a release of a given package project.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a remote item.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'package_nid' => array(
+        'description' => 'Primary Key: The {node}.nid of the package release node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => 'A name to describe this remote item.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'url' => array(
+        'description' => 'The URL of a remote item (or library) included as an item in the package.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array('project_package_remote_item_package_nid' => array('package_nid')),
+  );
+  db_create_table($ret, 'project_package_remote_item', $remote_item_schema);
+
+  return $ret;
+}

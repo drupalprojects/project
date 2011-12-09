@@ -50,7 +50,11 @@ function project_package_release_nodeapi(&$node, $op, $arg) {
         $node->project_package['count'] = $count;
       }
       break;
-      
+
+    case 'delete':
+      project_package_clear_release_items($node->nid);
+      break;
+
   }
 }
 
@@ -81,3 +85,44 @@ function project_package_check_update_status($item_nids) {
   }
 }
 
+/**
+ * Record a remote item (or library) included in a given release.
+ *
+ * @param integer $package_nid
+ *   The release node ID of the package to record the remote item for.
+ *
+ * @param string $item_url
+ *   The fully qualified URL where the remote item lives.
+ *
+ * @param string $name
+ *   A human readable name to be associated with the item.
+ */
+function project_package_record_remote_item($package_nid, $item_url, $name) {
+  // Try to update an existing record, if any.
+  $record = (object) array(
+    'package_nid' => $package_nid,
+    'url' => $item_url,
+    'name' => $name,
+  );
+
+  $id = db_result(db_query("SELECT id FROM {project_package_remote_item} WHERE package_nid = %d AND url = '%s'", $record->package_nid, $record->url));
+  if ($id) {
+    $record->id = $id;
+    $update = array('id');
+  }
+  else {
+    $update = array();
+  }
+
+  drupal_write_record('project_package_remote_item', $record, $update);
+
+  return $record->id;
+}
+
+/**
+ * Remove all records containing package contents for a release node.
+ */
+function project_package_clear_release_items($nid) {
+  db_query("DELETE FROM project_package_local_release_item WHERE package_nid = %d", $nid);
+  db_query("DELETE FROM project_package_remote_item WHERE package_nid = %d", $nid);
+}
