@@ -120,9 +120,76 @@ function project_package_record_remote_item($package_nid, $item_url, $name) {
 }
 
 /**
+ * Record a patch file included in a given release package.
+ *
+ * @param integer $package_nid
+ *   The release node ID of the package to record the patch information for.
+ *
+ * @param string $patch_url
+ *   The fully qualified URL where the patch file lives.
+ *
+ * @param integer $item_id
+ *   The local release item ID, or remote item ID to which the patch applies.
+ *
+ *   This id references either {project_package_local_release_item}.item_nid or
+ *   {project_package_remote_item}.id.
+ *
+ * @param string $item_type
+ *   The type of item to which the patch is applied. Either 'local' or 'remote'.
+ *
+ *   Items marked 'local', correspond to items recorded in
+ *   {project_package_local_release_item} and items marked as 'remote'
+ *   correspond with items recorded in {project_package_remote_item}.
+ */
+function project_package_record_patch($package_nid, $patch_url, $item_id, $item_type) {
+  global $base_url;
+
+  // See if the patch URL is a local patch
+  $url = parse_url($patch_url);
+  $local_url = parse_url($base_url);
+  $local = ($url['host'] == $local_url['host']);
+
+  // If it is local, see if the patch is attached to a node or comment.
+  $patch_issue = array();
+  if ($local) {
+    $filepath = substr($url['path'], 1);
+    // Check if the file is attached to an issue with comment_upload.
+    $related_issue = db_fetch_object(db_query("SELECT n.nid as nid, n.title as title, cu.cid as cid FROM {files} f LEFT JOIN {comment_upload} cu ON f.fid = cu.fid LEFT JOIN {node} n ON cu.nid = n.nid WHERE filepath = '%s' LIMIT 1", $filepath));
+
+    if ($related_issue) {
+      $patch_issue['nid'] = $related_issue->nid;
+      $patch_issue['cid'] = $related_issue->cid;
+      $patch_issue['description'] = $related_issue->title;
+    }
+
+    // Check if the file is attached to a regular node with upload module.
+    if (!isset($patch_issue['nid'])) {
+      $node = db_fetch_object(db_query("SELECT n.nid as nid, n.title as title FROM files f LEFT JOIN upload u ON f.fid = u.fid LEFT JOIN node n ON u.nid = n.nid WHERE filepath = '%s'", $filepath));
+      if ($node) {
+        $patch_issue['nid'] = $node->nid;
+        $patch_issue['description'] = $node->title;
+      }
+    }
+  }
+
+  // Finally, save a record into {project_package_(remote|local)_patch}.
+  $table = "project_package_{$item_type}_patch";
+  $item_column = ($item_type == 'local') ? 'item_nid' : 'remote_id';
+
+  // Try to update an existing record, if any.
+  db_query("UPDATE {%s} SET %s = %d, patch_description_url = '%s', patch_nid = %d, patch_comment_id = %d WHERE package_nid = %d AND patch_file_url = '%s'", $table, $item_column, $item_id, $patch_issue['description'], $patch_issue['nid'], $patch_issue['cid'], $package_nid, $patch_url);
+  if (!db_affected_rows()) {
+    // Didn't update anything, add this as a record, instead.
+    @db_query("INSERT INTO {%s} (package_nid, %s, patch_file_url, patch_description_url, patch_nid, patch_comment_id) VALUES (%d, %d, '%s', '%s', %d, %d)", $table, $item_column, $package_nid, $item_id, $patch_url, $patch_issue['description'], $patch_issue['nid'], $patch_issue['cid']);
+  }
+}
+
+/**
  * Remove all records containing package contents for a release node.
  */
 function project_package_clear_release_items($nid) {
   db_query("DELETE FROM project_package_local_release_item WHERE package_nid = %d", $nid);
   db_query("DELETE FROM project_package_remote_item WHERE package_nid = %d", $nid);
+  db_query("DELETE FROM project_package_local_patch WHERE package_nid = %d", $nid);
+  db_query("DELETE FROM project_package_remote_patch WHERE package_nid = %d", $nid);
 }
