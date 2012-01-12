@@ -11,6 +11,8 @@
 function project_package_views_data() {
   $data = array();
 
+  // Fields for {project_package_local_release_item}
+
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this group by default.
   $data['project_package_local_release_item']['table']['group']  = t('Project package');
@@ -78,6 +80,85 @@ function project_package_views_data() {
       'base' => 'node',
       'handler' => 'views_handler_relationship',
       'label' => t('Item release node'),
+    ),
+  );
+
+  // Fields for {project_package_remote_item}
+
+  // Define the base group of this table. Fields that don't
+  // have a group defined will go into this group by default.
+  $data['project_package_remote_item']['table']['group']  = t('Project package remote items');
+
+  // Advertise this table as a possible base table
+  $data['project_package_remote_item']['table']['base'] = array(
+    'field' => 'id',
+    'title' => t('Package remote items'),
+    'help' => t("Remote items (or libraries) included in a release package."),
+  );
+
+  // package_nid
+  $data['project_package_remote_item']['package_nid'] = array(
+    'title' => t('Package node'),
+    'help' => t('The node ID of the package release node.'),
+    'field' => array(
+      'handler' => 'views_handler_field_node',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_node_nid',
+      'name field' => 'title',
+      'numeric' => TRUE,
+      'validate type' => 'nid',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'help' => t('Add a relationship to gain access to more node data for the package release.'),
+      'base' => 'node',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Package release node'),
+    ),
+  );
+
+  // name
+  $data['project_package_remote_item']['name'] = array(
+    'title' => t('Remote item name'),
+    'help' => t('The name of the remote item.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  // url
+  $data['project_package_remote_item']['url'] = array(
+    'title' => t('Remote item URL'),
+    'help' => t('The URL of the remote item.'),
+    'field' => array(
+      'handler' => 'views_handler_field_url',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
     ),
   );
 
