@@ -55,6 +55,24 @@ function project_package_release_nodeapi(&$node, $op, $arg) {
       project_package_clear_release_items($node->nid);
       break;
 
+    case 'view':
+      if ($node->type == 'project_release') {
+        // Embed a view into the release node output for remote items.
+        $output = '';
+        $count = db_result(db_query("SELECT COUNT(*) FROM {project_package_remote_item} WHERE package_nid = %d", $node->nid));
+        if (!empty($count)) {
+          $view_info = variable_get('project_package_remote_items_view', 'project_package_remote_items:default');
+          list($view_name, $display_name) = split(':', $view_info);
+          $output .= '<h3>' . t('External code in this package') . '</h3>';
+          $output .= views_embed_view($view_name, $display_name, $node->nid);
+          $node->content['release_package_remote_items'] = array(
+            '#value' => '<div class="project-release-package-remote-items">'. $output .'</div>',
+            '#weight' => -1,
+          );
+        }
+      }
+      break;
+
   }
 }
 
