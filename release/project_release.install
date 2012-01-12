@@ -150,6 +150,26 @@ function project_release_schema() {
       'project_releases_pid' => array('pid')
     ),
   );
+  $schema['project_release_node_rebuild_metadata'] = array(
+    'description' => t('Tracks metadata about releases that are periodically rebuilt.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('Foreign key: {project_release_node}.nid of the project release.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rebuild_version' => array(
+        'description' => t('The current version string for this release based on the last time it was rebuilt.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
 
   $schema['project_release_file'] = array(
     'description' => 'Stores information about files attached to release nodes.',
@@ -825,5 +845,37 @@ function project_release_update_6012() {
     'default' => 0,
   );
   db_add_field($ret, 'project_release_file', 'downloads', $spec);
+  return $ret;
+}
+
+/**
+ * Add the {project_release_node_rebuild_metadata} table.
+ */
+function project_release_update_6013() {
+  $ret = array();
+
+  $table = array(
+    'description' => t('Tracks metadata about releases that are periodically rebuilt.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('Foreign key: {project_release_node}.nid of the project release.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rebuild_version' => array(
+        'description' => t('The current version string for this release based on the last time it was rebuilt.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  db_create_table($ret, 'project_release_node_rebuild_metadata', $table);
+
   return $ret;
 }

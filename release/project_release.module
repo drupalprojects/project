@@ -499,6 +499,7 @@ function project_release_delete($node) {
   }
   db_query("DELETE FROM {project_release_package_errors} WHERE nid = %d", $node->nid);
   db_query("DELETE FROM {project_release_nodes} WHERE nid = %d", $node->nid);
+  project_release_delete_rebuild_metadata($node->nid);
 }
 
 /**
@@ -631,6 +632,10 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
   }
 
   $output = '';
+  $rebuild_version = db_result(db_query("SELECT rebuild_version FROM {project_release_node_rebuild_metadata} WHERE nid = %d", $node->nid));
+  if (!empty($rebuild_version)) {
+    $output .= '<div class="rebuild-version">' . t('Last packaged version: @rebuild_version', array('@rebuild_version' => $rebuild_version)) . '</div>';
+  }
   if (project_use_cvs($project) && isset($node->project_release['tag'])) {
     if (!empty($node->project_release['rebuild'])) {
       $output .= t('Nightly development snapshot from CVS branch: @tag', array('@tag' => $node->project_release['tag'])) .'<br />';
@@ -2300,4 +2305,33 @@ function project_release_ctools_plugin_directory($module, $plugin) {
         return 'metrics';
     }
   }
+}
+
+/**
+ * API for populating the metadata about releases that are rebuilt.
+ *
+ * @param integer $nid
+ *   The {project_release_nodes}.nid of the release to record a rebuild
+ *   version string for.
+ * @param string $rebuild_version
+ *   The rebuild version string to record for the given release.
+ *
+ */
+function project_release_record_rebuild_metadata($nid, $rebuild_version) {
+  db_query("UPDATE {project_release_node_rebuild_metadata} SET rebuild_version = '%s' WHERE nid = %d", $rebuild_version, $nid);
+  if (!db_affected_rows()) {
+    @db_query("INSERT INTO {project_release_node_rebuild_metadata} (nid, rebuild_version) VALUES (%d, '%s')", $nid, $rebuild_version);
+  }
+}
+
+/**
+ * API for delete the metadata for a release node that has been rebuilt.
+ *
+ * @param integer $nid
+ *   The {project_release_nodes}.nid of the release to delete the rebuild
+ *   metadata for.
+ *
+ */
+function project_release_delete_rebuild_metadata($nid) {
+  db_query("DELETE FROM {project_release_node_rebuild_metadata} WHERE nid = %d", $nid);
 }
