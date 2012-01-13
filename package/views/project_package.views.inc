@@ -83,6 +83,15 @@ function project_package_views_data() {
     ),
   );
 
+  $data['project_package_local_release_item']['patch_count'] = array(
+    'title' => t('Item patch count'),
+    'help' => t('The number of patches applied to a given item release node included in a package.'),
+    'real field' => 'item_nid',
+    'field' => array(
+      'handler' => 'project_package_handler_field_local_patch_count',
+    ),
+  );
+
   // Fields for {project_package_remote_item}
 
   // Define the base group of this table. Fields that don't
@@ -470,3 +479,18 @@ function project_package_views_data() {
   return $data;
 }
 
+/**
+ * Implementation of hook_views_handlers().
+ */
+function project_package_views_handlers() {
+  return array(
+    'info' => array(
+      'path' => drupal_get_path('module', 'project_package') .'/views/handlers',
+    ),
+    'handlers' => array(
+      'project_package_handler_field_local_patch_count' => array(
+        'parent' => 'views_handler_field',
+      ),
+    ),
+  );
+}

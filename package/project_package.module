@@ -70,6 +70,21 @@ function project_package_release_nodeapi(&$node, $op, $arg) {
             '#weight' => -1,
           );
         }
+
+        // Embed a view into the release node output for local patches.
+        $output = '';
+        $count = db_result(db_query("SELECT COUNT(*) FROM {project_package_local_patch} WHERE package_nid = %d", $node->nid));
+        if (!empty($count)) {
+          $view_info = variable_get('project_package_local_patches_view', 'project_package_local_patches:default');
+          list($view_name, $display_name) = split(':', $view_info);
+          $output .= '<h3>' . t('Patches applied in this package') . '</h3>';
+          $output .= views_embed_view($view_name, $display_name, $node->nid);
+          $node->content['release_package_local_patches'] = array(
+            '#value' => '<div class="project-release-package-remote-items">'. $output .'</div>',
+            '#weight' => -1,
+          );
+        }
+
       }
       break;
 
