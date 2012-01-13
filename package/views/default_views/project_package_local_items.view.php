@@ -1,7 +1,7 @@
 <?php
 
 $view = new view;
-$view->name = 'project_package_items';
+$view->name = 'project_package_local_items';
 $view->description = 'View of all release items included in a given package release';
 $view->tag = 'Project package';
 $view->base_table = 'node';

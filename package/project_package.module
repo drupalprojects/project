@@ -56,6 +56,21 @@ function project_package_release_nodeapi(&$node, $op, $arg) {
       break;
 
     case 'view':
+      // If this release has any packaged local items, embed the view of those.
+      $output = '';
+      if (!empty($node->project_package['count'])) {
+        $view_info = variable_get('project_package_release_items_view', 'project_package_local_items:default');
+        list($view_name, $display_name) = split(':', $view_info);
+        $output .= '<h3>' . t('In this package') . '</h3>';
+        $output .= views_embed_view($view_name, $display_name, $node->nid);
+      }
+      if (!empty($output)) {
+        $node->content['release_package_items'] = array(
+          '#value' => '<div class="project-release-package-items">'. $output .'</div>',
+          '#weight' => -2,
+        );
+      }
+
       // Embed a view into the release node output for remote items.
       $output = '';
       $has_remote_items = db_result(db_query("SELECT id FROM {project_package_remote_item} WHERE package_nid = %d LIMIT 1", $node->nid));
