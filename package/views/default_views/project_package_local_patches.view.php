@@ -169,7 +169,7 @@ $handler->override_option('fields', array(
     'hide_empty' => 0,
     'empty_zero' => 0,
     'hide_alter_empty' => 0,
-    'display_as_link' => 0,
+    'display_as_link' => 1,
     'exclude' => 0,
     'id' => 'patch_file_url',
     'table' => 'project_package_local_patch',
