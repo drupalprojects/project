@@ -1,13 +1,12 @@
 <?php
 
 $view = new view;
-$view->name = 'project_package_items';
-$view->description = 'View of all release items included in a given package release';
+$view->name = 'project_package_local_patches';
+$view->description = 'Table of local patches to a given packaged release. ';
 $view->tag = 'Project package';
-$view->view_php = '';
 $view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->core = 6;
+$view->api_version = '2';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 $handler = $view->new_display('default', 'Defaults', 'default');
 $handler->override_option('relationships', array(
@@ -15,29 +14,47 @@ $handler->override_option('relationships', array(
     'label' => 'Package release node',
     'required' => 1,
     'id' => 'package_nid',
-    'table' => 'project_package_local_release_item',
+    'table' => 'project_package_local_patch',
     'field' => 'package_nid',
     'relationship' => 'none',
   ),
+  'item_nid' => array(
+    'label' => 'Item release node',
+    'required' => 1,
+    'id' => 'item_nid',
+    'table' => 'project_package_local_patch',
+    'field' => 'item_nid',
+    'relationship' => 'none',
+  ),
   'pid' => array(
-    'label' => 'Project node',
+    'label' => 'Item project node',
     'required' => 1,
     'id' => 'pid',
     'table' => 'project_release_nodes',
     'field' => 'pid',
+    'relationship' => 'item_nid',
+  ),
+  'patch_nid' => array(
+    'label' => 'Patch file node',
+    'required' => 0,
+    'id' => 'patch_nid',
+    'table' => 'project_package_local_patch',
+    'field' => 'patch_nid',
     'relationship' => 'none',
   ),
 ));
 $handler->override_option('fields', array(
-  'title' => array(
+  'title_1' => array(
     'label' => 'Project',
     'alter' => array(
       'alter_text' => 0,
       'text' => '',
       'make_link' => 0,
       'path' => '',
+      'absolute' => 0,
       'link_class' => '',
       'alt' => '',
+      'rel' => '',
       'prefix' => '',
       'suffix' => '',
       'target' => '',
@@ -46,28 +63,31 @@ $handler->override_option('fields', array(
       'max_length' => '',
       'word_boundary' => 1,
       'ellipsis' => 1,
-      'strip_tags' => 0,
       'html' => 0,
+      'strip_tags' => 0,
     ),
     'empty' => '',
     'hide_empty' => 0,
     'empty_zero' => 0,
+    'hide_alter_empty' => 0,
     'link_to_node' => 1,
     'exclude' => 0,
-    'id' => 'title',
+    'id' => 'title_1',
     'table' => 'node',
     'field' => 'title',
     'relationship' => 'pid',
   ),
-  'version' => array(
-    'label' => 'Version',
+  'patch_nid' => array(
+    'label' => 'Patch node',
     'alter' => array(
       'alter_text' => 0,
       'text' => '',
       'make_link' => 0,
       'path' => '',
+      'absolute' => 0,
       'link_class' => '',
       'alt' => '',
+      'rel' => '',
       'prefix' => '',
       'suffix' => '',
       'target' => '',
@@ -76,64 +96,85 @@ $handler->override_option('fields', array(
       'max_length' => '',
       'word_boundary' => 1,
       'ellipsis' => 1,
-      'strip_tags' => 0,
       'html' => 0,
+      'strip_tags' => 0,
     ),
     'empty' => '',
     'hide_empty' => 0,
     'empty_zero' => 0,
-    'link_to_node' => 1,
-    'exclude' => 0,
-    'id' => 'version',
-    'table' => 'project_release_nodes',
-    'field' => 'version',
-    'relationship' => 'none',
-  ),
-  'update_status' => array(
-    'label' => 'Status',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'update_status_icon' => 0,
-    'exclude' => 0,
-    'id' => 'update_status',
-    'table' => 'project_release_nodes',
-    'field' => 'update_status',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('sorts', array(
-  'update_status' => array(
-    'order' => 'DESC',
-    'id' => 'update_status',
-    'table' => 'project_release_nodes',
-    'field' => 'update_status',
+    'hide_alter_empty' => 0,
+    'link_to_node' => 0,
+    'exclude' => 1,
+    'id' => 'patch_nid',
+    'table' => 'project_package_local_patch',
+    'field' => 'patch_nid',
     'relationship' => 'none',
   ),
   'title' => array(
-    'order' => 'ASC',
+    'label' => 'Patch issue',
+    'alter' => array(
+      'alter_text' => 1,
+      'text' => '#[patch_nid]: [title]',
+      'make_link' => 1,
+      'path' => 'node/[patch_nid]',
+      'absolute' => 0,
+      'link_class' => '',
+      'alt' => '',
+      'rel' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'hide_alter_empty' => 0,
+    'link_to_node' => 0,
+    'exclude' => 0,
     'id' => 'title',
     'table' => 'node',
     'field' => 'title',
-    'relationship' => 'pid',
+    'relationship' => 'patch_nid',
+  ),
+  'patch_file_url' => array(
+    'label' => 'Patch URL',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'absolute' => 0,
+      'link_class' => '',
+      'alt' => '',
+      'rel' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'hide_alter_empty' => 0,
+    'display_as_link' => 1,
+    'exclude' => 0,
+    'id' => 'patch_file_url',
+    'table' => 'project_package_local_patch',
+    'field' => 'patch_file_url',
+    'relationship' => 'none',
   ),
 ));
 $handler->override_option('arguments', array(
@@ -143,7 +184,7 @@ $handler->override_option('arguments', array(
     'style_options' => array(),
     'wildcard' => 'all',
     'wildcard_substitution' => 'All',
-    'title' => 'Releases contained in %1',
+    'title' => '',
     'breadcrumb' => '',
     'default_argument_type' => 'fixed',
     'default_argument' => '',
@@ -169,29 +210,7 @@ $handler->override_option('arguments', array(
     'validate_argument_vocabulary' => array(),
     'validate_argument_type' => 'tid',
     'validate_argument_transform' => 0,
-    'validate_user_restrict_roles' => 0,
-    'validate_argument_project_term_vocabulary' => array(),
-    'validate_argument_project_term_argument_type' => 'tid',
-    'validate_argument_project_term_argument_action_top_without' => 'pass',
-    'validate_argument_project_term_argument_action_top_with' => 'pass',
-    'validate_argument_project_term_argument_action_child' => 'pass',
     'validate_argument_php' => '',
-  ),
-));
-$handler->override_option('filters', array(
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
   ),
 ));
 $handler->override_option('access', array(
@@ -200,31 +219,31 @@ $handler->override_option('access', array(
 $handler->override_option('cache', array(
   'type' => 'none',
 ));
-$handler->override_option('items_per_page', 0);
-$handler->override_option('style_plugin', 'project_release_table');
+$handler->override_option('style_plugin', 'table');
 $handler->override_option('style_options', array(
   'grouping' => '',
   'override' => 1,
   'sticky' => 0,
   'order' => 'asc',
+  'summary' => '',
   'columns' => array(
+    'title_1' => 'title_1',
     'title' => 'title',
-    'version' => 'version',
-    'update_status' => 'update_status',
+    'patch_file_url' => 'patch_file_url',
   ),
   'info' => array(
+    'title_1' => array(
+      'sortable' => 1,
+      'separator' => '',
+    ),
     'title' => array(
       'sortable' => 1,
       'separator' => '',
     ),
-    'version' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'update_status' => array(
+    'patch_file_url' => array(
       'sortable' => 1,
       'separator' => '',
     ),
   ),
-  'default' => '-1',
+  'default' => 'title_1',
 ));

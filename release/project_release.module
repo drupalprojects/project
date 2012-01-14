@@ -657,22 +657,6 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
     '#weight' => -3,
   );
 
-  if (module_exists('project_package')) {
-    $output = '';
-    if (!empty($node->project_package['count'])) {
-      $view_info = variable_get('project_package_release_items_view', 'project_package_items:default');
-      list($view_name, $display_name) = split(':', $view_info);
-      $output .= '<h3>' . t('In this package') . '</h3>';
-      $output .= views_embed_view($view_name, $display_name, $node->nid);
-    }
-    if (!empty($output)) {
-      $node->content['release_package_items'] = array(
-        '#value' => '<div class="project-release-package-items">'. $output .'</div>',
-        '#weight' => -2,
-      );
-    }
-  }
-
   // Display packaging errors to admins.
   if (project_user_access($node->project_release['pid'], 'administer releases')) {
     $rows = array();
