@@ -171,8 +171,10 @@ function project_perm() {
     'create full projects',
     'access projects',
     'access own projects',
-    'delete any projects',
-    'delete own projects',
+    'delete any full projects',
+    'delete own full projects',
+    'delete any sandbox projects',
+    'delete own sandbox projects',
     'browse project listings',
   );
   return $perms;
@@ -826,7 +828,21 @@ function project_project_access($op, $node, $account) {
       }
       break;
     case 'delete':
-      if (user_access('delete any projects', $account) || (user_access('delete own projects', $account) && ($account->uid == $node->uid))) {
+      if ($node->type == 'project_release') {
+        $project_node = node_load($node->project_release['pid']);
+      }
+      else {
+        $project_node = $node;
+      }
+      if (!empty($project_node->project['sandbox'])) {
+        $any_perm = 'delete any sandbox projects';
+        $own_perm = 'delete own sandbox projects';
+      }
+      else{
+        $any_perm = 'delete any full projects';
+        $own_perm = 'delete own full projects';
+      }
+      if (user_access($any_perm, $account) || (user_access($own_perm, $account) && ($account->uid == $node->uid))) {
         return TRUE;
       }
       break;
