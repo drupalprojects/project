@@ -415,6 +415,11 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
  * if we haven't passed a security update yet, or 'not-secure' once we find a
  * security update.
  *
+ * Note that releases which are rebuilt (e.g. -dev releases) always show up
+ * last (so that we do the right thing when looking for latest official,
+ * recomm ended and security releases) but those are always current, so we
+ * need to special-case those.
+ *
  * @param $pid
  *   The project ID.
  * @param $api_tid
@@ -450,11 +455,16 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
     if (empty($latest_security_release) && !empty($release->security_update)) {
       $latest_security_release = $release->nid;
     }
+    // Releases which rebuild are always current.
+    if (!empty($release->rebuild)) {
+      $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
+    }
 
     // Based on what we've already seen, figure out the status. The only
     // possible releases that can be "CURRENT" are the latest and recommended
-    // releases, and we already set the status for those. So, if we're here,
-    // we know it's not current, we just need to know if it's also not secure.
+    // releases (and -dev releases which rebuild), and we already set the
+    // status for those. So, if we're here, we know it's not current, we just
+    // need to know if it's also not secure.
     if (!isset($update_status)) {
       // If we haven't found a security release yet, or the release we're on
       // is the latest security update, this is just 'not_current'.

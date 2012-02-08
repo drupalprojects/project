@@ -879,3 +879,26 @@ function project_release_update_6013() {
 
   return $ret;
 }
+
+/**
+ * Fix {project_release_nodes}.update_status for releases that rebuild.
+ */
+function project_release_update_6014() {
+  $ret = array();
+  // First, the easy fix. Mark all releases that rebuild as current.
+  $ret[] = update_sql("UPDATE {project_release_nodes} SET update_status = " . PROJECT_RELEASE_UPDATE_STATUS_CURRENT . " WHERE rebuild = 1");
+
+  // Now, if project_package is enabled, find all the packages that touch
+  // rebuilding releases and recompute their status.
+  if (module_exists('project_package')) {
+    $result = db_query("SELECT prn_p.nid, prn_p.version, pp.uri FROM {project_release_nodes} prn_p INNER JOIN {project_package_local_release_item} pplri ON prn_p.nid = pplri.package_nid INNER JOIN {project_release_nodes} prn_i ON pplri.item_nid = prn_i.nid INNER JOIN {project_projects} pp ON prn_p.pid = pp.nid WHERE prn_i.rebuild = 1 GROUP BY prn_p.nid");
+    while ($package = db_fetch_object($result)) {
+      project_package_set_update_status($package->nid);
+      $ret[] = array(
+        'success' => TRUE,
+        'query' => t('Recomputed update status for @project-@version release (nid: @nid)', array('@project' => $package->uri, '@version' => $package->version, '@nid' => $package->nid)),
+      );
+    }
+  }
+  return $ret;
+}

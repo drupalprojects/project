@@ -104,14 +104,11 @@ function project_package_release_nodeapi(&$node, $op, $arg) {
 }
 
 /**
- * Set the {prn}.update_status for a package based on security updates.
+ * Set the {prn}.update_status for a package based on its included items.
  */
 function project_package_set_update_status($package_nid) {
   $max = db_result(db_query("SELECT MAX(prn.update_status) FROM {project_release_nodes} prn INNER JOIN {project_package_local_release_item} pp ON prn.nid = pp.item_nid WHERE pp.package_nid = %d", $package_nid));
-  if ($max == PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE) {
-    // Something included in this package is insecure, so we are, too.
-    db_query("UPDATE {project_release_nodes} SET update_status = %d WHERE nid = %d", PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE, $package_nid);
-  }
+  db_query("UPDATE {project_release_nodes} SET update_status = %d WHERE nid = %d", $max, $package_nid);
 }
 
 /**
