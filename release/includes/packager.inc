@@ -34,11 +34,6 @@ interface ProjectReleasePackagerInterface {
    *   The keys are the filename (relative to the root of the Drupal
    *   installation) and the values are the {project_release_files}.weight for
    *   each file.
-   * @param array $contents
-   *   Reference to an array of contents included in this release. This is
-   *   optional, and is only used if the project_package module is enabled.
-   *   The keys are ignored, and the values should be node IDs of other
-   *   release nodes packaged with this release.
    *
    * @return string
    *   The results of the packaging attempt. Must be one of:
@@ -47,7 +42,7 @@ interface ProjectReleasePackagerInterface {
    *   - 'error': There was an error generating package(s)
    *   - 'no-op': There was nothing to do to package the given release
    */
-  public function createPackage(&$files, &$contents);
+  public function createPackage(&$files);
 
   /**
    * Clean up the results of a failed packaging build.
@@ -144,10 +139,8 @@ function project_release_get_packager_plugin($release_node, $file_destination_ro
  * @param $files
  *   Array of files to add to the release node. The keys are filenames, and
  *   the values are the weight for the {project_release_file}.weight column.
- * @param $package_contents
- *   Optional. Array of nids of releases contained in a release package.
  */
-function project_release_packager_update_node($release_node, $file_destination_directory = '', $files = array(), $package_contents = array()) {
+function project_release_packager_update_node($release_node, $file_destination_directory = '', $files = array()) {
 
   // If the site is using DB replication, force this node_load() to use the
   // primary database to avoid node_load() failures.
@@ -184,13 +177,6 @@ function project_release_packager_update_node($release_node, $file_destination_d
         db_query("UPDATE {files} SET uid = %d, filename = '%s', filepath = '%s', filemime = '%s', filesize = %d, status = %d, timestamp = %d WHERE fid = %d", $release_node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date, $file_data->fid);
         db_query("UPDATE {project_release_file} SET filehash = '%s', weight = %d WHERE fid = %d", $file_hash, $file_weight, $file_data->fid);
       }
-    }
-  }
-
-  // Store package contents if necessary.
-  if (!empty($package_contents) && module_exists('project_package')) {
-    foreach ($package_contents as $item_nid) {
-      db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (%d, %d)", $release_node->nid, $item_nid);
     }
   }
 

@@ -128,6 +128,27 @@ function project_package_check_update_status($item_nids) {
 }
 
 /**
+ * Record a set of local items included in a given packaged release.
+ *
+ * @param integer $package_nid
+ *   The release node ID of the package to record the remote item for.
+ * @param aray $local_item_nids
+ *   An array of node IDs for the local item(s).
+ *
+ * @return boolean
+ *   TRUE if all items were successfully recorded, otherwise FALSE.
+ */
+function project_package_record_local_items($package_nid, $local_item_nids) {
+  $success = TRUE;
+  foreach ($local_item_nids as $item_nid) {
+    if (!db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (%d, %d)", $package_nid, $item_nid)) {
+      $success = FALSE;
+    }
+  }
+  return $success;
+}
+
+/**
  * Record a remote item (or library) included in a given release.
  *
  * @param integer $package_nid
