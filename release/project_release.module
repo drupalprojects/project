@@ -626,6 +626,10 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
     project_project_set_breadcrumb($project, $breadcrumb);
   }
 
+  if (!empty($node->content['body']['#value'])) {
+    $node->content['body']['#value'] = '<h3>' . t('Release notes') . '</h3>' . $node->content['body']['#value'];
+  }
+
   $output = '';
   $max_file_timestamp = 0;
   if (!empty($node->project_release['files'])) {
