@@ -637,7 +637,7 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
     }
     $node->content['release_file_info'] = array(
       '#value' => '<div class="project-release-files">'. $output .'</div>',
-      '#weight' => -4,
+      '#weight' => -10,
     );
   }
 
@@ -664,7 +664,7 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
   }
   $node->content['release_info'] = array(
     '#value' => '<div class="project-release-info">'. $output .'</div>',
-    '#weight' => -3,
+    '#weight' => -8,
   );
 
   // Display packaging errors to admins.
@@ -677,7 +677,7 @@ function project_release_view($node, $teaser = FALSE, $page = FALSE) {
       if (!empty($rows)) {
         $node->content['release_errors'] = array(
           '#value' => theme('item_list', $rows, t('Packaging error messages')),
-          '#weight' => -1,
+          '#weight' => -6,
           '#prefix' => '<div class="messages error">',
           '#suffix' => '</div>',
         );
