@@ -1,5 +1,4 @@
 <?php
-
 $view = new view;
 $view->name = 'project_package_local_patches';
 $view->description = 'Table of local patches to a given packaged release. ';
@@ -219,6 +218,7 @@ $handler->override_option('access', array(
 $handler->override_option('cache', array(
   'type' => 'none',
 ));
+$handler->override_option('items_per_page', 0);
 $handler->override_option('style_plugin', 'table');
 $handler->override_option('style_options', array(
   'grouping' => '',
