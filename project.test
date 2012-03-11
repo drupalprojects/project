@@ -442,7 +442,9 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
     $edit = array();
     $edit['new_maintainer[user]'] = $this->maintainer->name;
     $this->drupalPost("node/$project->nid/maintainers", $edit, t('Update'));
-    $this->assertLink($this->maintainer->name, 0, 'New user is displayed on form correctly.');
+    $elements = $this->xpath('//tr/td[1]/a');
+    $this->assertEqual((string) $elements[1], $this->maintainer->name, 'New user is displayed on form correctly.');
+    $this->assertText("New maintainer {$this->maintainer->name} added and permissions updated.", 'New project maintainer message successfully displayed.');
     $this->assertNoFieldCheckedByName("maintainers[{$this->maintainer->uid}][permissions][edit project]", 'Permissions not explicitly granted.');
     $this->assertNoFieldCheckedByName("maintainers[{$this->maintainer->uid}][permissions][administer maintainers]", 'Permissions not explicitly granted.');
 
@@ -456,6 +458,7 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
     $edit = array();
     $edit["maintainers[{$this->maintainer->uid}][permissions][edit project]"] = TRUE;
     $this->drupalPost("node/$project->nid/maintainers", $edit, t('Update'));
+    $this->assertText("Maintainer permissions updated.", "'Maintainer permissions updated' message successfully displayed.");
     $this->assertFieldCheckedByName("maintainers[{$this->maintainer->uid}][permissions][edit project]", 'Permissions are displayed correctly on maintainers form.');
     // Login as maintainer and check access
     $this->drupalLogin($this->maintainer);
