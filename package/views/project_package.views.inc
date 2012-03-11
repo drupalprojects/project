@@ -331,7 +331,7 @@ function project_package_views_data() {
   // have a group defined will go into this group by default.
   $data['project_package_remote_patch']['table']['group']  = t('Project package remote patches');
 
-  // Allow implicit relationship to {node} for the local patches in a package.
+  // Allow implicit relationship to {node} for the remote patches in a package.
   // To work with the package_nid, you should add an explicit relationship.
   $data['project_package_remote_patch']['table']['join'] = array(
     'project_package_remote_item' => array(
