@@ -699,10 +699,10 @@ function project_release_load_file($fid) {
 function theme_project_release_download_file($file, $download_link = TRUE) {
   $output = '';
   if ($download_link) {
-    $output .= '<small>'. t('Download: !file', array('!file' => theme('project_release_download_link', $file->filepath))) .'</small><br />';
+    $output .= '<small><strong>'. t('Download: !file', array('!file' => theme('project_release_download_link', $file->filepath))) .'</strong></small><br />';
   }
   else {
-    $output .= '<small>'. t('File: @filepath', array('@filepath' => $file->filepath)) .'</small><br />';
+    $output .= '<small><strong>'. t('File: @filepath', array('@filepath' => $file->filepath)) .'</strong></small><br />';
   }
   $output .= '<small>'. t('Size: !size', array('!size' => format_size($file->filesize))) .'</small><br />';
   $output .= '<small>'. t('md5_file hash: !filehash', array('!filehash' => $file->filehash)) .'</small><br />';
