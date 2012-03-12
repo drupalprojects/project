@@ -86,7 +86,9 @@ if (!is_dir(HISTORY_ROOT)) {
   }
 }
 
-project_release_history_generate_all($project_id);
+if (!project_release_history_generate_all($project_id)) {
+  exit(1);
+}
 if (empty($project_id)) {
   // If we're operating on all projects, generate the huge list, too.
   project_list_generate();
@@ -161,6 +163,7 @@ function project_release_history_generate_all($project_id = 0) {
   else {
     wd_msg(array('message' => 'Completed XML release history files for @count project/version pairs', 'args' => array('@count' => $i)));
   }
+  return TRUE;
 }
 
 /**
