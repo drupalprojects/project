@@ -23,7 +23,7 @@ class ProjectReleaseMetric extends SamplerMetric {
 
   public function trackObjectIDs() {
     $nids = array();
-    $projects = db_query("SELECT nid FROM {project_projects}");
+    $projects = db_query("SELECT DISTINCT(pp.nid) FROM {project_projects} pp INNER JOIN {project_release_nodes} prn ON pp.nid = prn.pid");
     while ($project = db_fetch_object($projects)) {
       $nids[] = $project->nid;
     }
