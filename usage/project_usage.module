@@ -146,7 +146,7 @@ function project_usage_perm() {
  */
 function project_usage_simpletest() {
   $dir = drupal_get_path('module', 'project_usage'). '/tests';
-  $tests = file_scan_directory($dir, '\.test$');
+  $tests = file_scan_directory($dir, '/\.test$/');
   return array_keys($tests);
 }
 
