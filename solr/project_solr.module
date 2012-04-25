@@ -446,17 +446,17 @@ function project_solr_block_info() {
   $blocks = array(
     'project_solr_categories' => array(
       'info' => t('Project Solr: categories'),
-      'cache' => BLOCK_CACHE_PER_PAGE,
+      'cache' => DRUPAL_CACHE_PER_PAGE,
     ),
     'project_solr_text' => array(
       'info' => t('Project Solr: text search'),
-      'cache' => BLOCK_CACHE_PER_PAGE,
+      'cache' => DRUPAL_CACHE_PER_PAGE,
     ),
   );
   if (module_exists('project_release')) {
     $blocks['project_solr_compability'] = array(
       'info' => t('Project Solr: core compatibility'),
-      'cache' => BLOCK_CACHE_PER_PAGE,
+      'cache' => DRUPAL_CACHE_PER_PAGE,
     );
   }
   return $blocks;
