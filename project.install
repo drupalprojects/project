@@ -5,6 +5,27 @@
  */
 function project_install() {
   require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
+  $t = get_t();
+
+  /**
+   * Set up project-specific field for project type.
+   */
+  $project_type = array(
+    'entity_types' => array('node'),
+    'type' => 'list_text',
+    'field_name' => 'field_project_type',
+    'label' => $t('Project type'),
+    'settings' => array(
+      'allowed_values' => array(
+        'full' => $t('Full project'),
+        'sandbox' => $t('Sandbox project'),
+      ),
+      'allowed_values_function' => '',
+    ),
+    'cardinality' => 1,
+  );
+  field_create_field($project_type);
+
   project_install_default_project_node_type();
 }
 
@@ -17,5 +38,7 @@ function project_uninstall() {
   // Also, should we delete the project_node_type node type?
   require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
   project_uninstall_default_project_node_type();
+  field_delete_field('field_project_type');
+  watchdog('project', 'Deleted the :field_name field from all content type instances.', array(':field_name' => 'field_project_type'));
 }
 

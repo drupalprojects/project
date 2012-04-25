@@ -46,6 +46,18 @@ function project_install_default_project_node_type() {
   node_type_save($node_type);
   $description = $t('Description');
   node_add_body_field($node_type, $description);
+  $project_type_instance = array(
+    'bundle' => 'project',
+    'description' => $t(''),
+    'entity_type' => 'node',
+    'field_name' => 'field_project_type',
+    'label' => $t('Project type'),
+    'required' => 0,
+    'widget' => array(
+      'weight' => '-3',
+    ),
+  );
+  field_create_instance($project_type_instance);
   $machine_name_instance = array(
     'bundle' => 'project',
     'description' => $t(''),

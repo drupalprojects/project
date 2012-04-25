@@ -2,4 +2,5 @@ name = Project
 description = Make node types into Projects.
 package = Project
 dependencies[] = machine_name
+dependencies[] = list
 core = 7.x
