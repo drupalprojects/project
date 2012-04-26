@@ -30,7 +30,7 @@ function project_node_is_project($node) {
  * Determine whether or not a node type is considered a project.
  *
  * This function checks for the presence of the project_type field to determine
- * whether or not a node is considered a project.
+ * whether or not an entity type is considered a project.
  *
  * @param $bundle_name
  *   The node type to check.
