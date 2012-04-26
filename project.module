@@ -14,3 +14,28 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
     $form['instance']['required']['#access'] = FALSE;
   }
 }
+
+
+/**
+ * Determine whether or not a node is a project.
+ *
+ * @param $node
+ *   A node to check.
+ */
+function project_node_is_project($node) {
+  return project_entity_bundle_is_project($node->type, 'node');
+}
+
+/**
+ * Determine whether or not a node type is considered a project.
+ *
+ * This function checks for the presence of the project_type field to determine
+ * whether or not a node is considered a project.
+ *
+ * @param $bundle_name
+ *   The node type to check.
+ */
+function project_entity_bundle_is_project($bundle_name, $entity_type = 'node') {
+  $fields = field_info_fields();
+  return in_array($bundle_name, $fields['field_project_type']['bundles'][$entity_type]);
+}
