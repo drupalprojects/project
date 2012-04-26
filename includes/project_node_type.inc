@@ -52,7 +52,7 @@ function project_install_default_project_node_type() {
     'entity_type' => 'node',
     'field_name' => 'field_project_type',
     'label' => $t('Project type'),
-    'required' => 0,
+    'required' => 1,
     'widget' => array(
       'weight' => '-3',
     ),
