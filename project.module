@@ -39,3 +39,30 @@ function project_entity_bundle_is_project($bundle_name, $entity_type = 'node') {
   $fields = field_info_fields();
   return in_array($bundle_name, $fields['field_project_type']['bundles'][$entity_type]);
 }
+
+/**
+ * Retrieve a list of entity bundles that are considered projects.
+ *
+ * This function checks for the presence of the project_type field to determine
+ * which bundles are considered a project.
+ *
+ * @param $entity_type
+ *   The entity type. Default is 'node'. If set to NULL, all types are returned.
+ *
+ * @return
+ *   For all types, an associative array of arrays, keyed on entity type. For
+ *   a single entity type, an array of bundle names.
+ */
+function project_project_entity_bundles($entity_type = 'node') {
+  $fields = field_info_fields();
+  $project_entities = array();
+  if (isset($entity_type)) {
+    if (isset($fields['field_project_type']['bundles'][$entity_type])) {
+      $project_entities = $fields['field_project_type']['bundles'][$entity_type];
+    }
+  }
+  else {
+    $project_entities = $fields['field_project_type']['bundles'];
+  }
+  return $project_entities;
+}
