@@ -1,1 +1,16 @@
 <?php
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Project adjustments to the field edit form.
+ */
+function project_form_field_ui_field_edit_form_alter(&$form) {
+  // field_project_type has certain settings that project depends on, force
+  // those here.
+  if ($form['#field']['field_name'] == 'field_project_type') {
+    $form['field']['#access'] = FALSE;
+    $form['instance']['required']['#value'] = TRUE;
+    $form['instance']['required']['#access'] = FALSE;
+  }
+}
