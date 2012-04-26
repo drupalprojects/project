@@ -1,5 +1,7 @@
 <?php
 
+define('PROJECT_ENTITY_TYPE', 'node');
+
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -22,7 +24,7 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
  *   A node to check.
  */
 function project_node_is_project($node) {
-  return project_entity_bundle_is_project($node->type, 'node');
+  return project_entity_bundle_is_project($node->type, PROJECT_ENTITY_TYPE);
 }
 
 /**
@@ -34,7 +36,7 @@ function project_node_is_project($node) {
  * @param $bundle_name
  *   The node type to check.
  */
-function project_entity_bundle_is_project($bundle_name, $entity_type = 'node') {
+function project_entity_bundle_is_project($bundle_name, $entity_type = PROJECT_ENTITY_TYPE) {
   $fields = field_info_fields();
   return in_array($bundle_name, $fields['field_project_type']['bundles'][$entity_type]);
 }
@@ -52,7 +54,7 @@ function project_entity_bundle_is_project($bundle_name, $entity_type = 'node') {
  *   For all types, an associative array of arrays, keyed on entity type. For
  *   a single entity type, an array of bundle names.
  */
-function project_project_entity_bundles($entity_type = 'node') {
+function project_project_entity_bundles($entity_type = PROJECT_ENTITY_TYPE) {
   $fields = field_info_fields();
   $project_entities = array();
   if (isset($entity_type)) {
@@ -79,18 +81,18 @@ function project_project_entity_bundles($entity_type = 'node') {
  */
 function project_load($arg) {
   if (is_numeric($arg)) {
-    $nid = $arg;
+    $node = node_load($arg);
   }
-  else {
+else {
     $query = new EntityFieldQuery();
-    $results = $query->entityCondition('entity_type', 'node', '=')
-      ->propertyCondition('status', 1, '=')
+    $result = $query->entityCondition('entity_type', PROJECT_ENTITY_TYPE, '=')
       ->fieldCondition('field_project_machine_name', 'value', $arg, '=')
       ->execute();
-    $stub_node = reset($results['node']);
-    $nid = $stub_node->nid;
+    if (!empty($result[PROJECT_ENTITY_TYPE])) {
+      $entities = entity_load(PROJECT_ENTITY_TYPE, array_keys($result[PROJECT_ENTITY_TYPE]));
+      $node = reset($entities);
+    }
   }
-  $node = node_load($nid);
   if (!isset($node->type) || !project_node_is_project($node)) {
     return FALSE;
   }

@@ -49,7 +49,7 @@ function project_install_default_project_node_type() {
   $project_type_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
-    'entity_type' => 'node',
+    'entity_type' => PROJECT_ENTITY_TYPE,
     'field_name' => 'field_project_type',
     'label' => $t('Project type'),
     'required' => 1,
@@ -61,7 +61,7 @@ function project_install_default_project_node_type() {
   $machine_name_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
-    'entity_type' => 'node',
+    'entity_type' => PROJECT_ENTITY_TYPE,
     'field_name' => 'field_project_machine_name',
     'label' => $t('Short name'),
     'required' => 1,
@@ -81,7 +81,7 @@ function project_install_default_project_node_type() {
         'type' => 'hidden',
       ),
     ),
-    'entity_type' => 'node',
+    'entity_type' => PROJECT_ENTITY_TYPE,
     'field_name' => 'field_project_components',
     'label' => $t('Components'),
     'widget' => array(
