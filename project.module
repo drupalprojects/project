@@ -15,7 +15,6 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
   }
 }
 
-
 /**
  * Determine whether or not a node is a project.
  *
@@ -65,4 +64,35 @@ function project_project_entity_bundles($entity_type = 'node') {
     $project_entities = $fields['field_project_type']['bundles'];
   }
   return $project_entities;
+}
+
+/**
+ * Menu loader callback to load a project node.
+ *
+ * @param $arg
+ *   The menu argument to attempt to load a project from.  Can be either a
+ *   numeric node ID (nid), or a string machine name
+ *   (field_project_machine_name).
+ *
+ * @return
+ *   The loaded node object if the argument was a valid project, FALSE if not.
+ */
+function project_load($arg) {
+  if (is_numeric($arg)) {
+    $nid = $arg;
+  }
+  else {
+    $query = new EntityFieldQuery();
+    $results = $query->entityCondition('entity_type', 'node', '=')
+      ->propertyCondition('status', 1, '=')
+      ->fieldCondition('field_project_machine_name', 'value', $arg, '=')
+      ->execute();
+    $stub_node = reset($results['node']);
+    $nid = $stub_node->nid;
+  }
+  $node = node_load($nid);
+  if (!isset($node->type) || !project_node_is_project($node)) {
+    return FALSE;
+  }
+  return $node;
 }
