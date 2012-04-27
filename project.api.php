@@ -111,7 +111,7 @@ function hook_project_maintainer_remove($nid, $uid) {
  *   Reference to a nested array of maintainers.
  */
 function hook_project_maintainer_project_load($nid, &$maintainers) {
-  $result = db_query('SELECT u.name, pm.* FROM {example_project_maintainer} epm INNER JOIN {users} u ON epm.uid = u.uid WHERE epm.nid = :nid ORDER BY u.name', array(':nid' => $nid));
+  $result = db_query('SELECT u.name, epm.* FROM {example_project_maintainer} epm INNER JOIN {users} u ON epm.uid = u.uid WHERE epm.nid = :nid ORDER BY u.name', array(':nid' => $nid));
   foreach ($result as $maintainer) {
     if (empty($maintainers[$maintainer->uid])) {
       $maintainers[$maintainer->uid]['name'] = $maintainer->name;
