@@ -13,12 +13,7 @@ class project_plugin_argument_validate_project_nid extends views_plugin_argument
     // Default to the project machine name but allow using a different one too.
     $field = field_info_field(isset($this->argument->definition['field_name']) ? $this->argument->definition['field_name'] : 'field_project_machine_name');
     $query = new EntityFieldQuery;
-    $query
-      // Projects are currently restricted to nodes!
-      ->entityCondition('entity_type', 'node')
-      // If there is a field_project_type, this is a project.
-      // This part is what we care about.
-      ->fieldCondition('field_project_type', 'value', NULL, 'IS NOT NULL');
+    $this->limit_query_to_project($query);
 
     if (is_numeric($argument)) {
       // Numeric argument is a node id. This is one reason for forcing projects
@@ -49,6 +44,15 @@ class project_plugin_argument_validate_project_nid extends views_plugin_argument
       $this->argument->validated_title = check_plain($project->title);
       return TRUE;
     }
+  }
+
+  function limit_query_to_project($query) {
+    $query
+      // Projects are currently restricted to nodes!
+      ->entityCondition('entity_type', 'node')
+      // If there is a field_project_type, this is a project.
+      // This part is what we care about.
+      ->fieldCondition('field_project_type', 'value', NULL, 'IS NOT NULL');
   }
 }
 
