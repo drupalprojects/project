@@ -3,24 +3,52 @@
 /**
  * Validate whether an argument is a project node.
  *
- * This supports either numeric arguments (nid) or strings (project uri) and
- * converts either one into the project nid.  This validator also sets the
+ * This supports either numeric arguments (nid) or strings (machine_name) and
+ * converts either into the one needed by the underlying argument's field.
+ * This validator also sets the
  * argument's title to the full title of the project node.
  */
 class project_plugin_argument_validate_project_nid extends views_plugin_argument_validate {
   function validate_argument($argument) {
+    // Default to the project machine name but allow using a different one too.
+    $field = field_info_field(isset($this->argument->definition['field_name']) ? $this->argument->definition['field_name'] : 'field_project_machine_name');
+    $query = new EntityFieldQuery;
+    $query
+      // Projects are currently restricted to nodes!
+      ->entityCondition('entity_type', 'node')
+      // If there is a field_project_type, this is a project.
+      // This part is what we care about.
+      ->fieldCondition('field_project_type', 'value', NULL, 'IS NOT NULL');
+
     if (is_numeric($argument)) {
-      $result = db_fetch_object(db_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n WHERE n.nid = %d AND n.type = '%s'"), $argument, 'project_project'));
+      // Numeric argument is a node id. This is one reason for forcing projects
+      // to be nodes at the moment.
+      $query
+        ->propertyCondition('nid', $argument);
     }
     else {
-      $result = db_fetch_object(db_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n INNER JOIN {project_projects} p ON n.nid = p.nid WHERE p.uri ='%s'"), $argument));
+      // Search the machine name field.
+      $query
+        ->fieldCondition($field['field_name'], 'value', $argument);
     }
-    if (!$result) {
+    $result = $query->execute();
+    if (empty($result['node'])) {
+      // No nodes = not a project node.
       return FALSE;
     }
-    $this->argument->argument = $result->nid;
-    $this->argument->validated_title = check_plain($result->title);
-    return TRUE;
+    $nodes = node_load_multiple(array_keys($result['node']));
+    foreach ($nodes as $project) {
+      if (is_numeric($argument) && $this->argument->definition['handler'] == 'views_handler_argument_string') {
+        // Convert numeric id to machine name.
+        $this->argument->argument = $project->{$field['field_name']}[LANGUAGE_NONE][0]['value'];
+      }
+      elseif (!is_numeric($argument) && $this->argument->definition['handler'] != 'views_handler_argument_string') {
+        // Convert machine name to numeric id.
+        $this->argument->argument = $project->nid;
+      }
+      $this->argument->validated_title = check_plain($project->title);
+      return TRUE;
+    }
   }
 }
 
