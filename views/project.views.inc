@@ -291,6 +291,7 @@ function project_views_handlers() {
  */
 function project_views_plugins() {
   $project_path = drupal_get_path('module', 'project');
+  $path = drupal_get_path('module', 'project') .'/views/plugins';
   return array(
     'module' => 'project',
     'style' => array(
@@ -312,7 +313,7 @@ function project_views_plugins() {
         'title' => t('Collapsible'),
         'help' => t('Displays the summary in a collapsible fieldset.'),
         'handler' => 'views_plugin_style_summary',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
         'theme' => 'project_views_view_collapsible_summary',
         'theme file' => 'theme.inc',
         'theme path' => "$project_path/views/theme",
@@ -325,7 +326,7 @@ function project_views_plugins() {
         'title' => t('Project node'),
         'help' => t('Display the project node with download table.'),
         'handler' => 'project_plugin_row_project_node_view',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
         'theme' => 'project_views_view_row_project_node',
         'theme file' => 'theme.inc',
         'theme path' => "$project_path/views/theme",
@@ -337,7 +338,7 @@ function project_views_plugins() {
         'title' => t('Project fields'),
         'help' => t('Displays project fields.'),
         'handler' => 'project_plugin_row_project_fields_view',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
         'theme' => 'project_views_view_row_project_fields',
         'theme file' => 'theme.inc',
         'theme path' => "$project_path/views/theme",
@@ -350,24 +351,29 @@ function project_views_plugins() {
       'project_term_top_level' => array(
         'title' => t('Project type: Top level term'),
         'handler' => 'project_plugin_argument_validate_project_term_top_level',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
       ),
       'project_type_term' => array(
         'title' => t('Project type term'),
         'handler' => 'project_plugin_argument_validate_project_type_term',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
       ),
       'project_nid' => array(
         'title' => t('Project node'),
         'handler' => 'project_plugin_argument_validate_project_nid',
-        'path' => drupal_get_path('module', 'project') .'/views/plugins',
+        'path' => $path,
+      ),
+      'project_node_type' => array(
+        'title' => t('Project node type'),
+        'handler' => 'project_plugin_argument_validate_project_node_type',
+        'path' => $path,
       ),
     ),
     'argument default' => array(
       'project_plugin_argument_default_project_type' => array(
-        'title' => t('Project type from URL'),
+        'title' => t('Project-enabled node type from URL'),
         'handler' => 'project_plugin_argument_default_project_type',
-        'path' => $project_path . '/views/plugins',
+        'path' => $path,
         'parent' => 'fixed', // so that the parent class is included
       ),
     ),

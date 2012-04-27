@@ -16,6 +16,7 @@ files[] = views/handlers/project_handler_filter_term_node_project_type_tid.inc
 files[] = views/plugins/project_plugin_argument_default_project_type.inc
 files[] = views/plugins/project_plugin_argument_validate_project_nid.inc
 files[] = views/plugins/project_plugin_argument_validate_project_type_term.inc
+files[] = views/plugins/project_plugin_argument_validate_project_node_type.inc
 files[] = views/plugins/project_plugin_row_project_fields_view.inc
 files[] = views/plugins/project_plugin_row_project_node_view.inc
 files[] = views/plugins/project_plugin_style_project_list.inc
