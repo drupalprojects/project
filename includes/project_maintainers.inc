@@ -34,7 +34,7 @@
  * @see hook_project_permission_info()
  * @see drupal_get_form()
  */
-function project_maintainers_form($form_state, $project) {
+function project_maintainers_form($form, &$form_state, $project) {
   // Load all the info about per-project permissions on this site.
   $project_perms = project_permission_load($project);
 
@@ -68,12 +68,12 @@ function project_maintainers_form($form_state, $project) {
           $form['maintainers'][$uid]['permissions'][$perm_name]['#disabled'] = TRUE;
         }
         $form['maintainers'][$uid]['operations']['delete'] = array(
-          '#value' => t('locked'),
+          '#markup' => t('locked'),
         );
       }
       else {
         $form['maintainers'][$uid]['operations']['delete'] = array(
-          '#value' => l(t('delete'), "node/$project->nid/maintainers/delete/$uid"),
+          '#markup' => l(t('delete'), "node/$project->nid/maintainers/delete/$uid"),
         );
       }
     }
@@ -114,7 +114,8 @@ function project_maintainers_form($form_state, $project) {
  * @see theme()
  * @see project_maintainers_form()
  */
-function theme_project_maintainers_form($form) {
+function theme_project_maintainers_form(&$variables) {
+  $form = $variables['element'];
   $output = '';
 
   $header = $form['#header'];
@@ -127,7 +128,7 @@ function theme_project_maintainers_form($form) {
       $account = new stdClass;
       $account->uid = $uid;
       $account->name = $form['maintainers'][$uid]['name']['#value'];
-      $row[] = theme('username', $account);
+      $row[] = theme('username', array('account' => $account));
       foreach (element_children($form['maintainers'][$uid]['permissions']) as $perm) {
         $row[] = drupal_render($form['maintainers'][$uid]['permissions'][$perm]);
       }
@@ -156,7 +157,7 @@ function theme_project_maintainers_form($form) {
   // Although using named keys in the $header array makes this form easier to
   // alter, theme_table() freaks out if the $header array has non-numeric
   // keys. So we ditch the keys at this point to avoid notices.
-  $output .= theme('table', array_values($header), $rows);
+  $output .= theme('table', array('header' => array_values($header), 'rows' => $rows));
 
   $project_perms = project_permission_load($form['#project']);
   $output .= '<dl class="description">';
@@ -166,7 +167,7 @@ function theme_project_maintainers_form($form) {
   }
   $output .= "</dl>\n";
 
-  $output .= drupal_render($form);
+  $output .= drupal_render_children($form);
   return $output;
 }
 
@@ -176,13 +177,13 @@ function theme_project_maintainers_form($form) {
 function project_maintainers_form_validate($form, &$form_state) {
   $new_maintainer = $form_state['values']['new_maintainer'];
   if (!empty($new_maintainer['user'])) {
-    $user_result = db_fetch_object(db_query("SELECT name, uid FROM {users} WHERE name = '%s'", $new_maintainer['user']));
+    $user_result = db_query("SELECT name, uid FROM {users} WHERE name = :user_name", array(':user_name' => $new_maintainer['user']))->fetch();
     if (empty($user_result->uid)) {
-      form_set_error('new_maintainer][user', t('%user is not a valid user on this site.', array('%user' => $new_maintainer['user'])), 'error');
+      form_set_error('new_maintainer][user', t('%user is not a valid user on this site.', array('%user' => $new_maintainer['user'])));
       return;
     }
     if (!empty($form['#project']->project['maintainers'][$user_result->uid])) {
-      form_set_error('new_maintainer][user', t('%user is already a maintainer of this project.', array('%user' => $new_maintainer['user'])), 'error');
+      form_set_error('new_maintainer][user', t('%user is already a maintainer of this project.', array('%user' => $new_maintainer['user'])));
       return;
     }
     // Save the uid in the form so we don't have to look it up again at submit.
@@ -227,9 +228,9 @@ function project_maintainers_form_submit($form, &$form_state) {
 /**
  * Confirm form for removing a uid as a cvs maintainer from a given project.
  */
-function project_maintainer_delete_confirm($form_state, $project, $user) {
+function project_maintainer_delete_confirm($form, &$form_state, $project, $user) {
   if ($user->uid == $project->uid) {
-    drupal_set_message(t('You can not delete the project owner (!user) as a maintainer.', array('!user' => theme('username', $user))), 'error');
+    drupal_set_message(t('You can not delete the project owner (!user) as a maintainer.', array('!user' => theme('username', array('account' => $user)))), 'error');
     return drupal_goto("node/$project->nid/maintainers/");
   }
 
@@ -239,7 +240,7 @@ function project_maintainer_delete_confirm($form_state, $project, $user) {
   return confirm_form($form,
            t('Are you sure you want to delete !user as a maintainer of !project?',
              array(
-               '!user' => theme('username', $user),
+               '!user' => theme('username', array('account' => $user)),
                '!project' => l($project->title, "node/$project->nid"),
              )),
            "node/$project->nid/maintainers",
@@ -256,10 +257,11 @@ function project_maintainer_delete_confirm($form_state, $project, $user) {
 function project_maintainer_delete_confirm_submit($form, &$form_state) {
   $nid = $form_state['values']['nid'];
   $uid = $form_state['values']['uid'];
-  $user = user_load(array('uid' => $uid));
+  $user = user_load($uid);
 
   project_maintainer_remove($nid, $uid);
 
-  drupal_set_message(t('Removed !user as a maintainer.', array('!user' => theme('username', $user))));
+  drupal_set_message(t('Removed !user as a maintainer.', array('!user' => theme('username', array('account' => $user)))));
   $form_state['redirect'] = "node/$nid/maintainers";
 }
+
