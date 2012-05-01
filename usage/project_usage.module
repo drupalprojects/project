@@ -74,11 +74,6 @@ function project_usage_menu() {
 function project_usage_theme() {
   $path = drupal_get_path('module', 'project_usage') .'/includes';
   return array(
-    'project_usage_chart' => array(
-      'arguments' => array('args' => NULL),
-      'file' => 'pages.inc',
-      'path' => $path,
-    ),
     'project_usage_chart_by_release' => array(
       'arguments' => array(
         'title' => NULL,
