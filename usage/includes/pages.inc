@@ -140,28 +140,29 @@ function project_usage_overview() {
   $sort = tablesort_init($headers);
   $cid = 'overview:'. $sort['sql'] .':'. $sort['sort'];
   if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
-    return $cached->data;
+    $rows = $cached->data;
   }
+  else {
+    $args = array_merge($joins_args, $where_args);
+    $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($headers), $args);
 
-  $args = array_merge($joins_args, $where_args);
-  $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($headers), $args);
-
-  $number = 1;
-  while ($line = db_fetch_array($result)) {
-    $row = array(
-      array('data' => $number++),
-      array('data' => l($line['title'], 'project/usage/'. $line['uri'])),
-    );
-    foreach ($weeks as $i => $week) {
-      $row[] = array('data' => number_format($line["week{$i}"]), 'class' => 'project-usage-numbers');
+    $number = 1;
+    while ($line = db_fetch_array($result)) {
+      $row = array(
+        array('data' => $number++),
+        array('data' => l($line['title'], 'project/usage/'. $line['uri'])),
+      );
+      foreach ($weeks as $i => $week) {
+        $row[] = array('data' => number_format($line["week{$i}"]), 'class' => 'project-usage-numbers');
+      }
+      $rows[] = $row;
     }
-    $rows[] = $row;
   }
   $output = theme('table', $headers, $rows, array('id' => 'project-usage-all-projects'));
 
   // Cache the completed page.
   if (project_can_cache()) {
-    cache_set($cid, $output, 'cache_project_usage', project_usage_cache_time());
+    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
   return $output;
@@ -248,85 +249,92 @@ function project_usage_project_page($node) {
   $sort = tablesort_init($release_header);
   $cid = 'project:'. $node->nid .':'. $sort['sql'] .':'. $sort['sort'];
   if ($cached = cache_get($cid, 'cache_project_usage')) {
-    return $cached->data;
-  }
-
-  $args = array_merge($joins_args, $where_args);
-  $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($release_header), $args);
-
-  $release_rows = array();
-  while ($line = db_fetch_array($result)) {
-    $sum = 0;
-    $row = array(array('data' => l($releases[$line['nid']], 'project/usage/'. $line['nid'])));
-    foreach ($weeks as $i => $week) {
-      $sum += $line["week{$i}"];
-      $row[] = array('data' => number_format($line["week{$i}"]), 'class' => 'project-usage-numbers');
-    }
-    // Skip any release with no usage.
-    if ($sum) {
-      $release_rows[] = $row;
-    }
-  }
-
-  // Build a table of the weekly usage data with a column for each API version.
-  // Get an array of the weeks going back as far as we have data...
-  $oldest = db_result(db_query("SELECT MIN(puwp.timestamp) FROM {project_usage_week_project} puwp WHERE puwp.nid = %d", $node->nid));
-  if ($oldest === NULL) {
-    $weeks = array();
+    $release_rows = $cached->data['release_rows'];
+    $project_header = $cached->data['project_header'];
+    $project_rows = $cached->data['project_rows'];
   }
   else {
-    $weeks = project_usage_get_weeks_since($oldest);
-    // ...ignore the current week, since we won't have usage data for that and
-    // reverse the order so it's newest to oldest.
-    array_pop($weeks);
-    $weeks = array_reverse($weeks);
-  }
+    $args = array_merge($joins_args, $where_args);
+    $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($release_header), $args);
 
-  // The number of columns varies depending on how many different API versions
-  // are in use. Set up the header and a blank, template row, based on the
-  // number of distinct terms in use. This *could* be done with LEFT JOINs,
-  // but it ends up being a more expensive query and harder to read.
-  $project_header = array(0 => array('data' => t('Week')));
-  $blank_row = array(0 => array('data' => ''));
-  $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {term_data} td ON p.tid = td.tid WHERE p.nid = %d ORDER BY td.weight DESC, td.name", $node->nid);
-  while ($row = db_fetch_object($result)) {
-    $project_header[$row->tid] = array('data' => check_plain($row->name), 'class' => 'project-usage-numbers');
-    $blank_row[$row->tid] = array('data' => 0, 'class' => 'project-usage-numbers');
-  }
-  $project_header['total'] = array('data' => t('Total'), 'class' => 'project-usage-numbers');
-  $blank_row['total'] = array('data' => 0, 'class' => 'project-usage-numbers');
-
-  // Now create a blank table with a row for each week and formatted date in
-  // the first column...
-  $project_rows = array();
-  foreach ($weeks as $week) {
-    $project_rows[$week] = $blank_row;
-    $project_rows[$week][0]['data'] = format_date($week, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0);
-  }
-
-  // ...then fill it in with our data.
-  $result = db_query("SELECT timestamp, tid, count FROM {project_usage_week_project} WHERE nid = %d", $node->nid);
-  while ($row = db_fetch_object($result)) {
-    $project_rows[$row->timestamp][$row->tid]['data'] = $row->count;
-  }
-
-  // ...and add the weekly totals across all API versions
-  foreach ($project_rows as $timestamp => $row) {
-    $total = 0;
-    foreach ($row as $tid => $data) {
-      if (!empty($tid) && !empty($data['data'])) {
-        $total += $data['data'];
-        $project_rows[$timestamp][$tid]['data'] = number_format($data['data']);
+    $release_rows = array();
+    while ($line = db_fetch_array($result)) {
+      $sum = 0;
+      $row = array(array('data' => l($releases[$line['nid']], 'project/usage/'. $line['nid'])));
+      foreach ($weeks as $i => $week) {
+        $sum += $line["week{$i}"];
+        $row[] = array('data' => number_format($line["week{$i}"]), 'class' => 'project-usage-numbers');
+      }
+      // Skip any release with no usage.
+      if ($sum) {
+        $release_rows[] = $row;
       }
     }
-    $project_rows[$timestamp]['total']['data'] = number_format($total);
+
+    // Build a table of the weekly usage data with a column for each API version.
+    // Get an array of the weeks going back as far as we have data...
+    $oldest = db_result(db_query("SELECT MIN(puwp.timestamp) FROM {project_usage_week_project} puwp WHERE puwp.nid = %d", $node->nid));
+    if ($oldest === NULL) {
+      $weeks = array();
+    }
+    else {
+      $weeks = project_usage_get_weeks_since($oldest);
+      // ...ignore the current week, since we won't have usage data for that and
+      // reverse the order so it's newest to oldest.
+      array_pop($weeks);
+      $weeks = array_reverse($weeks);
+    }
+
+    // The number of columns varies depending on how many different API versions
+    // are in use. Set up the header and a blank, template row, based on the
+    // number of distinct terms in use. This *could* be done with LEFT JOINs,
+    // but it ends up being a more expensive query and harder to read.
+    $project_header = array(0 => array('data' => t('Week')));
+    $blank_row = array(0 => array('data' => ''));
+    $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {term_data} td ON p.tid = td.tid WHERE p.nid = %d ORDER BY td.weight DESC, td.name", $node->nid);
+    while ($row = db_fetch_object($result)) {
+      $project_header[$row->tid] = array('data' => check_plain($row->name), 'class' => 'project-usage-numbers');
+      $blank_row[$row->tid] = array('data' => 0, 'class' => 'project-usage-numbers');
+    }
+    $project_header['total'] = array('data' => t('Total'), 'class' => 'project-usage-numbers');
+    $blank_row['total'] = array('data' => 0, 'class' => 'project-usage-numbers');
+
+    // Now create a blank table with a row for each week and formatted date in
+    // the first column...
+    $project_rows = array();
+    foreach ($weeks as $week) {
+      $project_rows[$week] = $blank_row;
+      $project_rows[$week][0]['timestamp'] = $week;
+      $project_rows[$week][0]['data'] = format_date($week, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0);
+    }
+
+    // ...then fill it in with our data.
+    $result = db_query("SELECT timestamp, tid, count FROM {project_usage_week_project} WHERE nid = %d", $node->nid);
+    while ($row = db_fetch_object($result)) {
+      $project_rows[$row->timestamp][$row->tid]['data'] = $row->count;
+    }
+
+    // ...and add the weekly totals across all API versions
+    foreach ($project_rows as $timestamp => $row) {
+      $total = 0;
+      foreach ($row as $tid => $data) {
+        if (!empty($tid) && !empty($data['data'])) {
+          $total += $data['data'];
+          $project_rows[$timestamp][$tid]['data'] = number_format($data['data']);
+        }
+      }
+      $project_rows[$timestamp]['total']['data'] = number_format($total);
+    }
   }
 
   $output = theme('project_usage_project_page', $node, $release_header, $release_rows, $project_header, $project_rows);
 
   // Cache the completed page.
   if (project_can_cache()) {
-    cache_set($cid, $output, 'cache_project_usage', project_usage_cache_time());
+    $cache['release_rows'] = $release_rows;
+    $cache['project_header'] = $project_header;
+    $cache['project_rows'] = $project_rows;
+    cache_set($cid, $cache, 'cache_project_usage', project_usage_cache_time());
   }
 
   return $output;
@@ -352,27 +360,34 @@ function project_usage_release_page($node) {
   // Check for a cached page.
   $cid = "release:{$node->nid}";
   if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
-    return $cached->data;
+    $rows = $cached->data;
   }
-
-  // Table displaying the usage back through time.
+  else {
+    // Table displaying the usage back through time.
+    $rows = array();
+    $query = db_query("SELECT timestamp, count FROM {project_usage_week_release} WHERE nid = %d ORDER BY timestamp DESC", $node->nid);
+    while ($row = db_fetch_object($query)) {
+      $rows[] = array(
+        array(
+          'data' => format_date($row->timestamp, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0),
+          'timestamp' => $row->timestamp,
+        ),
+        array(
+          'data' => number_format($row->count),
+          'class' => 'project-usage-numbers',
+        ),
+      );
+    }
+  }
   $header = array(
     array('data' => t('Week starting')),
     array('data' => t('Count'), 'class' => 'project-usage-numbers'),
   );
-  $rows = array();
-  $query = db_query("SELECT timestamp, count FROM {project_usage_week_release} WHERE nid = %d ORDER BY timestamp DESC", $node->nid);
-  while ($row = db_fetch_object($query)) {
-    $rows[] = array(
-      array('data' => format_date($row->timestamp, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0)),
-      array('data' => number_format($row->count), 'class' => 'project-usage-numbers'),
-    );
-  }
   $output = theme('project_usage_release_page', $project, $node, $header, $rows);
 
   // Cache the completed page.
   if (project_can_cache()) {
-    cache_set($cid, $output, 'cache_project_usage', project_usage_cache_time());
+    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
   return $output;
@@ -461,7 +476,7 @@ function theme_project_usage_header_links($project, $release = NULL) {
 }
 
 /**
- * Convert the usage table data into a Google Chart image.
+ * Convert the usage table data into a graph.
  *
  * First column should be the weeks, each subsequent column should be a data
  * series.
@@ -480,104 +495,67 @@ function theme_project_usage_chart_by_release($title, $header, $rows) {
     return '';
   }
 
+  // Make sure we have flot.
+  if (!module_exists('flot')) {
+    return '';
+  }
+
   // Reverse the order of the rows so it's oldest to newest.
   $rows = array_reverse($rows);
 
   // Pull the API versions from the table header for use as a legend. Since the
   // table is keyed strangely, make note of which tid is in which order so we
   // can efficiently iterate over the columns.
-  $legend = array();
+  $series = array();
   $mapping = array();
   foreach ($header as $tid => $cell) {
-    $legend[] = $cell['data'];
+    $series[] = array(
+      'label' => $cell['data'],
+    );
     $mapping[] = $tid;
   }
   // Drop the date column from the legend and mapping since it's the other axis.
-  unset($legend[0]);
+  unset($series[0]);
   unset($mapping[0]);
 
   // Rotate the table so each series is in a row in the array and grab the
   // dates for use as axis labels.
-  $series = array();
-  $date_axis = array();
   foreach (array_values($rows) as $i => $row) {
-    $date_axis[$i] = $row[0]['data'];
+    $timestamp = $row[0]['timestamp'];
     foreach ($mapping as $j => $tid) {
       // FIXME: The table values have commas in them from number_format(). We
       // need to remove them because we'll use commas to separate the values
       // in the URL string. It might be better to pass in clean number values
       // and format them here rather than have to uncook them.
-      $series[$j][$i] = (int) str_replace(',', '', $row[$tid]['data']);
+      $series[$j]['data'][] = array($timestamp * 1000, (int) str_replace(',', '', $row[$tid]['data']));
     }
   }
 
-  // Determine the range of the data.
-  $min = $max = 0;
-  foreach ($series as $values) {
-    $max = max($max, max($values));
-  }
-
-  // Round the max up to the next decimal place (3->10, 19->20, 8703->9000) so
-  // that the labels have round numbers and the entire range is visible. We're
-  // forced to build the number as a string because PHP's round() function
-  // can round down (3->0, not 3->10) and it returns floats that loose
-  // precision (causing 90,000 to display as 89,999.99). We pull off the first
-  // digit, add 1 to that, and then pad the rest with zeros.
-  $zeros = strlen($max) - 1;
-  $max = ($zeros > 0) ? (substr($max, 0, 1) + 1 . str_repeat('0', $zeros)) : 10;
-  $value_axis = range($min, $max, '1'. str_repeat('0', $zeros));
-
-  $data = array();
-
-  // Use Google's extended encoding to keep the URLs under 2048 characters.
-  $encoding_map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.';
-  $encoding_length = strlen($encoding_map);
-  $encoding_max = $encoding_length * $encoding_length;
-  foreach ($series as $i => $values) {
-    $data[$i] = '';
-    foreach ($values as $value) {
-      $scaled = floor($encoding_max * $value / $max);
-      if ($scaled > $encoding_max - 1) {
-        $data[$i] .= '..';
-      }
-      else if ($scaled < 0) {
-        $data[$i] .= '__';
-      }
-      else {
-        // Calculate first and second digits and add them to the output.
-        $quotient = floor($scaled / $encoding_length);
-        $remainder = $scaled - ($encoding_length * $quotient);
-        $data[$i] .= $encoding_map[$quotient] . $encoding_map[$remainder];
-      }
-    }
-  }
-
-  // Might need more colors than this.
-  $colors = array('EDAA00', '0062A0', 'A17300', 'ED8200', '38B4BA', '215D6E');
-
-  // The key values in this array are dictated by the Google Charts API:
-  // http://code.google.com/apis/chart/
-  $args = array(
-    // Chart title.
-    'chtt' => check_plain($title),
-    // Dimensions as width x height in pixels.
-    'chs' => '600x200',
-    // Chart type
-    'cht' => 'lc',
-    // Pick some colors.
-    'chco' => implode(',', array_slice($colors, 0, count($series))),
-    'chd' => 'e:' . implode(',', $data),
-    // Set the range of the chart
-    'chds' => implode(',', array_fill(0, count($series), $min .','. $max)),
-     // Legend is the header titles after excluding the date.
-    'chdl' => implode('|', $legend),
-  );
-  project_usage_chart_axis_labels($args, array(
-    'x' => project_usage_chart_label_subset($date_axis, 5),
-    'y' => array_map('number_format', project_usage_chart_label_subset($value_axis, 5)),
+  $flot_graph = theme('flot_graph', array('style' => 'width:100%; height:200px'), array_values($series), array(
+    'xaxis' => array(
+      'mode' => 'time',
+    ),
+    'colors' => array('#EDAA00', '#0062A0', '#A17300', '#ED8200', '#38B4BA', '#215D6E'), // Might need more colors than this.
+    'series' => array(
+      'shadowSize' => 0,
+    ),
+    'legend' => array(
+      'show' => 1,
+      'position' => 'nw',
+      'noColumns' => 2,
+      'labelBoxBorderColor' => 'transparent',
+    ),
+    'grid' => array(
+      'borderWidth' => 0,
+    ),
   ));
 
-  return theme('project_usage_chart', $args);
+  // Include the cached inline code in the output. Ugly, but there's no harm in
+  // assigning the JS variable twice. Will be imporved by #1515468
+  $scripts = drupal_add_js();
+  $flot_graph .= '<script>' . $scripts['inline'][count($scripts['inline']) - 1]['code'] . '</script>';
+
+  return $flot_graph;
 }
 
 /**
@@ -619,24 +597,6 @@ function project_usage_chart_axis_labels(&$args, $labels) {
     $l[$i] = $i .':|' . implode('|', $labels[$key]);
   }
   $args['chxl'] = implode('|', $l);
-}
-
-/**
- * Convert the array of Google Chart paramters into an image URL.
- *
- * @param $args
- *   Array of key, value pairs to turn into a Google Charts image.
- * @return
- *   HTML image element.
- */
-function theme_project_usage_chart($args) {
-  $params = array();
-  foreach ($args as $key => $value) {
-    $params[] = $key .'='. $value;
-  }
-  // If the chart has a title use that for the image's alt and title values.
-  $title = empty($args['chtt']) ? '' : $args['chtt'];
-  return theme('image', 'http://chart.apis.google.com/chart?'. implode('&', $params), $title, $title, NULL, FALSE);
 }
 
 /**
