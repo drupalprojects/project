@@ -10,13 +10,13 @@
  */
 function project_usage_settings_form(&$form_state) {
   $times = array(
-     3 * PROJECT_USAGE_YEAR,
-     2 * PROJECT_USAGE_YEAR,
-     1 * PROJECT_USAGE_YEAR,
+    3 * PROJECT_USAGE_YEAR,
+    2 * PROJECT_USAGE_YEAR,
+    1 * PROJECT_USAGE_YEAR,
     26 * PROJECT_USAGE_WEEK,
     12 * PROJECT_USAGE_WEEK,
-     8 * PROJECT_USAGE_WEEK,
-     4 * PROJECT_USAGE_WEEK,
+    8 * PROJECT_USAGE_WEEK,
+    4 * PROJECT_USAGE_WEEK,
   );
   $age_options = drupal_map_assoc($times, 'format_interval');
   $form['project_usage_life_daily'] = array(

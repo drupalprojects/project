@@ -12,7 +12,7 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
   function test_timestamp_param() {
     $time = time();
     $parts = project_usage_gmgetdate($time);
-    
+
     // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
     // should subtract the timezone from the timestamp to cancel it out. We
     // can compare the input to the timestamp in the returned array and make
@@ -29,7 +29,7 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
     // will be executed in the same second.
     $time = time();
     $parts = project_usage_gmgetdate();
-    
+
     // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
     // should subtract the timezone from the timestamp to cancel it out. We
     // can compare the input to the timestamp in the returned array and make
@@ -56,27 +56,27 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
   function format_date($timestamp) {
     return format_date($timestamp, 'short', NULL, 0);
   }
-  
+
   function test_default_param() {
     $time = time();
     $expected = project_usage_daily_timestamp($time);
     $actual = project_usage_daily_timestamp();
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
   function test_timestamp_param() {
     $time = 1189700682;
     $expected = 1189641600;
     $actual = project_usage_daily_timestamp($time);
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
   function test_array_param() {
     $time = 1189700682;
     $expected = 1189641600;
     $actual = project_usage_daily_timestamp(project_usage_gmgetdate($time));
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
 }
 
@@ -99,21 +99,21 @@ class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
     $expected = project_usage_weekly_timestamp($time);
     $actual = project_usage_weekly_timestamp();
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
   function test_timestamp_param() {
     $time = 1189700682;
     $expected = 1189296000;
     $actual = project_usage_weekly_timestamp($time);
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
   function test_array_param() {
     $time = 1189700682;
     $expected = 1189296000;
     $actual = project_usage_weekly_timestamp(project_usage_gmgetdate($time));
 
-    $this->assertEqual($expected, $actual, $this->format_date($time) .' should round to '. $this->format_date($expected) .' got '. $this->format_date($actual));
+    $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
 }
 
@@ -141,8 +141,8 @@ class ProjectUsageGetWeeksSinceTests extends DrupalTestCase {
     $actual_last = array_pop($actual);
 
     $this->assertTrue(is_array($actual), "Returns an array");
-    $this->assertEqual($actual_first, $expected_first, "First value should be ". $this->format_date($expected_first) .' got '. $this->format_date($actual_first));
-    $this->assertEqual($actual_last, $expected_last, "Last value should be ". $this->format_date($expected_last) .' got '. $this->format_date($actual_last));
+    $this->assertEqual($actual_first, $expected_first, "First value should be " . $this->format_date($expected_first) . ' got ' . $this->format_date($actual_first));
+    $this->assertEqual($actual_last, $expected_last, "Last value should be " . $this->format_date($expected_last) . ' got ' . $this->format_date($actual_last));
   }
 }
 

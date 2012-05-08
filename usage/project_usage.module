@@ -34,7 +34,7 @@ define('PROJECT_USAGE_YEAR', PROJECT_USAGE_DAY * 365);
  * and take up extra space.
  */
 define('PROJECT_USAGE_DATE_LONG', 'F jS');
-define('PROJECT_USAGE_DATE_SHORT','M j');
+define('PROJECT_USAGE_DATE_SHORT', 'M j');
 
 // How many weeks should be shown in the usage pages?
 define('PROJECT_USAGE_SHOW_WEEKS', 6);
@@ -72,7 +72,7 @@ function project_usage_menu() {
  * Implementation of hook_theme().
  */
 function project_usage_theme() {
-  $path = drupal_get_path('module', 'project_usage') .'/includes';
+  $path = drupal_get_path('module', 'project_usage') . '/includes';
   return array(
     'project_usage_chart_by_release' => array(
       'arguments' => array(
@@ -140,7 +140,7 @@ function project_usage_perm() {
  * Implementation of hook_simpletest().
  */
 function project_usage_simpletest() {
-  $dir = drupal_get_path('module', 'project_usage'). '/tests';
+  $dir = drupal_get_path('module', 'project_usage') . '/tests';
   $tests = file_scan_directory($dir, '/\.test$/');
   return array_keys($tests);
 }
@@ -159,7 +159,7 @@ function project_usage_flush_caches() {
  */
 function project_usage_project_page_link_alter(&$links, $node) {
   if (user_access('view project usage') && $node->project_release['releases']) {
-    $links['resources']['links']['project_usage'] = l(t('View usage statistics'), 'project/usage/'. $node->project['uri']);
+    $links['resources']['links']['project_usage'] = l(t('View usage statistics'), 'project/usage/' . $node->project['uri']);
   }
 }
 

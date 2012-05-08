@@ -193,7 +193,7 @@ function drush_project_usage_process_varnish_file($filename = NULL) {
 
 function _project_usage_process_varnish_file($filename = NULL, $updates_url = NULL) {
   if (substr($filename, -3) == '.gz') {
-    $handle = fopen('compress.zlib://'. $filename, 'r');
+    $handle = fopen('compress.zlib://' . $filename, 'r');
   }
   else {
     $handle = fopen($filename, 'r');
@@ -210,13 +210,19 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
   $week = 0;
   $ccol = 0; // Current collection
   $c = FALSE;
-  $st = array('@change' => 0, '@nochange' => 0, '@wrongcore' => 0, '@invalid' => 0, '@file' => $filename);
+  $st = array(
+    '@change' => 0,
+    '@nochange' => 0,
+    '@wrongcore' => 0,
+    '@invalid' => 0,
+    '@file' => $filename,
+  );
   $buffer = array();
   $bcnt = 0;
   while ($line = fgets($handle)) {
     // 127.0.0.1 - - [02/Nov/2009:11:11:44 -0600] "GET http://updates.drupal.org/release-history/drupal/6.x?site_key=ffffffffffffffffffffffffffffffff&version=6.14 HTTP/1.0" 200 119 "-" "Drupal (+http://drupal.org/)"
     //if (preg_match('@\[([^\]]+)\] "GET '. $updates_url .'([^/]+)/([^\?]+)\?([^ ]+) @', $line, $matches)) {
-    if (preg_match('@\[([^\]]+)\] "(?:GET|HEAD) '. $updates_url .'([^/]+)/([^\?]+)\?([^ ]+) @', $line, $matches)) {
+    if (preg_match('@\[([^\]]+)\] "(?:GET|HEAD) ' . $updates_url . '([^/]+)/([^\?]+)\?([^ ]+) @', $line, $matches)) {
       // We are cheating on url parsing a bit for speed reasons. We have a lot
       // of log to get through as fast as possible. None of the "sane" entries will
       // have stuff like anchors in the url.
@@ -248,13 +254,13 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
 
       $qdata = array();
       foreach (explode('&', $query) as $part) {
-        @list($k, $v) = explode('=', $part, 2);
+        list(@$k, $v) = explode('=', $part, 2);
         $qdata[$k] = urldecode($v);
       }
 
 
       if (!empty($qdata['site_key']) && !empty($qdata['version'])) {
-        $rkey = strtolower($project .':'. $qdata['version']);
+        $rkey = strtolower($project . ':' . $qdata['version']);
         if (isset($releasedata[$rkey]) && isset($rterms[$core]) && ($rterms[$core] == $releasedata[$rkey][2])) {
           $rd = $releasedata[$rkey]; // array($row->pid, $row->nid, $row->version_api_tid);
           $entry = array(
@@ -361,7 +367,7 @@ function project_usage_process_batch(&$c, $buffer, &$st) {
   // between sites while talking to mongo. We can for the most part do things
   // a site at a time.
   foreach ($buffer as $site_key => $data) {
-    $lasthit = $data[count($data)-1];
+    $lasthit = $data[count($data) -1];
     $changed = FALSE;
     $record = $c->findOne(array('site_key' => $site_key));
     if (!$record) {
@@ -462,13 +468,13 @@ function project_usage_load_metadata() {
  */
 function project_usage_expire_statfiles() {
   $db = project_usage_mongo();
-  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS+4));
+  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS + 4));
   drush_log(dt("Cleaning up @week", array('@week' => $week)));
   $db->dropCollection($week);
-  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS+3));
+  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS + 3));
   drush_log(dt("Cleaning up @week", array('@week' => $week)));
   $db->dropCollection($week);
-  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS+2));
+  $week = project_usage_weekly_timestamp(NULL, -(PROJECT_USAGE_SHOW_WEEKS + 2));
   drush_log(dt("Cleaning up @week", array('@week' => $week)));
   $db->dropCollection($week);
 }
