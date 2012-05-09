@@ -25,6 +25,13 @@ function project_usage_uninstall() {
 }
 
 /**
+ * Implements hook_update_last_removed().
+ */
+function project_usage_update_last_removed() {
+  return 6000;
+}
+
+/**
  * Implements hook_schema().
  */
 function project_usage_schema() {
