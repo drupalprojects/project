@@ -8,7 +8,7 @@
 /**
  * Form builder for the module settings page.
  */
-function project_usage_settings_form(&$form_state) {
+function project_usage_settings_form($form, &$form_state) {
   $times = array(
     3 * PROJECT_USAGE_YEAR,
     2 * PROJECT_USAGE_YEAR,

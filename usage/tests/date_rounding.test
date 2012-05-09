@@ -10,7 +10,7 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
   }
 
   function test_timestamp_param() {
-    $time = time();
+    $time = REQUEST_TIME;
     $parts = project_usage_gmgetdate($time);
 
     // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
@@ -27,7 +27,7 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
   function test_default_param() {
     // This is actually a little dodgy... we're assuming that these two lines
     // will be executed in the same second.
-    $time = time();
+    $time = REQUEST_TIME;
     $parts = project_usage_gmgetdate();
 
     // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
@@ -58,7 +58,7 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
   }
 
   function test_default_param() {
-    $time = time();
+    $time = REQUEST_TIME;
     $expected = project_usage_daily_timestamp($time);
     $actual = project_usage_daily_timestamp();
 
@@ -95,7 +95,7 @@ class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
   }
 
   function test_default_param() {
-    $time = time();
+    $time = REQUEST_TIME;
     $expected = project_usage_weekly_timestamp($time);
     $actual = project_usage_weekly_timestamp();
 

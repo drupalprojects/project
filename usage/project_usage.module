@@ -40,7 +40,7 @@ define('PROJECT_USAGE_DATE_SHORT', 'M j');
 define('PROJECT_USAGE_SHOW_WEEKS', 6);
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function project_usage_menu() {
   $items['admin/project/project-usage-settings'] = array(
@@ -69,13 +69,13 @@ function project_usage_menu() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function project_usage_theme() {
   $path = drupal_get_path('module', 'project_usage') . '/includes';
   return array(
     'project_usage_chart_by_release' => array(
-      'arguments' => array(
+      'variables' => array(
         'title' => NULL,
         'header' => NULL,
         'rows' => NULL,
@@ -84,7 +84,7 @@ function project_usage_theme() {
       'path' => $path,
     ),
     'project_usage_header_links' => array(
-      'arguments' => array(
+      'variables' => array(
         'project' => NULL,
         'release' => NULL,
       ),
@@ -92,7 +92,7 @@ function project_usage_theme() {
       'path' => $path,
     ),
     'project_usage_project_page' => array(
-      'arguments' => array(
+      'variables' => array(
         'project' => NULL,
         'release_header' => NULL,
         'release_rows' => NULL,
@@ -103,7 +103,7 @@ function project_usage_theme() {
       'path' => $path,
     ),
     'project_usage_release_page' => array(
-      'arguments' => array(
+      'variables' => array(
         'project' => NULL,
         'release' => NULL,
         'header' => NULL,
@@ -116,7 +116,7 @@ function project_usage_theme() {
 }
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function project_usage_help($path, $arg) {
   switch ($path) {
@@ -128,16 +128,19 @@ function project_usage_help($path, $arg) {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_permission().
  */
-function project_usage_perm() {
+function project_usage_permission() {
   return array(
-    'view project usage',
+    'view project usage' => array(
+      'title' => t('view project usage'),
+      'description' => t('TODO Add a description for \'view project usage\''),
+    ),
   );
 }
 
 /**
- * Implementation of hook_simpletest().
+ * Implements hook_simpletest().
  */
 function project_usage_simpletest() {
   $dir = drupal_get_path('module', 'project_usage') . '/tests';
@@ -146,7 +149,7 @@ function project_usage_simpletest() {
 }
 
 /**
- * Implementation of hook_devel_caches().
+ * Implements hook_devel_caches().
  *
  * Lets the devel module know about our cache table so it can clear it.
  */
@@ -155,7 +158,7 @@ function project_usage_flush_caches() {
 }
 
 /**
- * Implementation of hook_project_page_link_alter().
+ * Implements hook_project_page_link_alter().
  */
 function project_usage_project_page_link_alter(&$links, $node) {
   if (user_access('view project usage') && $node->project_release['releases']) {
@@ -199,7 +202,7 @@ function project_usage_get_project_usage($nid, $tid) {
   static $usage = array();
   module_load_include('inc', 'project_usage', 'includes/date_api');
   if (empty($usage[$nid][$tid])) {
-    $usage[$nid][$tid] = db_result(db_query("SELECT count FROM {project_usage_week_project} WHERE nid = %d AND tid = %d AND timestamp = %d", $nid, $tid, project_usage_get_current_active_week()));
+    $usage[$nid][$tid] = db_query("SELECT count FROM {project_usage_week_project} WHERE nid = :nid AND tid = :tid AND timestamp = :timestamp", array(':nid' => $nid, ':tid' => $tid, ':timestamp' => project_usage_get_current_active_week()))->fetchField();
   }
   return $usage[$nid][$tid];
 }
@@ -217,7 +220,7 @@ function project_usage_get_release_usage($nid) {
   static $usage = array();
   module_load_include('inc', 'project_usage', 'includes/date_api');
   if (empty($usage[$nid])) {
-    $usage[$nid] = db_result(db_query("SELECT count FROM {project_usage_week_release} WHERE nid = %d AND timestamp = %d", $nid, project_usage_get_current_active_week()));
+    $usage[$nid] = db_query("SELECT count FROM {project_usage_week_release} WHERE nid = :nid AND timestamp = :timestamp", array(':nid' => $nid, ':timestamp' => project_usage_get_current_active_week()))->fetchField();
   }
   return $usage[$nid];
 }

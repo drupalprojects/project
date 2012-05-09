@@ -17,7 +17,7 @@
  *   An array with results identical to PHP's getdate().
  */
 function project_usage_gmgetdate($timestamp = NULL) {
-  $timestamp = isset($timestamp) ? $timestamp : time();
+  $timestamp = isset($timestamp) ? $timestamp : REQUEST_TIME;
   $gmt_offset = (int) date('Z', $timestamp);
   return getdate($timestamp - $gmt_offset);
 }
@@ -98,7 +98,7 @@ function project_usage_get_active_weeks($reset = FALSE) {
   $weeks = variable_get('project_usage_active_weeks', array());
   if ($reset || empty($weeks)) {
     $count = variable_get('project_usage_show_weeks', PROJECT_USAGE_SHOW_WEEKS);
-    $query = db_query_range("SELECT DISTINCT(timestamp) FROM {project_usage_week_project} ORDER BY timestamp DESC", array(), 0, $count);
+    $query = db_query_range("SELECT DISTINCT(timestamp) FROM {project_usage_week_project} ORDER BY timestamp DESC", array());
     $weeks = array();
     while ($week = db_fetch_object($query)) {
       $weeks[] = $week->timestamp;
@@ -108,6 +108,10 @@ function project_usage_get_active_weeks($reset = FALSE) {
   return $weeks;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function project_usage_get_current_active_week() {
   static $current_week = 0;
   if (empty($current_week)) {
@@ -124,6 +128,6 @@ function project_usage_get_current_active_week() {
  * @return The UNIX timestamp to expire the page at.
  */
 function project_usage_cache_time() {
-  return time() + variable_get('project_usage_cache_length', 86400);
+  return REQUEST_TIME + variable_get('project_usage_cache_length', 86400);
 }
 

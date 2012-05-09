@@ -1,14 +1,14 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the project_usage module.
+ *
+ */
 
-function project_usage_install() {
-  // Create the database tables.
-  drupal_install_schema('project_usage');
-}
-
+/**
+ * Implements hook_uninstall().
+ */
 function project_usage_uninstall() {
-  // Drop database tables.
-  drupal_uninstall_schema('project_usage');
-
   $variables = array(
     'project_usage_last_daily',
     'project_usage_last_weekly',
@@ -25,7 +25,7 @@ function project_usage_uninstall() {
 }
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function project_usage_schema() {
   $schema['project_usage_raw'] = array(
@@ -53,7 +53,7 @@ function project_usage_schema() {
         'default' => '',
       ),
       'api_version' => array(
-        'description' => 'The {term_data}.name of the API version requested.',
+        'description' => 'The {taxonomy_term_data}.name of the API version requested.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -81,7 +81,7 @@ function project_usage_schema() {
         'default' => 0,
       ),
       'tid' => array(
-        'description' => 'The {term_data}.tid of the API compatability version of the requested release.',
+        'description' => 'The {taxonomy_term_data}.tid of the API compatability version of the requested release.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -130,7 +130,7 @@ function project_usage_schema() {
         'default' => 0,
       ),
       'tid' => array(
-        'description' => 'The {term_data}.tid of the API compatability version of the requested release.',
+        'description' => 'The {taxonomy_term_data}.tid of the API compatability version of the requested release.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -148,7 +148,7 @@ function project_usage_schema() {
   );
 
   $schema['project_usage_week_project'] = array(
-    'description' => 'Table used to store weekly usage information by project and {term_data}.tid.',
+    'description' => 'Table used to store weekly usage information by project and {taxonomy_term_data}.tid.',
     'fields' => array(
       'nid' => array(
         'description' => 'Primary Key: The {node}.nid of the project.',
@@ -165,7 +165,7 @@ function project_usage_schema() {
         'default' => 0,
       ),
       'tid' => array(
-        'description' => 'Primary Key: The {term_data}.tid of the API compatability version of the release.',
+        'description' => 'Primary Key: The {taxonomy_term_data}.tid of the API compatability version of the release.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -183,7 +183,7 @@ function project_usage_schema() {
   );
 
   $schema['project_usage_week_release'] = array(
-    'description' => 'Table used to store weekly usage information by project and {term_data}.tid.',
+    'description' => 'Table used to store weekly usage information by project and {taxonomy_term_data}.tid.',
     'fields' => array(
       'nid' => array(
         'description' => 'Primary Key: The {node}.nid of the project.',
@@ -256,20 +256,5 @@ function project_usage_schema() {
   );
 
   return $schema;
-}
-
-/**
- * Add the 'serialized' field to {cache_project_usage}.
- */
-function project_usage_update_6000() {
-  $ret = array();
-  $spec = array(
-    'type' => 'int',
-    'size' => 'small',
-    'default' => 0,
-    'not null' => TRUE,
-  );
-  db_add_field($ret, 'cache_project_usage', 'serialized', $spec);
-  return $ret;
 }
 

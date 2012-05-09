@@ -3,4 +3,4 @@ description = "Provides data about installed usage of projects (requires update_
 package = Project
 dependencies[] = project
 dependencies[] = project_release
-core = 6.x
+core = 7.x

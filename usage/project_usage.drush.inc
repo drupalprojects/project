@@ -90,11 +90,17 @@ function drush_project_usage_tally_usage_stats() {
   project_usage_prune_site(); // Prune old data from site.
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function project_usage_prune_site() {
-  $time_4 = time();
+  $time_4 = REQUEST_TIME;
   $project_life = variable_get('project_usage_life_weekly_project', PROJECT_USAGE_YEAR);
-  db_query("DELETE FROM {project_usage_week_project} WHERE timestamp < %d", $_SERVER['REQUEST_TIME'] - $project_life);
-  $time_5 = time();
+  db_delete('project_usage_week_project')
+    ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $project_life, '<')
+    ->execute();
+  $time_5 = REQUEST_TIME;
   $substitutions = array(
     '!rows' => format_plural(db_affected_rows(), '1 old weekly project row', '@count old weekly project rows'),
     '!delta' => format_interval($time_5 - $time_4),
@@ -102,8 +108,10 @@ function project_usage_prune_site() {
   drush_log(dt('Removed !rows (!delta).', $substitutions), 'ok');
 
   $release_life = variable_get('project_usage_life_weekly_release', 26 * PROJECT_USAGE_WEEK);
-  db_query("DELETE FROM {project_usage_week_release} WHERE timestamp < %d", $_SERVER['REQUEST_TIME'] - $release_life);
-  $time_6 = time();
+  db_delete('project_usage_week_release')
+    ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $release_life, '<')
+    ->execute();
+  $time_6 = REQUEST_TIME;
   $substitutions = array(
     '!rows' => format_plural(db_affected_rows(), '1 old weekly release row', '@count old weekly release rows'),
     '!delta' => format_interval($time_6 - $time_5),
@@ -254,7 +262,7 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
 
       $qdata = array();
       foreach (explode('&', $query) as $part) {
-        list(@$k, $v) = explode('=', $part, 2);
+        list($k, $v) = explode('=', $part, 2);
         $qdata[$k] = urldecode($v);
       }
 
@@ -528,8 +536,10 @@ function project_usage_tally() {
     foreach ($ptally as $tid => $projects) {
       drush_log(dt("Begin updating @week tallies on database for @name", array('@week' => $week, '@name' => $terms[$tid])));
       if (!empty($projects)) {
-        // @@@ index to help this?
-        db_query("DELETE FROM {project_usage_week_project} WHERE tid = %d AND timestamp = %d", $tid, $week);
+        db_delete('project_usage_week_project')
+          ->condition('tid', $tid)
+          ->condition('timestamp', $week)
+          ->execute();
         $qcount = 0;
         $query = 'INSERT INTO {project_usage_week_project} VALUES ';
         $args = array();
@@ -544,6 +554,7 @@ function project_usage_tally() {
           $args[] = $tid;
           $args[] = $count;
           if ($qcount > 1000) {
+            // TODO Please convert this statement to the D7 database API syntax.
             db_query($query, $args);
             $qcount = 0;
             $query = 'INSERT INTO {project_usage_week_project} VALUES ';
@@ -551,6 +562,7 @@ function project_usage_tally() {
           }
         }
         if ($qcount) {
+          // TODO Please convert this statement to the D7 database API syntax.
           db_query($query, $args);
         }
       }
@@ -569,7 +581,9 @@ function project_usage_tally() {
       // Do the update in a transaction to prevent glitches if someone requests stats while we're writing.
       db_query("START TRANSACTION");
 
-      db_query("DELETE FROM {project_usage_week_release} WHERE timestamp = %d", $week);
+      db_delete('project_usage_week_release')
+        ->condition('timestamp', $week)
+        ->execute();
     }
 
     foreach ($tally as $tid => $releases) {
@@ -587,6 +601,7 @@ function project_usage_tally() {
           $args[] = $week;
           $args[] = $count;
           if ($qcount > 1000) {
+            // TODO Please convert this statement to the D7 database API syntax.
             db_query($query, $args);
             $qcount = 0;
             $query = 'INSERT INTO {project_usage_week_release} VALUES ';
@@ -594,6 +609,7 @@ function project_usage_tally() {
           }
         }
         if ($qcount) {
+          // TODO Please convert this statement to the D7 database API syntax.
           db_query($query, $args);
         }
       }

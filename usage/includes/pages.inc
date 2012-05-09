@@ -147,6 +147,7 @@ function project_usage_overview() {
   }
   else {
     $args = array_merge($joins_args, $where_args);
+    // TODO Please convert this statement to the D7 database API syntax.
     $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($headers), $args);
 
     $number = 1;
@@ -164,7 +165,7 @@ function project_usage_overview() {
       $rows[] = $row;
     }
   }
-  $output = theme('table', $headers, $rows, array('id' => 'project-usage-all-projects'));
+  $output = theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-all-projects')));
 
   // Cache the completed page.
   if (project_can_cache()) {
@@ -186,7 +187,7 @@ function project_usage_project_page($node) {
     l(t('Usage'), 'project/usage'),
   );
   project_project_set_breadcrumb(NULL, $breadcrumb);
-  drupal_set_title(t('Usage statistics for %project', array('%project' => $node->title)));
+  drupal_set_title(t('Usage statistics for %project', array('%project' => $node->title)), PASS_THROUGH);
 
   // In order to keep the database load down we need to cache these pages.
   // Because the release usage table is sortable, the cache id needs to take
@@ -204,7 +205,7 @@ function project_usage_project_page($node) {
   // If there are no releases for this project, we can skip the rest
   // of this function.
   if (empty($releases)) {
-    return theme('project_usage_project_page', $node);
+    return theme('project_usage_project_page', array('project' => $node));
   }
 
   // Build a table showing this week's usage for each release. In order to get
@@ -265,6 +266,7 @@ function project_usage_project_page($node) {
   }
   else {
     $args = array_merge($joins_args, $where_args);
+    // TODO Please convert this statement to the D7 database API syntax.
     $result = db_query(project_usage_build_query($sql_elements) . tablesort_sql($release_header), $args);
 
     $release_rows = array();
@@ -286,7 +288,7 @@ function project_usage_project_page($node) {
 
     // Build a table of the weekly usage data with a column for each API version.
     // Get an array of the weeks going back as far as we have data...
-    $oldest = db_result(db_query("SELECT MIN(puwp.timestamp) FROM {project_usage_week_project} puwp WHERE puwp.nid = %d", $node->nid));
+    $oldest = db_query("SELECT MIN(puwp.timestamp) FROM {project_usage_week_project} puwp WHERE puwp.nid = :puwp.nid", array(':puwp.nid' => $node->nid))->fetchField();
     if ($oldest === NULL) {
       $weeks = array();
     }
@@ -304,7 +306,7 @@ function project_usage_project_page($node) {
     // but it ends up being a more expensive query and harder to read.
     $project_header = array(0 => array('data' => t('Week')));
     $blank_row = array(0 => array('data' => ''));
-    $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {term_data} td ON p.tid = td.tid WHERE p.nid = %d ORDER BY td.weight DESC, td.name", $node->nid);
+    $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {taxonomy_term_data} td ON p.tid = td.tid WHERE p.nid = :p.nid ORDER BY td.weight DESC, td.name", array(':p.nid' => $node->nid));
     while ($row = db_fetch_object($result)) {
       $project_header[$row->tid] = array(
         'data' => check_plain($row->name),
@@ -334,7 +336,7 @@ function project_usage_project_page($node) {
     }
 
     // ...then fill it in with our data.
-    $result = db_query("SELECT timestamp, tid, count FROM {project_usage_week_project} WHERE nid = %d", $node->nid);
+    $result = db_query("SELECT timestamp, tid, count FROM {project_usage_week_project} WHERE nid = :nid", array(':nid' => $node->nid));
     while ($row = db_fetch_object($result)) {
       $project_rows[$row->timestamp][$row->tid]['data'] = $row->count;
     }
@@ -352,7 +354,7 @@ function project_usage_project_page($node) {
     }
   }
 
-  $output = theme('project_usage_project_page', $node, $release_header, $release_rows, $project_header, $project_rows);
+  $output = theme('project_usage_project_page', array('project' => $node, 'release_header' => $release_header, 'release_rows' => $release_rows, 'project_header' => $project_header, 'project_rows' => $project_rows));
 
   // Cache the completed page.
   if (project_can_cache()) {
@@ -380,7 +382,7 @@ function project_usage_release_page($node) {
     l($project->title, 'project/usage/' . $project->nid),
   );
   project_project_set_breadcrumb(NULL, $breadcrumb);
-  drupal_set_title(t('Usage statistics for %release', array('%release' => $node->title)));
+  drupal_set_title(t('Usage statistics for %release', array('%release' => $node->title)), PASS_THROUGH);
 
   // Check for a cached page.
   $cid = "release:{$node->nid}";
@@ -390,7 +392,7 @@ function project_usage_release_page($node) {
   else {
     // Table displaying the usage back through time.
     $rows = array();
-    $query = db_query("SELECT timestamp, count FROM {project_usage_week_release} WHERE nid = %d ORDER BY timestamp DESC", $node->nid);
+    $query = db_query("SELECT timestamp, count FROM {project_usage_week_release} WHERE nid = :nid ORDER BY timestamp DESC", array(':nid' => $node->nid));
     while ($row = db_fetch_object($query)) {
       $rows[] = array(
         array(
@@ -411,7 +413,7 @@ function project_usage_release_page($node) {
       'class' => 'project-usage-numbers',
     ),
   );
-  $output = theme('project_usage_release_page', $project, $node, $header, $rows);
+  $output = theme('project_usage_release_page', array('project' => $project, 'release' => $node, 'header' => $header, 'rows' => $rows));
 
   // Cache the completed page.
   if (project_can_cache()) {
@@ -435,8 +437,13 @@ function project_usage_release_page($node) {
  * @param $project_rows
  *   Table rows for the weekly project usage table.
  */
-function theme_project_usage_project_page($project, $release_header = NULL, $release_rows = NULL, $project_header = NULL, $project_rows = NULL) {
-  $output = theme('project_usage_header_links', $project);
+function theme_project_usage_project_page($variables) {
+  $project = $variables['project'];
+  $release_header = $variables['release_header'];
+  $release_rows = $variables['release_rows'];
+  $project_header = $variables['project_header'];
+  $project_rows = $variables['project_rows'];
+  $output = theme('project_usage_header_links', array('project' => $project));
 
   if (empty($release_rows)) {
     // There are no published releases for a project that the user has access
@@ -446,10 +453,10 @@ function theme_project_usage_project_page($project, $release_header = NULL, $rel
   }
 
   $output .= '<h3>' . t('Weekly project usage') . '</h3>';
-  $output .= theme('project_usage_chart_by_release', t('Weekly @project usage by API version', array('@project' => $project->title)), $project_header, $project_rows);
-  $output .= theme('table', $project_header, $project_rows, array('id' => 'project-usage-project-api'));
+  $output .= theme('project_usage_chart_by_release', array('title' => t('Weekly @project usage by API version', array('@project' => $project->title)), 'header' => $project_header, 'rows' => $project_rows));
+  $output .= theme('table', array('header' => $project_header, 'rows' => $project_rows, 'attributes' => array('id' => 'project-usage-project-api')));
   $output .= '<h3>' . t('Recent release usage') . '</h3>';
-  $output .= theme('table', $release_header, $release_rows, array('id' => 'project-usage-project-releases'));
+  $output .= theme('table', array('header' => $release_header, 'rows' => $release_rows, 'attributes' => array('id' => 'project-usage-project-releases')));
   return $output;
 }
 
@@ -465,8 +472,12 @@ function theme_project_usage_project_page($project, $release_header = NULL, $rel
  * @param $rows
  *   Table rows for the release usage table.
  */
-function theme_project_usage_release_page($project, $release, $header, $rows) {
-  $output = theme('project_usage_header_links', $project, $release);
+function theme_project_usage_release_page($variables) {
+  $project = $variables['project'];
+  $release = $variables['release'];
+  $header = $variables['header'];
+  $rows = $variables['rows'];
+  $output = theme('project_usage_header_links', array('project' => $project, 'release' => $release));
 
   // If there is no usage information for a release, don't just
   // display an empty usage table.
@@ -475,8 +486,8 @@ function theme_project_usage_release_page($project, $release, $header, $rows) {
     return $output;
   }
 
-  $output .= theme('project_usage_chart_by_release', t('Weekly @release usage', array('@release' => $release->title)), $header, $rows);
-  $output .= theme('table', $header, $rows, array('id' => 'project-usage-release'));
+  $output .= theme('project_usage_chart_by_release', array('title' => t('Weekly @release usage', array('@release' => $release->title)), 'header' => $header, 'rows' => $rows));
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-release')));
   return $output;
 }
 
@@ -492,7 +503,9 @@ function theme_project_usage_release_page($project, $release, $header, $rows) {
  * @return
  *   Themed HTML of a list of links for the top of a statistics page.
  */
-function theme_project_usage_header_links($project, $release = NULL) {
+function theme_project_usage_header_links($variables) {
+  $project = $variables['project'];
+  $release = $variables['release'];
   $links = array();
   $links[] = l(t('%project_name project page', array('%project_name' => $project->title)), 'node/' . $project->nid, array('html' => TRUE));
   if (!empty($release)) {
@@ -500,7 +513,7 @@ function theme_project_usage_header_links($project, $release = NULL) {
     $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->project['uri'], array('html' => TRUE));
   }
   $links[] = l(t('Usage statistics for all projects'), 'project/usage');
-  return theme('item_list', $links);
+  return theme('item_list', array('items' => $links));
 }
 
 /**
@@ -517,7 +530,10 @@ function theme_project_usage_header_links($project, $release = NULL) {
  *   An HTML IMG element, or empty string if there is an error such as
  *   insufficent data.
  */
-function theme_project_usage_chart_by_release($title, $header, $rows) {
+function theme_project_usage_chart_by_release($variables) {
+  $title = $variables['title'];
+  $header = $variables['header'];
+  $rows = $variables['rows'];
   // Make sure we have enough data to make a useful chart.
   if (count($rows) < 2 || count($header) < 2) {
     return '';
@@ -559,28 +575,32 @@ function theme_project_usage_chart_by_release($title, $header, $rows) {
     }
   }
 
-  $flot_graph = theme('flot_graph', array('style' => 'width:100%; height:200px'), array_values($series), array(
-    'xaxis' => array(
-      'mode' => 'time',
-    ),
-    'colors' => array('#EDAA00', '#0062A0', '#A17300', '#ED8200', '#38B4BA', '#215D6E'), // Might need more colors than this.
-    'series' => array(
-      'shadowSize' => 0,
-    ),
-    'legend' => array(
-      'show' => 1,
-      'position' => 'nw',
-      'noColumns' => 2,
-      'labelBoxBorderColor' => 'transparent',
-    ),
-    'grid' => array(
-      'borderWidth' => 0,
-    ),
+  $flot_graph = theme('flot_graph', array(
+    'options' => array('style' => 'width:100%; height:200px'),
+    'data' => array_values($series),
+    'element' => array(
+      'xaxis' => array(
+        'mode' => 'time',
+      ),
+      'colors' => array('#EDAA00', '#0062A0', '#A17300', '#ED8200', '#38B4BA', '#215D6E'), // Might need more colors than this.
+      'series' => array(
+        'shadowSize' => 0,
+      ),
+      'legend' => array(
+        'show' => 1,
+        'position' => 'nw',
+        'noColumns' => 2,
+        'labelBoxBorderColor' => 'transparent',
+      ),
+      'grid' => array(
+        'borderWidth' => 0,
+      ),
+    )
   ));
 
   // Include the cached inline code in the output. Ugly, but there's no harm in
   // assigning the JS variable twice. Will be imporved by #1515468
-  $scripts = drupal_add_js();
+  $scripts = drupal_add_js(JS_DEFAULT);
   $flot_graph .= '<script>' . $scripts['inline'][count($scripts['inline']) - 1]['code'] . '</script>';
 
   return $flot_graph;
