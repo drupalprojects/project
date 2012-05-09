@@ -109,11 +109,15 @@ class ProjectWebTestCase extends DrupalWebTestCase {
             'value' => $this->randomName(),
             'format' => NULL,
           ),
-          0 => array(
+          2 => array(
             'value' => $this->randomName(),
             'format' => NULL,
           ),
-          0 => array(
+          3 => array(
+            'value' => $this->randomName(),
+            'format' => NULL,
+          ),
+          4 => array(
             'value' => $this->randomName(),
             'format' => NULL,
           ),

@@ -25,6 +25,9 @@ function project_install_default_project_node_type() {
     'field_name' => 'field_project_components',
     'label' => $t('Project components'),
     'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'max_length' => 255,
+    ),
   );
   field_create_field($components);
 
@@ -86,7 +89,17 @@ function project_install_default_project_node_type() {
     'label' => $t('Components'),
     'widget' => array(
       'weight' => '-1',
+      'settings' => array(
+        'size' => '60',
+      ),
     ),
+    'required' => TRUE,
+    'default_value' => array(
+        array('value' => $t('Code')),
+        array('value' => $t('Documentation')),
+        array('value' => $t('Miscellaneous')),
+        array('value' => $t('User interface')),
+      ),
   );
   field_create_instance($components_instance);
 }
