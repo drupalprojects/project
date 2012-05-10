@@ -12,7 +12,7 @@ function project_install_default_project_node_type() {
   $t = get_t();
 
   /**
-   * Set up project-specific fields, for short name and components.
+   * Set up project-specific field for short name.
    */
   $machine_name = array(
     'type' => 'machine_name',
@@ -20,20 +20,10 @@ function project_install_default_project_node_type() {
     'label' => $t('Project short name'),
   );
   field_create_field($machine_name);
-  $components = array(
-    'type' => 'text',
-    'field_name' => 'field_project_components',
-    'label' => $t('Project components'),
-    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-    'settings' => array(
-      'max_length' => 255,
-    ),
-  );
-  field_create_field($components);
 
   /**
-   * Set up a default project node type, which includes title, body, short
-   * name, and components fields.
+   * Set up a default project node type, which includes title, body, and short
+   * name.
    */
   $node_type = array(
     'type' => 'project',
@@ -73,35 +63,6 @@ function project_install_default_project_node_type() {
     ),
   );
   field_create_instance($machine_name_instance);
-  $components_instance = array(
-    'bundle' => 'project',
-    'description' => $t('Used to classify different aspects of a project, eg. a software project might have <em>Code</em>, <em>User interface</em>, and <em>Documentation</em> components.'),
-    'display' => array(
-      'default' => array(
-        'type' => 'hidden',
-      ),
-      'teaser' => array(
-        'type' => 'hidden',
-      ),
-    ),
-    'entity_type' => PROJECT_ENTITY_TYPE,
-    'field_name' => 'field_project_components',
-    'label' => $t('Components'),
-    'widget' => array(
-      'weight' => '-1',
-      'settings' => array(
-        'size' => '60',
-      ),
-    ),
-    'required' => TRUE,
-    'default_value' => array(
-        array('value' => $t('Code')),
-        array('value' => $t('Documentation')),
-        array('value' => $t('Miscellaneous')),
-        array('value' => $t('User interface')),
-      ),
-  );
-  field_create_instance($components_instance);
 }
 
 /**
