@@ -3,7 +3,11 @@ description = Make node types into Projects.
 package = Project
 dependencies[] = machine_name
 dependencies[] = list
-files[] = project.test
+
+files[] = tests/project.test
+files[] = tests/integration/project_creation.test
+files[] = tests/integration/maintainers.test
+files[] = tests/spec/install.test
 
 files[] = views/handlers/project_handler_argument_project_nid.inc
 files[] = views/handlers/project_handler_argument_term_node_tid_depth_project.inc
