@@ -451,12 +451,13 @@ function project_usage_load_metadata() {
     }
   }
 
+
   // Load information about projects and release data.
   $c = $db->selectCollection("releases");
   $c->remove(array());
-  $result = db_query("SELECT LOWER(p.uri) AS uri, r.nid, r.pid, LOWER(r.version) AS version, r.version_api_tid AS tid FROM {project_projects} p INNER JOIN {project_release_nodes} r ON p.nid = r.pid");
+  $result = db_query("SELECT LOWER(p.uri) AS uri, r.nid, r.pid, LOWER(r.version) AS version, r.version_api_tid AS tid FROM {project_projects} p INNER JOIN {project_release_nodes} r ON p.nid = r.pid", array(), array('fetch' => PDO::FETCH_ASSOC, ));
   $projdata = array();
-  while ($row = db_fetch_array($result)) {
+  foreach ($result as $row)) {
     $c->insert($row);
     $projdata[$row['pid']] = $row['uri'];
   }
@@ -541,29 +542,24 @@ function project_usage_tally() {
           ->condition('timestamp', $week)
           ->execute();
         $qcount = 0;
-        $query = 'INSERT INTO {project_usage_week_project} VALUES ';
-        $args = array();
+        $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
         foreach ($projects as $project => $count) {
-          if ($qcount) {
-            $query .= ', ';
-          }
           $qcount++;
-          $query .= '(%d, %d, %d, %d)';
-          $args[] = $project;
-          $args[] = $week;
-          $args[] = $tid;
-          $args[] = $count;
+          $query->values(array(
+            'nid' => $project,
+            'timestamp' => $week,
+            'tid' => $tid,
+            'count' => $count,
+          ));
+
           if ($qcount > 1000) {
-            // TODO Please convert this statement to the D7 database API syntax.
-            db_query($query, $args);
+            $query->execute();
             $qcount = 0;
-            $query = 'INSERT INTO {project_usage_week_project} VALUES ';
-            $args = array();
+            $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
           }
         }
         if ($qcount) {
-          // TODO Please convert this statement to the D7 database API syntax.
-          db_query($query, $args);
+          $query->execute();
         }
       }
     }
@@ -589,28 +585,23 @@ function project_usage_tally() {
     foreach ($tally as $tid => $releases) {
       if (!empty($releases)) {
         $qcount = 0;
-        $query = 'INSERT INTO {project_usage_week_release} VALUES ';
-        $args = array();
+        $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
         foreach ($releases as $release => $count) {
-          if ($qcount) {
-            $query .= ', ';
-          }
           $qcount++;
-          $query .= '(%d, %d, %d)';
-          $args[] = $release;
-          $args[] = $week;
-          $args[] = $count;
+          $query->values(array(
+            'nid' => $release,
+            'timestamp' => $week,
+            'count' => $count,
+          ));
+
           if ($qcount > 1000) {
-            // TODO Please convert this statement to the D7 database API syntax.
-            db_query($query, $args);
+            $query->execute();
             $qcount = 0;
-            $query = 'INSERT INTO {project_usage_week_release} VALUES ';
-            $args = array();
+            $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
           }
         }
         if ($qcount) {
-          // TODO Please convert this statement to the D7 database API syntax.
-          db_query($query, $args);
+          $query->execute();
         }
       }
     }
