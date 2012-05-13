@@ -416,16 +416,19 @@ function project_usage_release_page($node) {
 /**
  * Theme the output of project/usage/<project> page.
  *
- * @param $project
- *   A fully loaded $node object for a project.
- * @param $release_header
- *   A table header for the release usage table.
- * @param $release_rows
- *   Table rows for the release usage table.
- * @param $project_header
- *   A table header for the weekly project usage table.
- * @param $project_rows
- *   Table rows for the weekly project usage table.
+ * @param $variables
+ *   An array of theme information, with the following keys:
+ *
+ *     project:
+ *       A fully loaded $node object for a project.
+ *     release_header:
+ *       A table header for the release usage table.
+ *     release_rows:
+ *       Table rows for the release usage table.
+ *     project_header:
+ *       A table header for the weekly project usage table.
+ *     project_rows:
+ *       Table rows for the weekly project usage table.
  */
 function theme_project_usage_project_page($variables) {
   $project = $variables['project'];
@@ -453,14 +456,17 @@ function theme_project_usage_project_page($variables) {
 /**
  * Theme the output of the project/usage/<release nid> page.
  *
- * @param $project
- *   A fully loaded $node object for a project.
- * @param $release
- *   A fully loaded $node object for a release.
- * @param $header
- *   A table header for the release usage table.
- * @param $rows
- *   Table rows for the release usage table.
+ * @param $variables
+ *   An array of theme information, with the following keys:
+ *
+ *     project:
+ *       A fully loaded $node object for a project.
+ *     release:
+ *       A fully loaded $node object for a release.
+ *     header:
+ *       A table header for the release usage table.
+ *     rows:
+ *       Table rows for the release usage table.
  */
 function theme_project_usage_release_page($variables) {
   $project = $variables['project'];
@@ -484,11 +490,14 @@ function theme_project_usage_release_page($variables) {
 /**
  * Create list of links at the top of a usage statistics page.
  *
- * @param $project
- *   A fully loaded $node object for a project.
- * @param $release
- *   If the current statistics page is for a release, the fully loaded $node
- *   object for that release.
+ * @param $variables
+ *   An array of theme information, with the following keys:
+ *
+ *     project:
+ *       A fully loaded $node object for a project.
+ *     release:
+ *       If the current statistics page is for a release, the fully loaded
+ *       $node object for that release.
  *
  * @return
  *   Themed HTML of a list of links for the top of a statistics page.
@@ -512,10 +521,15 @@ function theme_project_usage_header_links($variables) {
  * First column should be the weeks, each subsequent column should be a data
  * series.
  *
- * @param $header
- *   A table header for the weekly usage table.
- * @param $rows
- *   Table rows for the weekly usage table.
+ * @param $variables
+ *   An array of theme information, with the following keys:
+ *
+ *     title:
+ *       The graph title. // TODO: This isn't currently being used.
+ *     header:
+ *       A table header for the weekly usage table.
+ *     rows:
+ *       Table rows for the weekly usage table.
  * @return
  *   An HTML IMG element, or empty string if there is an error such as
  *   insufficent data.
