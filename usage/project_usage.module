@@ -133,19 +133,11 @@ function project_usage_permission() {
   return array(
     'view project usage' => array(
       'title' => t('view project usage'),
-      'description' => t('TODO Add a description for \'view project usage\''),
+      'description' => t('View project usage statistics'),
     ),
   );
 }
 
-/**
- * Implements hook_simpletest().
- */
-function project_usage_simpletest() {
-  $dir = drupal_get_path('module', 'project_usage') . '/tests';
-  $tests = file_scan_directory($dir, '/\.test$/');
-  return array_keys($tests);
-}
 
 /**
  * Implements hook_devel_caches().
