@@ -3,9 +3,8 @@
 /**
  * @file
  *
- * This module provides logging of the requests sent by the
- * update_status.module (contrib in 5.x) and update.module (core in 6.x) to the
- * project_release.module on updates.drupal.org. The
+ * This module provides logging of the requests sent by core's update.module
+ * to the project_release.module on updates.drupal.org. The
  * release/project-release-serve-history.php script inserts data into the
  * {project_usage_raw} table created by this module.
  *
@@ -15,9 +14,9 @@
  *
  * This data is then used to compute live usage statistics about all projects
  * hosted on drupal.org. In theory, another site could setup
- * update_status.module-style checking to their own project.module-based
- * server, in which case, they might want to enable this module. Otherwise,
- * sites should just leave this disabled.
+ * update.module-style checking to their own project.module-based server, in
+ * which case, they might want to enable this module. Otherwise, sites should
+ * just leave this disabled.
  */
 
 // Number of seconds in a day.
