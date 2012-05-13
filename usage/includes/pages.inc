@@ -383,7 +383,7 @@ function project_usage_release_page($node) {
     // Table displaying the usage back through time.
     $rows = array();
     $query = db_query("SELECT timestamp, count FROM {project_usage_week_release} WHERE nid = :nid ORDER BY timestamp DESC", array(':nid' => $node->nid));
-    while ($row = db_fetch_object($query)) {
+    foreach ($query as $row) {
       $rows[] = array(
         array(
           'data' => format_date($row->timestamp, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0),
