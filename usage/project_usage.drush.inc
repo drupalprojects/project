@@ -459,7 +459,7 @@ function project_usage_load_metadata() {
   // and {project_release_nodes} won't exist in 7.x.
   $result = db_query("SELECT LOWER(p.uri) AS uri, r.nid, r.pid, LOWER(r.version) AS version, r.version_api_tid AS tid FROM {project_projects} p INNER JOIN {project_release_nodes} r ON p.nid = r.pid", array(), array('fetch' => PDO::FETCH_ASSOC, ));
   $projdata = array();
-  foreach ($result as $row)) {
+  foreach ($result as $row) {
     $c->insert($row);
     $projdata[$row['pid']] = $row['uri'];
   }
