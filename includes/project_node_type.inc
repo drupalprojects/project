@@ -42,7 +42,7 @@ function project_install_default_project_node_type() {
   $project_type_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
-    'entity_type' => PROJECT_ENTITY_TYPE,
+    'entity_type' => 'node',
     'field_name' => 'field_project_type',
     'label' => $t('Project type'),
     'required' => 1,
@@ -54,7 +54,7 @@ function project_install_default_project_node_type() {
   $machine_name_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
-    'entity_type' => PROJECT_ENTITY_TYPE,
+    'entity_type' => 'node',
     'field_name' => 'field_project_machine_name',
     'label' => $t('Short name'),
     'required' => 1,

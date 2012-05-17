@@ -14,7 +14,7 @@ class ProjectInstallTestCase extends ProjectWebTestCase {
    */
   function testProjectInstallation() {
     $this->assert(array_key_exists('project', node_type_get_names()), 'Project node type is created properly.');
-    $this->assert(project_entity_bundle_is_project('project', 'node'), 'Project node type is considered a field.');
+    $this->assert(project_node_type_is_project('project'), 'Project node type is considered a project.');
     $project = $this->createProject(array('type' => 'project'));
     $page = $this->drupalCreateNode(array('type' => 'page'));
     $this->assert(project_node_is_project($project), 'Project node is considered a project.');

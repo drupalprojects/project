@@ -1,7 +1,5 @@
 <?php
 
-define('PROJECT_ENTITY_TYPE', 'node');
-
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -24,48 +22,38 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
  *   A node to check.
  */
 function project_node_is_project($node) {
-  return project_entity_bundle_is_project($node->type, PROJECT_ENTITY_TYPE);
+  return project_node_type_is_project($node->type);
 }
 
 /**
  * Determine whether or not a node type is considered a project.
  *
- * This function checks for the presence of the project_type field to determine
- * whether or not an entity type is considered a project.
- *
- * @param $bundle_name
+ * @param $node_type
  *   The node type to check.
+ *
+ * @return boolean
+ *   Is the given node type a project node type or not?
  */
-function project_entity_bundle_is_project($bundle_name, $entity_type = PROJECT_ENTITY_TYPE) {
-  $fields = field_info_fields();
-  return in_array($bundle_name, $fields['field_project_type']['bundles'][$entity_type]);
+function project_node_type_is_project($node_type) {
+  return in_array($node_type, project_project_node_types());
 }
 
 /**
- * Retrieve a list of entity bundles that are considered projects.
+ * Retrieve a list of node types that are considered projects.
  *
  * This function checks for the presence of the project_type field to determine
- * which bundles are considered a project.
+ * which node types are considered a project.
  *
- * @param $entity_type
- *   The entity type. Default is 'node'. If set to NULL, all types are returned.
- *
- * @return
- *   For all types, an associative array of arrays, keyed on entity type. For
- *   a single entity type, an array of bundle names.
+ * @return array
+ *   An array of node type machine names that are configure to be projects.
  */
-function project_project_entity_bundles($entity_type = PROJECT_ENTITY_TYPE) {
+function project_project_node_types() {
   $fields = field_info_fields();
-  $project_entities = array();
-  if (isset($entity_type)) {
-    if (isset($fields['field_project_type']['bundles'][$entity_type])) {
-      $project_entities = $fields['field_project_type']['bundles'][$entity_type];
-    }
+  $project_node_types = array();
+  if (isset($fields['field_project_type']['bundles']['node'])) {
+    $project_node_types = $fields['field_project_type']['bundles']['node'];
   }
-  else {
-    $project_entities = $fields['field_project_type']['bundles'];
-  }
-  return $project_entities;
+  return $project_node_types;
 }
 
 /**
@@ -85,11 +73,11 @@ function project_load($arg) {
   }
   else {
     $query = new EntityFieldQuery();
-    $result = $query->entityCondition('entity_type', PROJECT_ENTITY_TYPE, '=')
+    $result = $query->entityCondition('entity_type', 'node', '=')
       ->fieldCondition('field_project_machine_name', 'value', $arg, '=')
       ->execute();
-    if (!empty($result[PROJECT_ENTITY_TYPE])) {
-      $entities = entity_load(PROJECT_ENTITY_TYPE, array_keys($result[PROJECT_ENTITY_TYPE]));
+    if (!empty($result['node'])) {
+      $entities = entity_load('node', array_keys($result['node']));
       $node = reset($entities);
     }
   }
@@ -200,18 +188,13 @@ function project_node_update($node) {
  */
 function project_node_access($node, $op, $account) {
   switch (gettype($node)) {
-    case 'string':
-      if (project_entity_bundle_is_project($node, PROJECT_ENTITY_TYPE)) {
-
-      }
-
-      return NODE_ACCESS_IGNORE;
     case 'object':
       if (project_node_is_project($node)) {
         return (project_user_access($node, $op . ' project', $account)) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
       }
 
       return NODE_ACCESS_IGNORE;
+
     default:
       return NODE_ACCESS_IGNORE;
   }
