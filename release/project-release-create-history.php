@@ -187,7 +187,7 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
   $api_vid = _project_release_get_api_vid();
   /// @todo: This is a drupal.org-specific hack.
   /// @see http://drupal.org/node/1003764
-  $is_profile = FALSE;
+  $is_distribution = FALSE;
 
   if (isset($api_tid)) {
     // Restrict output to a specific API compatibility term.
@@ -267,8 +267,8 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
   while ($term = db_fetch_object($term_query)) {
     /// @todo: This is a drupal.org-specific hack.
     /// @see http://drupal.org/node/1003764
-    if ($term->term_name == 'Installation profiles') {
-      $is_profile = TRUE;
+    if ($term->term_name == 'Distributions') {
+      $is_distribution = TRUE;
     }
     $xml_terms .= '   <term><name>'. check_plain($term->vocab_name) .'</name>';
     $xml_terms .= '<value>'. check_plain($term->term_name) ."</value></term>\n";
@@ -402,7 +402,7 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
 
         /// @todo: This is a drupal.org-specific hack.
         /// @see http://drupal.org/node/1003764
-        if ($is_profile) {
+        if ($is_distribution) {
           $variant_chunk = array_pop($file_parts);
           if (strrpos($variant_chunk, 'no-core') !== FALSE) {
             $variant = 'projects';
