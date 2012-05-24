@@ -380,3 +380,71 @@ function project_maintainer_project_load($nid) {
 
   return $maintainers;
 }
+
+/**
+ * Implements hook_FORM_ID_form_alter().
+ *
+ * This adds a 'Project settings' vertical tab to the node_type_form and the
+ * initial choice of what behavior a given node type should have relative to
+ * the Project* suite. This also invokes a hook that allows other Project*
+ * modules to inject their own node-type-specific settings and form elements.
+ *
+ * @see hook_project_node_type_settings()
+ * @see node_type_form_submit()
+ */
+function project_form_node_type_form_alter(&$form) {
+  $node_type = $form['#node_type']->type;
+  $project_behavior = variable_get('project_behavior_' . $node_type, 'none');
+  $behavior_options = array(
+    'none' => 'Not related to projects',
+  );
+
+  $form['project'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Project settings'),
+    '#collapsible' => TRUE,
+    '#group' => 'additional_settings',
+  );
+
+  $form['project']['project_behavior'] = array(
+    '#title' => t('How does this content type relate to the Project system?'),
+    '#type' => 'radios',
+    '#default_value' => $project_behavior,
+  );
+
+  // @todo: This is stupid. We want something like module_collate_info().
+  // @see http://drupal.org/node/890660
+  foreach (module_implements('project_node_type_settings') as $module) {
+    $function = "{$module}_project_node_type_settings";
+    $form_elements = $function($form);
+    $behavior_options[$module] = isset($form_elements['#behavior_label']) ? $form_elements['#behavior_label'] : $module;
+
+    foreach (element_children($form_elements) as $key) {
+      $form_elements[$key]['#states'] = array(
+        'visible' => array(
+          ':input[name="project_behavior"]' => array('value' => $module),
+        ),
+      );
+      $form['project'][$module][$key] = $form_elements[$key];
+    }
+  }
+
+  $form['project']['project_behavior']['#options'] = $behavior_options;
+}
+
+/**
+ * Implements hook_project_node_type_settings().
+ *
+ * For now, there are no project-specific settings, we only care about the
+ * label for the project behavior setting itself.
+ *
+ * @return array
+ *   Form elements to use for project-specific settings. The special key
+ *   '#behavior_label' is used for the radio button label on the 'Project
+ *   behavior' setting.
+ */
+function project_project_node_type_settings($form) {
+  return array(
+    '#behavior_label' => t('Used for projects'),
+  );
+}

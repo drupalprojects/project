@@ -119,3 +119,54 @@ function hook_project_maintainer_project_load($nid, &$maintainers) {
     $maintainers[$maintainer->uid]['permissions']['some project permission'] = $maintainer->some_project_permission;
   }
 }
+
+/**
+ * Populate project-specific settings for the node type edit form.
+ *
+ * There is a top-level set of radio buttons to determine how the node type
+ * behaves with respect to the Project* system (is it a project, an issue, a
+ * release, etc). So one job of this hook is to provide a label for the radio
+ * button for the module implementing the hook. That's defined in the
+ * '#behavior_label' key in the returned array.
+ *
+ * If there are any module-specific settings that need to happen once we know
+ * how a node type should behave for Project*, those are also defined
+ * here. The spot where this hook is invoked will automatically populate the
+ * #states value for these form elements to only appear if the behavior
+ * setting radio for this module is selected. Since this is all ultimately
+ * impacting a node_type edit form, the keys of these form elements will be
+ * used to automatically call variable_set() with the node type machine name
+ * appended as a suffix.
+ *
+ * @param array $form
+ *   The node type edit form. Of particular interest, the machine name for the
+ *   node type being edited lives in $form['#node_type']->type and you need
+ *   that for properly defining the #default_value on any settings you provide.
+ *
+ * @return array
+ *   An array of form elements to use for project-specific settings for the
+ *   given node type. The special key '#behavior_label' is required to ensure
+ *   we have a sane human-readable label on the project behavior radio button
+ *   for the implementing module.
+ *
+ * @see node_type_form_submit()
+ */
+function hook_project_node_type_settings($form) {
+  $node_type = $form['#node_type']->type;
+  return array(
+    // Define the label on the project behavior radio button for this module.
+    '#behavior_label' => t('Used for project milestones'),
+    // Provide a form element that will eventually be saved as the
+    // 'project_milestone_color_[node-type]' setting.
+    'project_milestone_color' => array(
+      '#type' => 'select',
+      '#title' => t('What color should these milestones be?'),
+      '#options' => array(
+        'red' => t('Red'),
+        'green' => t('Green'),
+        'blue' => t('Blue'),
+      ),
+      '#default_value' => variable_get('project_milestone_color_' . $node_type, 'blue');
+    ),
+  );
+}
