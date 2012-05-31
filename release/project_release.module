@@ -94,29 +94,32 @@ function project_release_project_permission_info($project = NULL) {
 }
 
 /**
- * Implement hook_project_maintainer_save()
+ * Implements hook_project_maintainer_save().
  */
 function project_release_project_maintainer_save($nid, $uid, $permissions = array()) {
-  db_query("UPDATE {project_release_project_maintainer} SET administer_releases = %d WHERE nid = %d AND uid = %d", !empty($permissions['administer releases']), $nid, $uid);
-  if (!db_affected_rows()) {
-    // If we didn't have a record to update, add this as a new maintainer.
-    db_query("INSERT INTO {project_release_project_maintainer} (nid, uid, administer_releases) VALUES (%d, %d, %d)", $nid, $uid, !empty($permissions['administer releases']));
-  }
+  $administer_releases = empty($permissions['administer releases']) ? 0 : 1;
+  db_merge('project_release_project_maintainer')
+    ->key(array('nid' => $nid, 'uid' => $uid))
+    ->fields(array('administer_releases' => $administer_releases))
+    ->execute();
 }
 
 /**
- * Implement hook_project_maintainer_remove()
+ * Implements hook_project_maintainer_remove().
  */
 function project_release_project_maintainer_remove($nid, $uid) {
-  db_query("DELETE FROM {project_release_project_maintainer} WHERE nid = %d and uid = %d", $nid, $uid);
+  db_delete('project_release_project_maintainer')
+    ->condition('nid', $nid)
+    ->condition('uid', $uid)
+    ->execute();
 }
 
 /**
- * Implement hook_project_maintainer_project_load()
+ * Implements hook_project_maintainer_project_load().
  */
-function _project_release_project_maintainer_project_load($nid, &$maintainers) {
-  $query = db_query('SELECT u.uid, u.name, prpm.administer_releases FROM {project_release_project_maintainer} prpm INNER JOIN {users} u ON prpm.uid = u.uid WHERE prpm.nid = :prpm.nid', array(':prpm.nid' => $nid));
-  while ($maintainer = db_fetch_object($query)) {
+function project_release_project_maintainer_project_load($nid, &$maintainers) {
+  $result = db_query('SELECT u.uid, u.name, prpm.administer_releases FROM {project_release_project_maintainer} prpm INNER JOIN {users} u ON prpm.uid = u.uid WHERE prpm.nid = :nid', array(':nid' => $nid));
+  foreach ($result as $maintainer) {
     if (empty($maintainers[$maintainer->uid])) {
       $maintainers[$maintainer->uid]['name'] = $maintainer->name;
     }
