@@ -36,15 +36,17 @@ function project_release_menu() {
     'file' => 'includes/project_edit_releases.inc',
   );
 
-  $items['node/add/project-release/%'] = array(
-    'page callback' => 'node_add',
-    'page arguments' => array('project-release'),
-    'access callback' => 'node_access',
-    'access arguments' => array('create', 'project_release'),
-    'file' => 'node.pages.inc',
-    'file path' => drupal_get_path('module', 'node'),
-    'type' => MENU_CALLBACK,
-  );
+  foreach (project_release_release_node_types() as $release_type) {
+    $type_url_str = str_replace('_', '-', $release_type);
+    $items['node/add/' . $type_url_str . '/%project'] = array(
+      'page callback' => 'project_release_node_add',
+      'page arguments' => array($release_type, 3),
+      'access callback' => 'node_access',
+      'access arguments' => array('create', $release_type),
+      'file' => 'includes/release_node_add.inc',
+      'type' => MENU_CALLBACK,
+    );
+  }
 
   return $items;
 }
@@ -53,10 +55,13 @@ function project_release_menu() {
  * Implementation of hook_menu_alter().
  */
 function project_release_menu_alter(&$callbacks) {
-  $callbacks['node/add/project-release']['page callback'] = 'drupal_get_form';
-  $callbacks['node/add/project-release']['page arguments'] = array('project_release_pick_project_form');
-  $callbacks['node/add/project-release']['file'] = 'release_node_form.inc';
-  $callbacks['node/add/project-release']['file path'] = drupal_get_path('module', 'project_release') . '/includes';
+  foreach (project_release_release_node_types() as $release_type) {
+    $type_url_str = str_replace('_', '-', $release_type);
+    $callbacks['node/add/' . $type_url_str]['page callback'] = 'drupal_get_form';
+    $callbacks['node/add/' . $type_url_str]['page arguments'] = array('project_release_pick_project_form', $release_type);
+    $callbacks['node/add/' . $type_url_str]['file'] = 'release_node_add.inc';
+    $callbacks['node/add/' . $type_url_str]['file path'] = drupal_get_path('module', 'project_release') . '/includes';
+  }
 }
 
 /**
@@ -370,9 +375,6 @@ function theme_project_release_download_file($file, $download_link = TRUE) {
  * @ingroup project_release_fapi
  */
 function project_release_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'project_release_node_form') {
-    return project_release_alter_release_form($form, $form_state);
-  }
   if ($form_id == 'project_settings_form') {
     return project_release_alter_project_settings_form($form, $form_state);
   }
