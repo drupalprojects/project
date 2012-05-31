@@ -26,32 +26,38 @@ function project_node_is_project($node) {
 }
 
 /**
- * Determine whether or not a node type is considered a project.
+ * Determine whether or not a given node type behaves as a project.
  *
- * @param $node_type
- *   The node type to check.
+ * We just check the project_behavior_[node_type] setting for the given
+ * node type to see if the type is configured to behave like a project.
+ *
+ * @param string $node_type
+ *   The node type (machine name) to check.
  *
  * @return boolean
  *   Is the given node type a project node type or not?
  */
 function project_node_type_is_project($node_type) {
-  return in_array($node_type, project_project_node_types());
+  $project_behavior = variable_get('project_behavior_' . $node_type, '');
+  return $project_behavior == 'project';
 }
 
 /**
  * Retrieve a list of node types that are considered projects.
  *
- * This function checks for the presence of the project_type field to determine
- * which node types are considered a project.
- *
  * @return array
- *   An array of node type machine names that are configure to be projects.
+ *   An array of bundle names (aka node type names) that are configured to
+ *   have project nature.
+ *
+ * @see project_project_node_type_is_project()
  */
 function project_project_node_types() {
-  $fields = field_info_fields();
   $project_node_types = array();
-  if (isset($fields['field_project_type']['bundles']['node'])) {
-    $project_node_types = $fields['field_project_type']['bundles']['node'];
+  $node_types = node_type_get_types();
+  foreach ($node_types as $type) {
+    if (project_node_type_is_project($type->type)) {
+      $project_node_types[] = $type->type;
+    }
   }
   return $project_node_types;
 }

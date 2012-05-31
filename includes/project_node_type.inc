@@ -39,6 +39,14 @@ function project_install_default_project_node_type() {
   node_type_save($node_type);
   $description = $t('Description');
   node_add_body_field($node_type, $description);
+
+  // Define node workflow and comment settings.
+  variable_set('node_options_project', array('status', 'revision'));
+  variable_set('comment_project', COMMENT_NODE_CLOSED);
+
+  // Set the project behavior setting for this node type say it's a project.
+  variable_set('project_behavior_project', 'project');
+
   $project_type_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
