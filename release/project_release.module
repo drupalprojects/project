@@ -1475,3 +1475,70 @@ function project_release_ctools_plugin_directory($module, $plugin) {
     }
   }
 }
+
+/**
+ * Determine whether or not a node is an release.
+ *
+ * @param $node
+ *   A node to check.
+ *
+ * @return boolean
+ *   Is the given node an release or not?
+ */
+function project_release_node_is_release($node) {
+  return project_release_node_type_is_release($node->type);
+}
+
+/**
+ * Determine whether or not a given node type behaves as a release.
+ *
+ * We just check the project_behavior_[node_type] setting for each node type
+ * in the system to see if the type is configured to behave like a release.
+ *
+ * @param string $node_type
+ *   The node type (machine name) to check.
+ *
+ * @return boolean
+ *   Is the given node type a release node type or not?
+ */
+function project_release_node_type_is_release($node_type) {
+  $project_behavior = variable_get('project_behavior_' . $node_type, '');
+  return $project_behavior == 'project_release';
+}
+
+/**
+ * Retrieve a list of node types that are considered releases.
+ *
+ * @return array
+ *   An array of bundle names (aka node type names) that are configured to
+ *   have release nature.
+ *
+ * @see project_release_node_type_is_release()
+ */
+function project_release_release_node_types() {
+  $release_node_types = array();
+  $node_types = node_type_get_types();
+  foreach ($node_types as $type) {
+    if (project_release_node_type_is_release($type->type)) {
+      $release_node_types[] = $type->type;
+    }
+  }
+  return $release_node_types;
+}
+
+/**
+ * Implements hook_project_node_type_settings().
+ *
+ * For now, there are no release-specific settings, we only care about the
+ * label for the project behavior setting itself.
+ *
+ * @return array
+ *   Form elements to use for project-specific settings. The special key
+ *   '#behavior_label' is used for the radio button label on the 'Project
+ *   behavior' setting.
+ */
+function project_release_project_node_type_settings($form) {
+  return array(
+    '#behavior_label' => t('Used for project releases'),
+  );
+}

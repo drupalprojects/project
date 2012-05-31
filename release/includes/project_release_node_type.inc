@@ -31,8 +31,8 @@ function _project_release_create_release_node_type() {
   variable_set('node_options_project_release', array('status', 'revision'));
   variable_set('comment_project_release', COMMENT_NODE_CLOSED);
 
-  // Tell project_release that this node type is a release node type.
-  variable_set('project_release_project_release', TRUE);
+  // Set the project behavior setting for this node type say it's a release.
+  variable_set('project_behavior_project_release', 'project_release');
 
   // Define default fields and field instances.
 
