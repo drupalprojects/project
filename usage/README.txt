@@ -1,6 +1,5 @@
 This module is *ONLY* useful to record usage statistics for a site
-that has setup project/release/project-release-serve-history.php and
-expects clients (for example, core's update module) to check for
+that expects clients (for example, core's update module) to check for
 updates about available releases.
 
 ** MOST SITES SHOULD NOT ENABLE THIS MODULE **

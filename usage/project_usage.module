@@ -4,13 +4,11 @@
  * @file
  *
  * This module provides logging of the requests sent by core's update.module
- * to the project_release.module on updates.drupal.org. The
- * release/project-release-serve-history.php script inserts data into the
- * {project_usage_raw} table created by this module.
+ * to the project_release.module on updates.drupal.org.
  *
- * On a daily basis the usage data is matched to project and release nodes
- * and moved into the {project_usage_day} table. On a weekly basis the daily
- * usage data is tallied and stored in the {project_usage_week} table.
+ * Weekly usage statistics are calculated via log file parsing, then baking
+ * down the data and pushing it into weekly storage tables for both projects
+ * and releases. See project_usage.drush.inc for details.
  *
  * This data is then used to compute live usage statistics about all projects
  * hosted on drupal.org. In theory, another site could setup
