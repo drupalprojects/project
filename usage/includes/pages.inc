@@ -96,14 +96,34 @@ function project_usage_overview() {
   //   to track usage for API version. We need to SUM() them to get a total
   //   count forcing us to GROUP BY. Sadly, I can't explain why we need
   //   SUM(DISTINCT)... it just works(TM).
+  //
+  // Also, because the machine_name is an entity field, and there's no clean
+  // way to work that into an SQL query, then:
+  // - Load all entities that have project usage data
+  // - Cycle through them to build a map of entity_id -> machine_name
+  // - Stuff the machine name into the project link when assembling the rows.
 
-  $usage_week_nids = db_select('project_usage_week_project', 'puwp')
-    ->addField('puwp', 'nid');
+  $usage_week_nids = db_query('SELECT DISTINCT(nid) FROM {project_usage_week_project}')->fetchCol();
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('nid', $usage_week_nids, 'IN')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_project_machine_name')
+    ->execute();
+  $uris = array();
+  if (!empty($result['node'])) {
+    $entities = entity_load('node', array_keys($result['node']));
+    foreach($entities as $entity) {
+      $names = field_get_items('node', $entity, 'field_project_machine_name');
+      $uris[$entity->nid] = $names[0]['value'];
+    }
+  }
+
   $query = db_select('node', 'n')
-    // TODO: missing project_project.uri
     ->fields('n', array('nid', 'title'))
     ->condition('n.nid', $usage_week_nids, 'IN')
-    ->condition('n.status', 1)
+    ->condition('n.status', NODE_PUBLISHED)
     ->groupBy('n.nid')
     ->groupBy('n.title');
   $headers = array(
@@ -119,12 +139,12 @@ function project_usage_overview() {
     // to the table and field aliases so we can uniquely identify each column
     // for sorting purposes.
     $query->addExpression("SUM(DISTINCT p{$i}.count)", "week{$i}");
-    $query->leftJoin('project_usage_week_project', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp", array(':timestamp' => $week));
+    $query->leftJoin('project_usage_week_project', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
 
     $header = array(
       'field' => "week{$i}",
-      'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT), 0),
-      'class' => 'project-usage-numbers',
+      'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT)),
+      'class' => array('project-usage-numbers'),
     );
     if ($i == 0) {
       $header['sort'] = 'desc';
@@ -136,7 +156,8 @@ function project_usage_overview() {
   // column and order.
   $sort = tablesort_init($headers);
   $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'];
-  if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
+  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
+  if (FALSE && $cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
   }
   else {
@@ -147,15 +168,16 @@ function project_usage_overview() {
     $result = $query->execute();
 
     $number = 1;
+    $rows = array();
     foreach ($result as $line) {
       $row = array(
         array('data' => $number++),
-        array('data' => l($line->title, 'project/usage/' . $line->uri)),
+        array('data' => l($line->title, 'project/usage/' . $uris[$line->nid])),
       );
       foreach ($weeks as $i => $week) {
         $row[] = array(
           'data' => number_format($line->{"week{$i}"}),
-          'class' => 'project-usage-numbers',
+          'class' => array('project-usage-numbers'),
         );
       }
       $rows[] = $row;
@@ -164,7 +186,8 @@ function project_usage_overview() {
   $output = theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-all-projects')));
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
+  if (FALSE) {
     cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
@@ -234,12 +257,12 @@ function project_usage_project_page($node) {
     // for sorting purposes.
     $query
       ->addField("p{$i}", 'count', "week{$i}")
-      ->leftJoin('project_usage_week_release', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp", array(':timestamp' => $week));
+      ->leftJoin('project_usage_week_release', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
 
     $release_header[] = array(
       'field' => "week{$i}",
-      'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT), 0),
-      'class' => 'project-usage-numbers',
+      'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT)),
+      'class' => array('project-usage-numbers'),
     );
   }
 
@@ -267,7 +290,7 @@ function project_usage_project_page($node) {
         $sum += $line->{"week{$i}"};
         $row[] = array(
           'data' => number_format($line->{"week{$i}"}),
-          'class' => 'project-usage-numbers',
+          'class' => array('project-usage-numbers'),
         );
       }
       // Skip any release with no usage.
@@ -300,20 +323,20 @@ function project_usage_project_page($node) {
     foreach ($result as $row) {
       $project_header[$row->tid] = array(
         'data' => check_plain($row->name),
-        'class' => 'project-usage-numbers',
+        'class' => array('project-usage-numbers'),
       );
       $blank_row[$row->tid] = array(
         'data' => 0,
-        'class' => 'project-usage-numbers',
+        'class' => array('project-usage-numbers'),
       );
     }
     $project_header['total'] = array(
       'data' => t('Total'),
-      'class' => 'project-usage-numbers',
+      'class' => array('project-usage-numbers'),
     );
     $blank_row['total'] = array(
       'data' => 0,
-      'class' => 'project-usage-numbers',
+      'class' => array('project-usage-numbers'),
     );
 
     // Now create a blank table with a row for each week and formatted date in
@@ -347,7 +370,8 @@ function project_usage_project_page($node) {
   $output = theme('project_usage_project_page', array('project' => $node, 'release_header' => $release_header, 'release_rows' => $release_rows, 'project_header' => $project_header, 'project_rows' => $project_rows));
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
+  if (FALSE) {
     $cache['release_rows'] = $release_rows;
     $cache['project_header'] = $project_header;
     $cache['project_rows'] = $project_rows;
@@ -376,7 +400,8 @@ function project_usage_release_page($node) {
 
   // Check for a cached page.
   $cid = "release:{$node->nid}";
-  if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
+  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
+  if (FALSE && $cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
   }
   else {
@@ -391,7 +416,7 @@ function project_usage_release_page($node) {
         ),
         array(
           'data' => number_format($row->count),
-          'class' => 'project-usage-numbers',
+          'class' => array('project-usage-numbers'),
         ),
       );
     }
@@ -400,13 +425,14 @@ function project_usage_release_page($node) {
     array('data' => t('Week starting')),
     array(
       'data' => t('Count'),
-      'class' => 'project-usage-numbers',
+      'class' => array('project-usage-numbers'),
     ),
   );
   $output = theme('project_usage_release_page', array('project' => $project, 'release' => $node, 'header' => $header, 'rows' => $rows));
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
+  if (FALSE) {
     cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
