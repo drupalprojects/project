@@ -220,6 +220,7 @@ function project_usage_project_page($node) {
   // Grab an array of active week timestamps.
   $weeks = project_usage_get_active_weeks();
 
+  // TODO: this function probably changes in 7.x.
   $releases = project_release_get_releases($node, FALSE);
 
   // If there are no releases for this project, we can skip the rest
@@ -320,6 +321,7 @@ function project_usage_project_page($node) {
     // but it ends up being a more expensive query and harder to read.
     $project_header = array(0 => array('data' => t('Week')));
     $blank_row = array(0 => array('data' => ''));
+    // TODO: Releases won't use taxonomy in 7.x, fix this section.
     $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {taxonomy_term_data} td ON p.tid = td.tid WHERE p.nid = :nid ORDER BY td.weight DESC, td.name", array(':nid' => $node->nid));
     foreach ($result as $row) {
       $project_header[$row->tid] = array(
@@ -358,6 +360,7 @@ function project_usage_project_page($node) {
     // ...and add the weekly totals across all API versions
     foreach ($project_rows as $timestamp => $row) {
       $total = 0;
+      // TODO: fix taxonomy reference here.
       foreach ($row as $tid => $data) {
         if (!empty($tid) && !empty($data['data'])) {
           $total += $data['data'];
