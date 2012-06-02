@@ -348,7 +348,7 @@ function project_usage_project_page($node) {
     foreach ($weeks as $week) {
       $project_rows[$week] = $blank_row;
       $project_rows[$week][0]['timestamp'] = $week;
-      $project_rows[$week][0]['data'] = format_date($week, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0);
+      $project_rows[$week][0]['data'] = format_date($week, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG));
     }
 
     // ...then fill it in with our data.
@@ -415,7 +415,7 @@ function project_usage_release_page($node) {
     foreach ($query as $row) {
       $rows[] = array(
         array(
-          'data' => format_date($row->timestamp, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG), 0),
+          'data' => format_date($row->timestamp, 'custom', variable_get('project_usage_date_long', PROJECT_USAGE_DATE_LONG)),
           'timestamp' => $row->timestamp,
         ),
         array(
