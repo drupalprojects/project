@@ -36,10 +36,11 @@ function _project_usage_help($key) {
  * Menu handler for project URLs.
  *
  * @param $key
- *   Node id or project uri. project nids and uris get the project usage page,
- *   release nids get the release usage page, and everything else gets a not
- *   found. In addition, if a user does not have permission to view the project
- *   or release node they've requested, they get an access denied page.
+ *   Node id or project machine_name. project nids and machine_names get the
+ *   project usage page, release nids get the release usage page, and
+ *   everything else gets a not found. In addition, if a user does not have
+ *   permission to view the project or release node they've requested, they
+ *   get an access denied page.
  */
 function project_usage_dispatch($key) {
   // Load the node the user has requested.  We want to only use
@@ -111,12 +112,12 @@ function project_usage_overview() {
     ->propertyCondition('status', NODE_PUBLISHED)
     ->fieldCondition('field_project_machine_name')
     ->execute();
-  $uris = array();
+  $machine_names = array();
   if (!empty($result['node'])) {
     $entities = entity_load('node', array_keys($result['node']));
     foreach($entities as $entity) {
       $names = field_get_items('node', $entity, 'field_project_machine_name');
-      $uris[$entity->nid] = $names[0]['value'];
+      $machine_names[$entity->nid] = $names[0]['value'];
     }
   }
 
@@ -172,7 +173,7 @@ function project_usage_overview() {
     foreach ($result as $line) {
       $row = array(
         array('data' => $number++),
-        array('data' => l($line->title, 'project/usage/' . $uris[$line->nid])),
+        array('data' => l($line->title, 'project/usage/' . $machine_names[$line->nid])),
       );
       foreach ($weeks as $i => $week) {
         $row[] = array(
@@ -535,6 +536,7 @@ function theme_project_usage_header_links($variables) {
   $links[] = l(t('%project_name project page', array('%project_name' => $project->title)), 'node/' . $project->nid, array('html' => TRUE));
   if (!empty($release)) {
     $links[] = l(t('%release_name release page', array('%release_name' => $release->title)), 'node/' . $release->nid, array('html' => TRUE));
+    // TODO: Fix missing 'uri' param.
     $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->project['uri'], array('html' => TRUE));
   }
   $links[] = l(t('Usage statistics for all projects'), 'project/usage');
