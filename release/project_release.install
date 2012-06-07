@@ -37,48 +37,6 @@ function project_release_uninstall() {
  * Implementation of hook_schema().
  */
 function project_release_schema() {
-  $schema['project_release_file'] = array(
-    'description' => 'Stores information about files attached to release nodes.',
-    'fields' => array(
-      'fid' => array(
-        'description' => 'Foreign Key: {files}.fid.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'nid' => array(
-        'description' => 'Foreign Key: {project_release_nodes}.nid.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'filehash' => array(
-        'description' => 'An MD5 hash of the file.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'weight' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'size' => 'tiny',
-        'description' => 'Weight of this file in relation to other files in this release.',
-      ),
-      'downloads' => array(
-        'description' => 'Number of times this file has been downloaded. This value is updated by site specific means.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-    'primary key' => array('fid'),
-    'indexes' => array('nid' => array('nid')),
-  );
-
   $schema['project_release_projects'] = array(
     'description' => 'Table used to store release specific information about projects.',
     'fields' => array(
