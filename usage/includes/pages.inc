@@ -139,8 +139,10 @@ function project_usage_overview() {
   // column and order.
   $sort = tablesort_init($headers);
   $cid = 'overview:'. $sort['sql'] .':'. $sort['sort'];
+  $cache_hit = FALSE;
   if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
+    $cache_hit = TRUE;
   }
   else {
     $args = array_merge($joins_args, $where_args);
@@ -161,7 +163,7 @@ function project_usage_overview() {
   $output = theme('table', $headers, $rows, array('id' => 'project-usage-all-projects'));
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  if (project_can_cache() && !$cache_hit) {
     cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
@@ -248,10 +250,12 @@ function project_usage_project_page($node) {
   // column and order.
   $sort = tablesort_init($release_header);
   $cid = 'project:'. $node->nid .':'. $sort['sql'] .':'. $sort['sort'];
+  $cache_hit = FALSE;
   if ($cached = cache_get($cid, 'cache_project_usage')) {
     $release_rows = $cached->data['release_rows'];
     $project_header = $cached->data['project_header'];
     $project_rows = $cached->data['project_rows'];
+    $cache_hit = TRUE;
   }
   else {
     $args = array_merge($joins_args, $where_args);
@@ -330,7 +334,7 @@ function project_usage_project_page($node) {
   $output = theme('project_usage_project_page', $node, $release_header, $release_rows, $project_header, $project_rows);
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  if (project_can_cache() && !$cache_hit) {
     $cache['release_rows'] = $release_rows;
     $cache['project_header'] = $project_header;
     $cache['project_rows'] = $project_rows;
@@ -359,8 +363,10 @@ function project_usage_release_page($node) {
 
   // Check for a cached page.
   $cid = "release:{$node->nid}";
+  $cache_hit = FALSE;
   if (project_can_cache() && $cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
+    $cache_hit = TRUE;
   }
   else {
     // Table displaying the usage back through time.
@@ -386,7 +392,7 @@ function project_usage_release_page($node) {
   $output = theme('project_usage_release_page', $project, $node, $header, $rows);
 
   // Cache the completed page.
-  if (project_can_cache()) {
+  if (project_can_cache() && !$cache_hit) {
     cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
   }
 
