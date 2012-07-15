@@ -129,7 +129,38 @@ function project_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['admin/config/project'] = array(
+    'title' => t('Project'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer projects'),
+  );
+
+  $items['admin/config/project/settings'] = array(
+    'title' => t('Project settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('project_main_settings_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer projects'),
+    'description' => t('Configure system-wide settings for the Project module.'),
+  );
+
   return $items;
+}
+
+function project_main_settings_form() {
+  $form = array();
+
+  $form['project_selection_widget'] = array(
+    '#type' => 'radios',
+    '#title' => t('Project selection widget'),
+    '#options' => array(
+      'select' => t('Select Menu'),
+      'auto' => t('Autocomplete'),
+    ),
+    '#default_value' => variable_get('project_selection_widget', 'select'),
+  );
+
+  return system_settings_form($form);
 }
 
 /**

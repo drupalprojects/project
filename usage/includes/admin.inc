@@ -19,13 +19,6 @@ function project_usage_settings_form($form, &$form_state) {
     4 * PROJECT_USAGE_WEEK,
   );
   $age_options = drupal_map_assoc($times, 'format_interval');
-  $form['project_usage_life_daily'] = array(
-    '#type' => 'select',
-    '#title' => t('Daily usage data lifespan'),
-    '#default_value' => variable_get('project_usage_life_daily', 4 * PROJECT_USAGE_WEEK),
-    '#options' => $age_options,
-    '#description' => t('Discard the daily usage data after this amount of time has passed.'),
-  );
   $form['project_usage_life_weekly_project'] = array(
     '#type' => 'select',
     '#title' => t('Weekly project data lifespan'),

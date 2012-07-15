@@ -98,9 +98,9 @@ function project_usage_get_active_weeks($reset = FALSE) {
   $weeks = variable_get('project_usage_active_weeks', array());
   if ($reset || empty($weeks)) {
     $count = variable_get('project_usage_show_weeks', PROJECT_USAGE_SHOW_WEEKS);
-    $query = db_query("SELECT DISTINCT(timestamp) FROM {project_usage_week_project} ORDER BY timestamp DESC");
+    $timestamps = db_query_range("SELECT DISTINCT(timestamp) FROM {project_usage_week_project} ORDER BY timestamp DESC", 0, $count);
     $weeks = array();
-    foreach ($query as $week) {
+    foreach ($timestamps as $week) {
       $weeks[] = $week->timestamp;
     }
     variable_set('project_usage_active_weeks', $weeks);
