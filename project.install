@@ -88,3 +88,34 @@ function project_schema() {
     ),
   );
 }
+
+/**
+ * Ensure project node type is properly set up.
+ */
+function project_update_7000() {
+  require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
+  $t = get_t();
+
+  /**
+   * Set up project-specific field for project type.
+   */
+  if (!field_info_field('field_project_type')) {
+    $project_type = array(
+      'entity_types' => array('node'),
+      'type' => 'list_text',
+      'field_name' => 'field_project_type',
+      'label' => $t('Project type'),
+      'settings' => array(
+        'allowed_values' => array(
+          'full' => $t('Full project'),
+          'sandbox' => $t('Sandbox project'),
+        ),
+        'allowed_values_function' => '',
+      ),
+      'cardinality' => 1,
+    );
+    field_create_field($project_type);
+  }
+
+  project_install_default_project_node_type();
+}
