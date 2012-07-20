@@ -281,8 +281,7 @@ function project_release_views_data() {
   );
 
   // version_api_tid
-  if (module_exists('taxonomy')) {
-    $vocabulary = taxonomy_vocabulary_load(_project_release_get_api_vid());
+  if (module_exists('taxonomy') && $vocabulary = taxonomy_vocabulary_load(_project_release_get_api_vid())) {
     $data['project_release_nodes']['version_api_tid'] = array(
       // We don't want to use the vocabulary name in the title here, since
       // that will show up in the labels of exported views and get confusing.
@@ -349,6 +348,49 @@ function project_release_views_data() {
       'handler' => 'views_handler_argument_numeric',
     ),
   );
+
+  // Define the base group of this table. Fields that don't
+  // have a group defined will go into this field by default.
+  $data['project_release_node_rebuild_metadata']['table']['group']  = t('Project release');
+
+  $data['project_release_node_rebuild_metadata']['table']['join'] = array(
+    'node' => array(
+      'left_field' => 'nid',
+      'field' => 'nid',
+    ),
+  );
+
+  // nid
+  $data['project_release_node_rebuild_metadata']['nid'] = array(
+    'title' => t('Release node'),
+    'help' => t('The node ID of the release node.'),
+    'relationship' => array(
+      'help' => t('Add a relationship to gain access to more node data for releases.'),
+      'base' => 'node',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Release node'),
+    ),
+  );
+
+  // version
+  $data['project_release_node_rebuild_metadata']['rebuild_version'] = array(
+    'title' => t('Rebuild version string'),
+    'help' => t('The full version string of a release the last time it was rebuilt.'),
+    'field' => array(
+      'handler' => 'views_handler_field_node',
+      'click sortable' => TRUE,
+     ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
 
   $data['project_release_file']['table']['group']  = t('Project release');
   $data['project_release_file']['table']['join'] = array(
