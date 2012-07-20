@@ -119,3 +119,22 @@ function project_update_7000() {
 
   project_install_default_project_node_type();
 }
+
+/**
+ * Rename edit_project to update_project in {project_maintainer}.
+ */
+function project_update_7001() {
+  if (db_field_exists('project_maintainer', 'edit_project')) {
+    db_add_field('project_maintainer', 'update_project', array(
+      'description' => t('Can this user update(edit) the given project and modify its settings.'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ));
+    db_update('project_maintainer')
+      ->expression('update_project', 'edit_project')
+      ->execute();
+    db_drop_field('project_maintainer', 'edit_project');
+  }
+}
