@@ -166,7 +166,7 @@ function hook_project_node_type_settings($form) {
         'green' => t('Green'),
         'blue' => t('Blue'),
       ),
-      '#default_value' => variable_get('project_milestone_color_' . $node_type, 'blue');
+      '#default_value' => variable_get('project_milestone_color_' . $node_type, 'blue'),
     ),
   );
 }

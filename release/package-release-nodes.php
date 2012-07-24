@@ -226,8 +226,11 @@ function package_releases($type, $project_id = 0) {
       continue;
     }
 
+    // Load the corresponding project node.
+    $project_node = project_release_packager_node_load($release_node->project_release['pid']);
+
     $packager = project_release_get_packager_plugin($release_node, $dest_root, $dest_rel, $tmp_dir);
-    if (empty($packager)) {
+    if (empty($project_node) || empty($packager)) {
       wd_err("ERROR: Can't find packager plugin to use for %release", array('%release' => $release_node->title));
       continue;
     }
@@ -236,15 +239,14 @@ function package_releases($type, $project_id = 0) {
 
     chdir($drupal_root);
     $files = array();
-    $contents = array();
-    $rval = $packager->createPackage($files, $contents);
+    $rval = $packager->createPackage($files);
     $num_considered++;
     chdir($drupal_root);
 
     switch ($rval) {
       case 'success':
       case 'rebuild':
-        project_release_packager_update_node($release_node, $dest_root, $files, $contents);
+        project_release_packager_update_node($release_node, $dest_root, $files);
         module_invoke_all('project_release_create_package', $project_node, $release_node);
         $num_built++;
         $packager->cleanupSuccessfulBuild();

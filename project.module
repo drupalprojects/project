@@ -189,6 +189,32 @@ function project_node_load($nodes, $types) {
 }
 
 /**
+ * Implements hook_node_validate().
+ */
+function project_node_validate($node, $form, &$form_state) {
+  if (!project_node_is_project($node)) {
+    return;
+  }
+  if (!empty($form_state['clicked_button']) && $form_state['clicked_button']['#value'] == t('Delete')) {
+    //Don't validate during deletion.
+    return;
+  }
+  // Ensure title is unique across all projects.
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', project_project_node_types(), 'IN')
+    ->propertyCondition('title', $node->title);
+  if ($node->nid) {
+    $query->entityCondition('entity_id', $node->nid, '!=');
+  }
+  $count = $query->count()->execute();
+  if ($count) {
+    form_set_error('title', t('This project name is already in use.'));
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function project_theme() {

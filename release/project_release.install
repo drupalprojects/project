@@ -243,5 +243,5 @@ function project_release_schema() {
  * Implements hook_update_last_removed().
  */
 function project_release_update_last_removed() {
-  return 6012;
+  return 6014;
 }

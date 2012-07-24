@@ -1,13 +1,12 @@
 <?php
 
 $view = new view;
-$view->name = 'project_package_items';
+$view->name = 'project_package_local_items';
 $view->description = 'View of all release items included in a given package release';
 $view->tag = 'Project package';
-$view->view_php = '';
 $view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->core = 0;
+$view->api_version = '2';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 $handler = $view->new_display('default', 'Defaults', 'default');
 $handler->override_option('relationships', array(
@@ -89,15 +88,17 @@ $handler->override_option('fields', array(
     'field' => 'version',
     'relationship' => 'none',
   ),
-  'update_status' => array(
-    'label' => 'Status',
+  'patch_count' => array(
+    'label' => '',
     'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
+      'alter_text' => 1,
+      'text' => '<div class="patch-count">[patch_count] applied</div>',
       'make_link' => 0,
       'path' => '',
+      'absolute' => 0,
       'link_class' => '',
       'alt' => '',
+      'rel' => '',
       'prefix' => '',
       'suffix' => '',
       'target' => '',
@@ -106,14 +107,56 @@ $handler->override_option('fields', array(
       'max_length' => '',
       'word_boundary' => 1,
       'ellipsis' => 1,
-      'strip_tags' => 0,
       'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 1,
+    'empty_zero' => 1,
+    'hide_alter_empty' => 1,
+    'exclude' => 1,
+    'id' => 'patch_count',
+    'table' => 'project_package_local_release_item',
+    'field' => 'patch_count',
+    'relationship' => 'none',
+  ),
+  'update_status' => array(
+    'label' => 'Status',
+    'alter' => array(
+      'alter_text' => 1,
+      'text' => '<div class="update-status">[update_status]</div>[patch_count]',
+      'make_link' => 0,
+      'path' => '',
+      'absolute' => 0,
+      'link_class' => '',
+      'alt' => '',
+      'rel' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
     ),
     'empty' => '',
     'hide_empty' => 0,
     'empty_zero' => 0,
-    'update_status_icon' => 0,
+    'hide_alter_empty' => 0,
+    'status_text_0' => 'Up to date',
+    'show_recommended_0' => 0,
+    'show_icon_0' => 0,
+    'status_text_1' => 'Update available',
+    'show_recommended_1' => 1,
+    'show_icon_1' => 1,
+    'status_text_2' => 'Not secure',
+    'show_recommended_2' => 1,
+    'show_icon_2' => 1,
     'exclude' => 0,
+    'update_status_icon' => 0,
     'id' => 'update_status',
     'table' => 'project_release_nodes',
     'field' => 'update_status',

@@ -14,12 +14,14 @@ function project_install_default_project_node_type() {
   /**
    * Set up project-specific field for short name.
    */
-  $machine_name = array(
-    'type' => 'machine_name',
-    'field_name' => 'field_project_machine_name',
-    'label' => $t('Project short name'),
-  );
-  field_create_field($machine_name);
+  if (!field_info_field('field_project_machine_name')) {
+    $machine_name = array(
+      'type' => 'machine_name',
+      'field_name' => 'field_project_machine_name',
+      'label' => $t('Project short name'),
+    );
+    field_create_field($machine_name);
+  }
 
   /**
    * Set up a default project node type, which includes title, body, and short
@@ -35,6 +37,10 @@ function project_install_default_project_node_type() {
     'modified' => 1,
     'locked' => 0,
   );
+  if (node_type_get_type('project_project') && !node_type_get_type('project')) {
+    // project_project was renamed to project.
+    $node_type['old_type'] = 'project_project';
+  }
   $node_type = node_type_set_defaults($node_type);
   node_type_save($node_type);
   $description = $t('Description');
@@ -58,7 +64,9 @@ function project_install_default_project_node_type() {
       'weight' => '-3',
     ),
   );
-  field_create_instance($project_type_instance);
+  if (!field_info_instance('node', 'field_project_type', 'project')) {
+    field_create_instance($project_type_instance);
+  }
   $machine_name_instance = array(
     'bundle' => 'project',
     'description' => $t(''),
@@ -70,7 +78,9 @@ function project_install_default_project_node_type() {
       'weight' => '-2',
     ),
   );
-  field_create_instance($machine_name_instance);
+  if (!field_info_instance('node', 'field_project_machine_name', 'project')) {
+    field_create_instance($machine_name_instance);
+  }
 }
 
 /**

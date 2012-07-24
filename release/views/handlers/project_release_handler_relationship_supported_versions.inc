@@ -25,12 +25,12 @@ class project_release_handler_relationship_supported_versions extends views_hand
         array(
           'field' => 'major',
           'value' => $this->table_alias . '.version_major',
-          'numeric' => TRUE,
+          'raw' => TRUE,
         ),
         array(
           'field' => 'tid',
           'value' => $this->table_alias . '.version_api_tid',
-          'numeric' => TRUE,
+          'raw' => TRUE,
         ),
       ),
     );
