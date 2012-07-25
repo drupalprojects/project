@@ -265,6 +265,42 @@ function _project_release_create_release_node_type() {
   );
   field_create_instance($instance);
 
+  // Field to mark if a project has releases.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'allowed_values' => array(
+        '0' => '',
+        '1' => '',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'field_name' => 'field_project_has_releases',
+    'type' => 'list_boolean',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'bundle' => 'project',
+    'description' => $t(''),
+    'entity_type' => 'node',
+    'field_name' => 'field_project_has_releases',
+    'label' => $t('Has project releases'),
+    'widget' => array(
+      'weight' => '-1',
+      'type' => 'options_onoff',
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => TRUE,
+      ),
+    ),
+    'default_value' => array(
+      0 => array(
+        'value' => '1',
+      ),
+    ),
+  ));
 }
 
 /**
@@ -273,6 +309,10 @@ function _project_release_create_release_node_type() {
 function _project_release_delete_release_node_type() {
   $fields = array(
     'field_release_project',
+    'field_release_version',
+    'field_release_vcs_label',
+    'field_release_build_type',
+    'field_project_has_releases',
   );
   foreach ($fields as $field) {
     field_delete_field($field);

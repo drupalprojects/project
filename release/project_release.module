@@ -385,9 +385,6 @@ function theme_project_release_download_file($file, $download_link = TRUE) {
  * @ingroup project_release_fapi
  */
 function project_release_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'project_settings_form') {
-    return project_release_alter_project_settings_form($form, $form_state);
-  }
   if ($form_id == 'project_promote_project_form') {
     return project_release_alter_project_promote_form($form, $form_state);
   }
@@ -399,7 +396,7 @@ function project_release_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Alters the project settings form.
  */
-function project_release_alter_project_settings_form(&$form, &$form_state) {
+function project_release_form_project_main_settings_form_alter(&$form, &$form_state) {
   $form['sandbox']['project_release_sandbox_allow_release'] = array(
     '#title' => t('Enable releases for sandboxed projects'),
     '#type' => 'checkbox',
@@ -1543,4 +1540,17 @@ function project_release_project_node_type_settings($form) {
   return array(
     '#behavior_label' => t('Used for project releases'),
   );
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function project_release_node_validate($node, $form, &$form_state) {
+  if (project_node_is_project($node)) {
+    // If sandbox projects are configured to not allow releases, and this is a
+    // sandbox project, and has project releases is selected.
+    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox' && $node->field_project_has_releases[$node->language][0]['value']) {
+      form_set_error('field_project_has_releases', t('Sandbox projects may not have releases.'));
+    }
+  }
 }
