@@ -37,12 +37,22 @@ function project_install_default_project_node_type() {
     'modified' => 1,
     'locked' => 0,
   );
+  $rename = FALSE;
   if (node_type_get_type('project_project') && !node_type_get_type('project')) {
     // project_project was renamed to project.
     $node_type['old_type'] = 'project_project';
+    $rename = TRUE;
   }
   $node_type = node_type_set_defaults($node_type);
   node_type_save($node_type);
+  if ($rename) {
+    db_update('node')
+      ->condition('type', 'project_project')
+      ->fields(array(
+        'type' => 'project',
+      ))
+      ->execute();
+  }
   $description = $t('Description');
   node_add_body_field($node_type, $description);
 
