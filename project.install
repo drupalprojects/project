@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the Project module.
+ */
 
 /**
- * Implement hook_install.
+ * Implements hook_install().
  */
 function project_install() {
   require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
@@ -137,4 +141,87 @@ function project_update_7001() {
       ->execute();
     db_drop_field('project_maintainer', 'edit_project');
   }
+}
+
+/**
+ * Finish renaming 'project_project' node type to 'project', move some {project_projects} data into fields.
+ */
+function project_update_7002() {
+  // Check if we need to run.
+  if (!db_table_exists('project_projects')) {
+    return t('No legacy data detected, skipping this update.');
+  }
+
+  // Update the node type in the database.
+  db_update('node')
+    ->condition('type', 'project_project')
+    ->fields(array('type' => 'project'))
+    ->execute();
+
+  // We are using bare queries here for speed reasons.
+
+  // Bulk convert uri -> field_project_machine_name.
+  $query = db_select('project_projects', 'p');
+  $query->innerJoin('node', 'n', 'p.nid = n.nid');
+  $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+  $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project'));
+  $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+  $query->addField('p', 'nid', 'entity_id');
+  $query->addField('n', 'vid', 'revision_id');
+  $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addField('p', 'uri', 'field_project_machine_name_value');
+
+  db_insert('field_data_field_project_machine_name')
+    ->from($query)
+    ->execute();
+
+  $query = db_select('project_projects', 'p');
+  $query->innerJoin('node_revision', 'n', 'p.nid = n.nid');
+  $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+  $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project'));
+  $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+  $query->addField('p', 'nid', 'entity_id');
+  $query->addField('n', 'vid', 'revision_id');
+  $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addField('p', 'uri', 'field_project_machine_name_value');
+
+  db_insert('field_revision_field_project_machine_name')
+    ->from($query)
+    ->execute();
+
+  // Bulk convert sandbox -> project_type
+  $query = db_select('project_projects', 'p');
+  $query->innerJoin('node', 'n', 'p.nid = n.nid');
+  $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+  $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project'));
+  $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+  $query->addField('p', 'nid', 'entity_id');
+  $query->addField('n', 'vid', 'revision_id');
+  $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addExpression('CASE WHEN p.sandbox = 0 THEN :full ELSE :sandbox END', 'field_project_type_value', array(':sandbox' => 'sandbox', ':full' => 'full'));
+
+  db_insert('field_data_field_project_type')
+    ->from($query)
+    ->execute();
+
+  $query = db_select('project_projects', 'p');
+  $query->innerJoin('node_revision', 'n', 'p.nid = n.nid');
+  $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+  $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project'));
+  $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+  $query->addField('p', 'nid', 'entity_id');
+  $query->addField('n', 'vid', 'revision_id');
+  $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addExpression('CASE WHEN p.sandbox = 0 THEN :full ELSE :sandbox END', 'field_project_type_value', array(':sandbox' => 'sandbox', ':full' => 'full'));
+
+  db_insert('field_revision_field_project_type')
+    ->from($query)
+    ->execute();
+
+  // Since we have manually injected data, we need to explicitly clear the field cache.
+  field_cache_clear();
 }
