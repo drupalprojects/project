@@ -147,6 +147,24 @@ function project_menu() {
   return $items;
 }
 
+/**
+ * Add default local task for project node edit page.
+ */
+function project_menu_alter(&$callbacks) {
+  $callbacks['node/%node/edit/project'] = $callbacks['node/%node/edit'];
+  $callbacks['node/%node/edit/project']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  $callbacks['node/%node/edit/project']['title'] = 'Project';
+  // Only take over secondary local tasks for projects.
+  $callbacks['node/%node/edit/project']['access callback'] = 'project_user_access';
+  $callbacks['node/%node/edit/project']['access arguments'] = array(1, 'edit project');
+}
+
+/**
+ * todo D7, reimplement
+ */
+function project_project_set_breadcrumb() {
+}
+
 function project_main_settings_form() {
   $form = array();
 
