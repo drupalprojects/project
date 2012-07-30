@@ -19,7 +19,6 @@ function project_release_uninstall() {
   $variables = array(
     'project_release_active_compatibility_tids',
     'project_release_api_vocabulary',
-    'project_release_browse_versions',
     'project_release_default_version_format',
     'project_release_directory',
     'project_release_overview',
@@ -556,4 +555,11 @@ function project_release_update_7001() {
     variable_set('project_release_download_base_' . $node_type, $download_base);
   }
   variable_del('project_release_download_base');
+}
+
+/**
+ * Remove the project_release_browse_versions setting, which no longer exists.
+ */
+function project_release_update_7002() {
+  variable_del('project_release_browse_versions');
 }
