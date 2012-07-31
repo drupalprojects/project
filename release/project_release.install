@@ -563,3 +563,26 @@ function project_release_update_7001() {
 function project_release_update_7002() {
   variable_del('project_release_browse_versions');
 }
+
+/**
+ * Migrate active API compatability terms to new per-type setting.
+ */
+function project_release_update_7003() {
+  $api_compatibility = array();
+  foreach (taxonomy_term_load_multiple(array_filter(variable_get('project_release_active_compatibility_tids', array()))) as $term) {
+    $api_compatibility[] = $term->name;
+  }
+  $api_compatibility = implode("\n", $api_compatibility);
+
+  foreach (project_release_release_node_types() as $type) {
+    variable_set('project_release_api_compatibility_' . $type, $api_compatibility);
+  }
+}
+
+/* todo
+- migrate api compatibility data for each release node
+- remove api compatibility taxonomy? (if only used by project)
+- remove old settings:
+  variable_del('project_release_active_compatibility_tids');
+  variable_del('project_release_api_vocabulary');
+*/
