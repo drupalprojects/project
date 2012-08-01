@@ -809,9 +809,7 @@ function project_project_access($op, $node, $account) {
       break;
     case 'create':
       $project_perms = (user_access('create sandbox projects') || user_access('create full projects'));
-      // Only check for vc perms if versioncontrol_project is enabled.
-      $vc_perms = module_exists('versioncontrol_project') ? user_access('use version control systems') : TRUE;
-      if ($account->uid && $project_perms && $vc_perms) {
+      if ($account->uid && $project_perms) {
         // Since this CVS access checking is non-standard, we need to
         // special-case uid 1 to always allow everything.
         if ($account->uid != 1 && module_exists('cvs') && variable_get('cvs_restrict_project_creation', 1)) {
