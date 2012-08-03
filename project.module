@@ -147,6 +147,25 @@ function project_menu() {
   return $items;
 }
 
+/**
+ * Get the project node context from the currently active menu, if any.
+ *
+ * @return
+ *   A fully loaded project $node object if the currently active menu has a
+ *   project node context, or NULL if the menu isn't pointing to a project.
+ */
+function project_get_project_from_menu() {
+  $node = menu_get_object('project');
+  // If that didn't work, load it directly as a node and see if it's a project.
+  if (empty($node)) {
+    $node = menu_get_object();
+    if (!project_node_is_project($node)) {
+      $node = NULL;
+    }
+  }
+  return $node;
+}
+
 function project_main_settings_form() {
   $form = array();
 
