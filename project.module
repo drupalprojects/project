@@ -22,7 +22,7 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
  *   A node to check.
  */
 function project_node_is_project($node) {
-  return project_node_type_is_project($node->type);
+  return !empty($node) && project_node_type_is_project($node->type);
 }
 
 /**
@@ -159,7 +159,7 @@ function project_get_project_from_menu() {
   // If that didn't work, load it directly as a node and see if it's a project.
   if (empty($node)) {
     $node = menu_get_object();
-    if (!project_node_is_project($node)) {
+    if (empty($node) || !project_node_is_project($node)) {
       $node = NULL;
     }
   }
