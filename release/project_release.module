@@ -36,18 +36,6 @@ function project_release_menu() {
     'file' => 'includes/project_edit_releases.inc',
   );
 
-  foreach (project_release_release_node_types() as $release_type) {
-    $type_url_str = str_replace('_', '-', $release_type);
-    $items['node/add/' . $type_url_str . '/%project'] = array(
-      'page callback' => 'project_release_node_add',
-      'page arguments' => array($release_type, 3),
-      'access callback' => 'node_access',
-      'access arguments' => array('create', $release_type),
-      'file' => 'includes/release_node_add.inc',
-      'type' => MENU_CALLBACK,
-    );
-  }
-
   return $items;
 }
 
@@ -57,6 +45,11 @@ function project_release_menu() {
 function project_release_menu_alter(&$callbacks) {
   foreach (project_release_release_node_types() as $release_type) {
     $type_url_str = str_replace('_', '-', $release_type);
+
+    // Add project-specific node add callback.
+    $callbacks['node/add/' . $type_url_str . '/%project'] = $callbacks['node/add/' . $type_url_str];
+
+    // Replace node add page with project selection form.
     $callbacks['node/add/' . $type_url_str]['page callback'] = 'drupal_get_form';
     $callbacks['node/add/' . $type_url_str]['page arguments'] = array('project_release_pick_project_form', $release_type);
     $callbacks['node/add/' . $type_url_str]['file'] = 'release_node_add.inc';

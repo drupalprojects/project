@@ -6,36 +6,13 @@
  */
 
 /**
- * Project release node add page callback.
- */
-function project_release_node_add($type, $project_entity) {
-  global $user;
-  $field = field_info_field('field_release_project');
-  list($target_id) = entity_extract_ids($field['settings']['target_type'], $project_entity);
-
-  $types = node_type_get_types();
-  $node = (object) array(
-    'uid' => $user->uid,
-    'name' => (isset($user->name) ? $user->name : ''),
-    'type' => $type,
-    'language' => LANGUAGE_NONE
-  );
-  $node->field_release_project[LANGUAGE_NONE][0]['target_id'] = $target_id;
-  drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
-  module_load_include('inc', 'node', 'node.pages');
-  return drupal_get_form($type . '_node_form', $node);
-}
-
-/**
  * Form builder for a simple form to select a project when creating a new
  * release (as the first "page", but this is not really a multi-page form).
  */
 function project_release_pick_project_form($form, &$form_state, $node_type) {
-  // Fetch a list of all projects.
-  $machine_names = NULL; // We don't need an array of nid => machine_name.
-  $projects = array(0 => t('- Select a project -')) + project_projects_select_options($machine_names);
-
-  if (count($projects) == 1) {
+  // Fetch a list of all projects with releases.
+  $projects = project_projects_select_options(array(array('field' => 'field_project_has_releases')));
+  if (count($projects) === 0) {
     drupal_set_message(t('You do not have access to any projects.'), 'error');
   }
 

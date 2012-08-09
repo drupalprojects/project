@@ -488,21 +488,21 @@ function project_maintainer_project_load($nid) {
  * array will be sorted into the proper catagories with headers for each term,
  * based the node types of the projects.
  *
- * @param $project_machine_names
- *   Reference to be filled with an array of project machine name => id mappings. This
- *   array is used by the project_issue and project_release search form code.
- * @param $issues
- *   If TRUE, only projects with issue tracking  enabled are returned.
- *   For this option to do much good, the project_issue module should be
- *   enabled.
- * @param $key_prefix
- *   Prefix to prepend to all keys in the returned array. @TODO is this ever used ?
- * @param string $include_sandbox
- *   Should sandboxes be included in the listing? Can be either 'no_sandboxes'
- *   (exclude sandboxes from the list, the default), 'include_sandboxes'
- *   (include sandboxes) , 'only_sandboxes' (only show sandboxes).
+ * @param $conditions
+ *   An array of conditions represented as an associative array. Each
+ *   conditions' keys map to parameters for EntityFieldQuery::fieldCondition():
+ *   - 'field', such as 'field_project_has_issue_queue' or
+ *     'field_project_type', required.
+ *   - 'column', default 'value'
+ *   - 'value', default '1'
+ *   - 'operator', default '='
+ *   For example, to get sandbox projects with issue queues:
+ *     array(
+ *       array('field' => 'field_project_type', 'value' => 'sandbox'),
+ *       array('field' => 'field_project_has_issue_queue'),
+ *     )
  */
-function project_projects_select_options(&$project_machine_names, $issues = TRUE, $key_prefix = NULL, $include_sandbox = 'no_sandboxes') {
+function project_projects_select_options(array $conditions = array()) {
   $projects = array();
 
   $project_node_types = project_project_node_types();
@@ -517,23 +517,12 @@ function project_projects_select_options(&$project_machine_names, $issues = TRUE
   // Restrict the query to the node types that can be projects.
   $query->propertyCondition('type', $project_node_types);
 
-  if ($issues && module_exists('project_issue')) {
-    $query->fieldCondition('field_project_has_issue_queue', 'value', '1', '=');
-  }
-
-  switch ($include_sandbox) {
-    case 'no_sandboxes':
-      $query->fieldCondition('field_project_type', 'value', 'full', '=');
-      break;
-
-    case 'only_sandboxes':
-      $query->fieldCondition('field_project_type', 'value', 'sandbox', '=');
-      break;
-
-    case 'include_sandboxes':
-    default:
-      // Otherwise, ignore sandboxes entirely.
-      break;
+  foreach ($conditions as $condition) {
+    $query->fieldCondition($condition['field'],
+      isset($condition['column']) ? $condition['column'] : 'value',
+      isset($condition['value']) ? $condition['value'] : '1',
+      isset($condition['operator']) ? $condition['operator'] : '='
+    );
   }
 
   $result = $query->execute();
@@ -541,10 +530,7 @@ function project_projects_select_options(&$project_machine_names, $issues = TRUE
     $project_entities = entity_load($entity_type, array_keys($project_entities));
     foreach ($project_entities as $project) {
       $project_entity_ids = entity_extract_ids('node', $project);
-      $projects[$key_prefix . $project_entity_ids[0]] = $project->title;
-      if (is_array($project_machine_names)) {
-        $project_machine_names[$project->field_project_machine_name[LANGUAGE_NONE][0]['value']] = $project_entity_ids[0];
-      }
+      $projects[$project_entity_ids[0]] = $project->title;
     }
   }
   return $projects;
