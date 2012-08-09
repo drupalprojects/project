@@ -98,7 +98,7 @@ function _project_release_create_release_node_type() {
     'module' => 'entityreference',
     'widget' => array(
       'weight' => -1,
-      'type' => 'options_select',
+      'type' => 'field_extrawidgets_hidden',
       'module' => 'options',
       'active' => 1,
       'settings' => array(
