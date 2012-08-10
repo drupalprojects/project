@@ -41,17 +41,7 @@ function project_release_project_edit_form($form_state, $node) {
     '#type' => 'fieldset',
     '#title' => t('Advanced options'),
     '#collapsible' => TRUE,
-    '#collapsed' => $node->project_release['releases'],
     '#weight' => 5,
-  );
-
-  $form['advanced']['releases'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable releases'),
-    '#return_value' => 1,
-    '#weight' => -10,
-    '#default_value' => isset($node->project_release['releases']) ? $node->project_release['releases'] : 1,
-    '#description' => t('Allow releases of this project with specific versions.'),
   );
 
   if (user_access('administer projects')) {
@@ -259,11 +249,11 @@ function project_release_project_edit_form_validate($form, &$form_state) {
  */
 function project_release_project_edit_form_submit($form, &$form_state) {
   $nid = $form_state['values']['nid'];
-  db_query("UPDATE {project_release_projects} SET releases = %d, version_format = '%s' WHERE nid = %d", $form_state['values']['releases'], $form_state['values']['version_format'], $nid);
+  db_query("UPDATE {project_release_projects} SET version_format = '%s' WHERE nid = %d", $form_state['values']['version_format'], $nid);
   if (!db_affected_rows()) {
     // It's possible there's no record in {project_release_projects} if this
     // particular project was created before project_issue.module was enabled.
-    db_query("INSERT INTO {project_release_projects} (nid, releases, version_format) VALUES (%d, %d, '%s')", $nid, $form_values['releases'], $form_values['version_format']);
+    db_query("INSERT INTO {project_release_projects} (nid, version_format) VALUES (%d, '%s')", $nid, $form_values['version_format']);
   }
 
   if (!empty($form_state['values']['api'])) {

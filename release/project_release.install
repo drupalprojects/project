@@ -573,3 +573,7 @@ function project_release_update_7003() {
   }
   variable_del('project_release_default_version_format');
 }
+
+/* todo
+ - {project_release_projects}.releases -> field_project_has_releases
+ */
