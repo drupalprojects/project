@@ -17,6 +17,18 @@ define('PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE', 2);
  * Implementation of hook_init().
  */
 function project_release_init() {
+  // These constants are defined here since they use t() and the global $locale
+  // variable needs to be initialized before calling t() or you suffer a big
+  // performance hit.
+  define('PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG', t('The version format string can only contain letters, numbers, and the characters . _ and - (in addition to the special characters used for identifying variables: % ! and #).'));
+  define('PROJECT_RELEASE_VERSION_FORMAT_HELP', t("<p>Used to parse and validate version numbers. Available variables are <code>api</code>, <code>major</code>, <code>minor</code>, <code>patch</code>, and <code>extra</code>. Variable prefixes translate to delimiters:</p>
+<table>
+  <tr><th>Prefix</th><th>Delimeter</th></tr>
+  <tr><td><code>%</code></td><td><code>.</code></td></tr>
+  <tr><td><code>#</code></td><td><code>-</code></td></tr>
+  <tr><td><code>!</code></td><td><em>none</em></td></tr>
+</table>
+<p>For example, <code>!major%minor#patch</code> will accept <code>[major][.minor][-patch]</code>, such as <code>2.3-4</code>. Any variable in the format string may be omitted in the version number.</p>") .' <p>'. PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG . '</p>');
 }
 
 /**
@@ -456,14 +468,29 @@ function project_release_project_promote_confirm_form_submit($form, &$form_state
 }
 
 /**
+ * Implements hook_node_validate().
+ */
+function project_release_node_validate($node, $form, &$form_state) {
+  if (project_node_is_project($node)) {
+    // If sandbox projects are configured to not allow releases, and this is a
+    // sandbox project, and has project releases is selected.
+    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox' && $node->field_project_has_releases[$node->language][0]['value']) {
+      form_set_error('field_project_has_releases', t('Sandbox projects may not have releases.'));
+    }
+  }
+}
+
+/**
  * hook_node_submit() implementation.
  */
 function project_release_node_submit($node, $form, $form_state) {
-  // For new release nodes,
-  if (empty($node->nid)) {
-    // set project using the menu-loaded node.
-    $project = menu_get_object('project', 3);
-    $node->field_release_project[$node->language][0]['target_id'] = $project->nid;
+  if (project_release_node_is_release($node)) {
+    // For new release nodes,
+    if (empty($node->nid)) {
+      // set project using the menu-loaded node.
+      $project = menu_get_object('project', 3);
+      $node->field_release_project[$node->language][0]['target_id'] = $project->nid;
+    }
   }
 }
 
@@ -1552,18 +1579,27 @@ function project_release_project_node_type_settings($form) {
       '#maxlength' => 255,
       '#description' => t("By default, all download links to releases will use the standard download path for the site. However, if you wish to host the downloads at a different location, you can specify the base of the URL that should be used for download links. For example, if you stored releases in %files_path and you want to have download links pointing to %ftp_url, you would set this to %ftp_setting. Note that if you define this, the value should end with a slash ('/').", array('%files_path' => 'files/projects/foo.tar.gz', '%ftp_url' => 'ftp://ftp.example.com/files/projects/foo.tar.gz', '%ftp_setting' => 'ftp://ftp.example.com/')),
     ),
+    'project_release_version_format' => array(
+      '#type' => 'textfield',
+      '#title' => t('Version format string'),
+      '#default_value' => variable_get('project_release_version_format_' . $form['#node_type']->type, ''),
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#description' => PROJECT_RELEASE_VERSION_FORMAT_HELP,
+      '#element_validate' => array('_project_release_validate_format_string'),
+    ),
   );
 }
 
 /**
- * Implements hook_node_validate().
+ * Validates a version format string. Only alphanumeric characters and [-_.!%#]
+ * are allowed. Calls form_error() on error, else returns.
+ *
+ * @param $element
+ *   The form element for the format string.
  */
-function project_release_node_validate($node, $form, &$form_state) {
-  if (project_node_is_project($node)) {
-    // If sandbox projects are configured to not allow releases, and this is a
-    // sandbox project, and has project releases is selected.
-    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox' && $node->field_project_has_releases[$node->language][0]['value']) {
-      form_set_error('field_project_has_releases', t('Sandbox projects may not have releases.'));
-    }
+function _project_release_validate_format_string($element) {
+  if (!preg_match('/^[a-zA-Z0-9_\-.!%#]+$/', $element['#value'])) {
+    form_error($element, PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG);
   }
 }

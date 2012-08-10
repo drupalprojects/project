@@ -19,7 +19,6 @@ function project_release_uninstall() {
   $variables = array(
     'project_release_active_compatibility_tids',
     'project_release_api_vocabulary',
-    'project_release_default_version_format',
     'project_release_directory',
     'project_release_overview',
     'project_release_unmoderate',
@@ -562,4 +561,15 @@ function project_release_update_7001() {
  */
 function project_release_update_7002() {
   variable_del('project_release_browse_versions');
+}
+
+/**
+ * project_release_default_version_format is now per-node-type.
+ */
+function project_release_update_7003() {
+  $version_format = variable_get('project_release_default_version_format', '');
+  foreach (project_release_release_node_types() as $node_type) {
+    variable_set('project_release_version_format_' . $node_type, $version_format);
+  }
+  variable_del('project_release_default_version_format');
 }
