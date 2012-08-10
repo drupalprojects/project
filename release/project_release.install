@@ -13,6 +13,7 @@ function project_release_uninstall() {
 
   // Load the code to define the default project_release node type and run it.
   require_once dirname(__FILE__)  . '/includes/project_release_node_type.inc';
+  require_once dirname(__FILE__)  . '/project_release.module';
   _project_release_delete_release_node_type();
 
   // @todo
@@ -27,6 +28,7 @@ function project_release_uninstall() {
   );
   foreach (project_release_release_node_types() as $node_type) {
     $variables[] = 'project_release_download_base_' . $node_type;
+    $variables[] = 'project_release_version_format_' . $node_type;
   }
   foreach ($variables as $variable) {
     variable_del($variable);
@@ -543,6 +545,33 @@ function project_release_update_7000() {
       ),
     ),
   ));
+
+  // Per-project custom version format string.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '255',
+    ),
+    'field_name' => 'field_release_version_format',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'bundle' => 'project',
+    'entity_type' => 'node',
+    'field_name' => 'field_release_version_format',
+    'label' => $t('Custom version format string'),
+    'widget' => array(
+      'weight' => '0',
+      'type' => 'text_textfield',
+      'active' => 1,
+      'settings' => array(
+        'size' => '50',
+      ),
+    ),
+  ));
 }
 
 /**
@@ -575,5 +604,9 @@ function project_release_update_7003() {
 }
 
 /* todo
+ Migrate project node data:
  - {project_release_projects}.releases -> field_project_has_releases
+ - {project_release_projects}.version_format -> field_release_version_format
+
+ Migrate release node data:
  */

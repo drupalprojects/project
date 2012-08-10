@@ -36,25 +36,6 @@ function project_release_project_edit_form($form_state, $node) {
     );
   }
 
-  // Finally, add everything else (currently, the "Advanced options").
-  $form['advanced'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Advanced options'),
-    '#collapsible' => TRUE,
-    '#weight' => 5,
-  );
-
-  if (user_access('administer projects')) {
-    $form['advanced']['version_format'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Version format string'),
-      '#default_value' => $node->project_release['version_format'],
-      '#size' => 50,
-      '#maxlength' => 255,
-      '#description' => t('Customize the format of the version strings for releases of this project.') .' '. PROJECT_RELEASE_VERSION_FORMAT_HELP .' '. t('If blank, this project will use the site-wide default (currently set to: %default)', array('%default' => variable_get('project_release_default_version_format', PROJECT_RELEASE_DEFAULT_VERSION_FORMAT))),
-    );
-  }
-
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $form['submit'] = array(
     '#type' => 'submit',
@@ -221,9 +202,6 @@ function theme_project_release_project_edit_form($form) {
  * @see project_release_project_edit_releases
  */
 function project_release_project_edit_form_validate($form, &$form_state) {
-  if (!empty($form_state['values']['version_format'])) {
-    _project_release_validate_format_string($form_state['values'], 'version_format');
-  }
   if (isset($form_state['values']['api'])) {
     foreach ($form_state['values']['api'] as $tid => $api_info) {
       $supported = FALSE;
@@ -249,12 +227,6 @@ function project_release_project_edit_form_validate($form, &$form_state) {
  */
 function project_release_project_edit_form_submit($form, &$form_state) {
   $nid = $form_state['values']['nid'];
-  db_query("UPDATE {project_release_projects} SET version_format = '%s' WHERE nid = %d", $form_state['values']['version_format'], $nid);
-  if (!db_affected_rows()) {
-    // It's possible there's no record in {project_release_projects} if this
-    // particular project was created before project_issue.module was enabled.
-    db_query("INSERT INTO {project_release_projects} (nid, version_format) VALUES (%d, '%s')", $nid, $form_values['version_format']);
-  }
 
   if (!empty($form_state['values']['api'])) {
     foreach ($form_state['values']['api'] as $tid => $values) {

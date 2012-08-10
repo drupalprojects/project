@@ -82,6 +82,16 @@ function project_release_project_settings_form_access($node) {
 }
 
 /**
+ * Implements hook_field_access().
+ */
+function project_release_field_access($op, $field, $entity_type, $entity, $account) {
+  // Require administer projects for custom version format strings.
+  if ($op === 'edit' && $field['field_name'] === 'field_release_version_format') {
+    return user_access('administer projects', $account);
+  }
+}
+
+/**
  * @defgroup project_release_node Drupal node-type related hooks
  */
 
@@ -465,6 +475,19 @@ function project_release_alter_project_promote_confirm_form(&$form, &$form_state
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
   db_query("UPDATE {project_release_projects} SET releases = %d WHERE nid = %d", $form_state['values']['releases'], $form_state['values']['nid']);
   unset($_SESSION['project_promote_project_releases']);
+}
+
+/**
+ * Implements hook_field_widget_form_alter.
+ */
+function project_release_field_widget_form_alter(&$element, &$form_state, $context) {
+  if ($element['#field_name'] === 'field_release_version_format') {
+    // Add dynamic description to custom version format string.
+    // todo this just uses the first release node type. What to do if there are
+    // multiple?
+    $element['value']['#description'] = '<p>' . t('Optionally override default <code>@string</code>', array('@string' => variable_get('project_release_version_format_' . reset(project_release_release_node_types()), ''))) . '</p>' . PROJECT_RELEASE_VERSION_FORMAT_HELP;
+    $element['value']['#element_validate'] = array('_project_release_validate_format_string');
+  }
 }
 
 /**
@@ -1587,6 +1610,7 @@ function project_release_project_node_type_settings($form) {
       '#maxlength' => 255,
       '#description' => PROJECT_RELEASE_VERSION_FORMAT_HELP,
       '#element_validate' => array('_project_release_validate_format_string'),
+      '#required' => TRUE,
     ),
   );
 }
@@ -1599,7 +1623,7 @@ function project_release_project_node_type_settings($form) {
  *   The form element for the format string.
  */
 function _project_release_validate_format_string($element) {
-  if (!preg_match('/^[a-zA-Z0-9_\-.!%#]+$/', $element['#value'])) {
+  if (!preg_match('/^[a-zA-Z0-9_\-.!%#]*$/', $element['#value'])) {
     form_error($element, PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG);
   }
 }

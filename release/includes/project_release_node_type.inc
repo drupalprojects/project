@@ -301,6 +301,33 @@ function _project_release_create_release_node_type() {
       ),
     ),
   ));
+
+  // Per-project custom version format string.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '255',
+    ),
+    'field_name' => 'field_release_version_format',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'bundle' => 'project',
+    'entity_type' => 'node',
+    'field_name' => 'field_release_version_format',
+    'label' => $t('Custom version format string'),
+    'widget' => array(
+      'weight' => '0',
+      'type' => 'text_textfield',
+      'active' => 1,
+      'settings' => array(
+        'size' => '50',
+      ),
+    ),
+  ));
 }
 
 /**
