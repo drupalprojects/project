@@ -493,7 +493,7 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
     case 'field_release_version':
       // Find the project.
       if (isset($element['#entity']->nid)) {
-        // todo load project from $element['#entity']->field_release_project
+        $project = node_load($element['#entity']->field_release_project[$element['#entity']->language][0]['target_id']);
       }
       else {
         $project = menu_get_object('project', 3);
