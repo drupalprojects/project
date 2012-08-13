@@ -491,52 +491,9 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
       break;
 
     case 'field_release_version':
-      // Find the project.
-      if (isset($element['#entity']->nid)) {
-        $project = node_load($element['#entity']->field_release_project[$element['#entity']->language][0]['target_id']);
-      }
-      else {
-        $project = menu_get_object('project', 3);
-      }
-      // Get the version format from the project or node type default.
-      if (empty($project->field_release_version_format)) {
-        $format_string = variable_get('project_release_version_format_' . $element['#entity']->type, '');
-      }
-      else {
-        $format_string = $project->field_release_version_format[$project->language][0]['value'];
-      }
-      // Parse format string.
-      $delimiters = array(
-        '%' => '.',
-        '#' => '-',
-        '!' => '',
-      );
-      $delimiter = NULL;
-      $format = array();
-      foreach (preg_split('/([!#%])(api|major|patch|extra)/', $format_string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
-        if (is_null($delimiter)) {
-          // Previous token was not a delimiter.
-          if (isset($delimiters[$token])) {
-            // Save delimiter to go with the next token.
-            $delimiter = $delimiters[$token];
-          }
-          else {
-            // Token is just a string.
-            $format[] = $token;
-          }
-        }
-        else {
-          // Previous token was a delimiter, save delimiter and label.
-          $format[] = array(
-            'delimiter' => $delimiter,
-            'label' => $token,
-          );
-          $delimiter = NULL;
-        }
-      }
       // Create readable string from format for help text.
       $string = '';
-      foreach ($format as $part) {
+      foreach (project_release_get_version_format($element['#entity']) as $part) {
         if (is_array($part)) {
           $string .= $part['delimiter'] . '[' . $part['label'] . ']';
         }
@@ -560,6 +517,49 @@ function project_release_node_validate($node, $form, &$form_state) {
       form_set_error('field_project_has_releases', t('Sandbox projects may not have releases.'));
     }
   }
+  elseif (project_release_node_is_release($node)) {
+    // Validate version.
+    $regexp = '/^';
+    foreach (project_release_get_version_format($node) as $part) {
+      if (is_array($part)) {
+        // Optional non-capturing group with delimiter, since each part is
+        // optional. Followed by a capturing group to extract the actual parts.
+        $regexp .= '(?:' . preg_quote($part['delimiter']) . '(';
+        switch ($part['label']) {
+          case 'api':
+            // Match the selected API compatibility term.
+            $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+            $api_term = taxonomy_term_load($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid']);
+            $regexp .= preg_quote($api_term->name);
+            break;
+
+          case 'major':
+          case 'minor':
+            // Numeric, including decimals.
+            $regexp .= '[0-9.]+';
+            break;
+
+          case 'patch':
+            // Numeric, including decimals, or 'x'.
+            $regexp .= '[0-9.]+|x';
+            break;
+
+          case 'extra':
+            // Anything.
+            $regexp .= '.+';
+            break;
+        }
+        $regexp .= '))?';
+      }
+      else {
+        $regexp .= preg_quote($part);
+      }
+    }
+    $regexp .= '$/';
+    if (!preg_match($regexp, $node->field_release_version[$node->language][0]['value'])) {
+      form_error($form['field_release_version'], t('Version does match the required format.'));
+    }
+  }
 }
 
 /**
@@ -574,6 +574,77 @@ function project_release_node_submit($node, $form, $form_state) {
       $node->field_release_project[$node->language][0]['target_id'] = $project->nid;
     }
   }
+}
+
+/**
+ * Find and parse the version format string for a release.
+ *
+ * The format string is set for the release node type, and may be overridden by
+ * a specific project.
+ *
+ * @param $release
+ *   A release node object.
+ *
+ * @return
+ *   The version format string tokenized into an array. Each value is either:
+ *   - A string, that literal string should appear in the version.
+ *   - An associative array:
+ *     - 'delimiter' => either '.', '-', or ''
+ *     - 'label' => either 'api', 'major', 'patch', or 'extra'
+ *     The version should contain the delimiter followed by the value to be
+ *     assigned to the label.
+ */
+function project_release_get_version_format($release) {
+  // Find the project.
+  if (isset($release->nid)) {
+    // Reload node since not all properties are set on node edit.
+    $release = node_load($release->nid);
+    $project = node_load($release->field_release_project[$release->language][0]['target_id']);
+  }
+  else {
+    // Use menu-loaded node for node add page.
+    $project = menu_get_object('project', 3);
+  }
+
+  // Get the version format from the project or node type default.
+  if (empty($project->field_release_version_format)) {
+    $format_string = variable_get('project_release_version_format_' . $release->type, '');
+  }
+  else {
+    $format_string = $project->field_release_version_format[$project->language][0]['value'];
+  }
+
+  // Parse format string.
+  $delimiters = array(
+    '%' => '.',
+    '#' => '-',
+    '!' => '',
+  );
+  $delimiter = NULL;
+  $format = array();
+  foreach (preg_split('/([!#%])(api|major|patch|extra)/', $format_string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
+    if (is_null($delimiter)) {
+      // Previous token was not a delimiter.
+      if (isset($delimiters[$token])) {
+        // Save delimiter to go with the next token.
+        $delimiter = $delimiters[$token];
+      }
+      else {
+        // Token is just a string.
+        $format[] = $token;
+      }
+    }
+    else {
+      // Previous token was a delimiter, save delimiter and label.
+      $format[] = array(
+        'delimiter' => $delimiter,
+        'label' => $token,
+      );
+      $delimiter = NULL;
+    }
+  }
+
+  return $format;
 }
 
 /**
