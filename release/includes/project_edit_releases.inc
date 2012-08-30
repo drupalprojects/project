@@ -187,13 +187,15 @@ function project_release_project_edit_form_submit($form, &$form_state) {
             ->condition('tid', $tid)
             ->condition('major', $major)
             ->execute()->fetchAssoc();
-          if ($existing !== FALSE && count(array_diff_assoc($major_values, $existing)) > 0) {
-            db_update('project_release_supported_versions')
-              ->fields($major_values)
-              ->condition('nid', $nid)
-              ->condition('tid', $tid)
-              ->condition('major', $major)
-              ->execute();
+          if ($existing !== FALSE) {
+            if (count(array_diff_assoc($major_values, $existing)) > 0) {
+              db_update('project_release_supported_versions')
+                ->fields($major_values)
+                ->condition('nid', $nid)
+                ->condition('tid', $tid)
+                ->condition('major', $major)
+                ->execute();
+            }
           }
           else {
             db_insert('project_release_supported_versions')
