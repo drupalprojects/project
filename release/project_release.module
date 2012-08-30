@@ -164,7 +164,7 @@ function project_release_project_maintainer_project_load($nid, &$maintainers) {
  *   otherwise FALSE (e.g. if there were no published releases on the
  *   requested branch).
  */
-function project_release_check_supported_versions($pid, $tid, $major, $delete) {
+function project_release_check_supported_versions($pid, $tid, $major, $delete = FALSE) {
   // Remember if we updated {project_release_supported_versions} so we can
   // return the value to our caller.
   $did_update = FALSE;
@@ -172,9 +172,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
   // If we're being called as a release node is being edited and saved, and
   // the site we're running on is using DB replication, we need to make sure
   // we're talking to the primary DB so that all of this works.
-  if (function_exists('db_set_ignore_slave')) {
-    db_set_ignore_slave();
-  }
+  db_ignore_slave();
 
   // Regardless of if we're deleting, adding, or editing, we need to know the
   // latest and recommended releases (if any) from the given branch. If
@@ -186,18 +184,41 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
     if (!empty($latest_release)) {
       // Since the node we just deleted might have been the latest or
       // recommended on the branch, update our record with the real values.
-      db_query("UPDATE {project_release_supported_versions} SET recommended_release = %d, latest_release = %d, latest_security_release = %d WHERE nid = %d AND tid = %d AND major = %d", $recommended_release, $latest_release, $latest_security_release, $pid, $tid, $major);
+      db_update('project_release_supported_versions')
+        ->fields(array(
+          'recommended_release' => $recommended_release,
+          'latest_release' => $latest_release,
+          'latest_security_release' => $latest_security_release,
+        ))
+        ->condition('nid', $pid)
+        ->condition('tid', $tid)
+        ->condition('major', $major)
+        ->execute();
       $did_update = TRUE;
     }
     else {
       // No latest release -- remove the bogus record for this branch.
-      db_query("DELETE FROM {project_release_supported_versions} WHERE nid = %d AND tid = %d AND major = %d", $pid, $tid, $major);
+      db_delete('project_release_supported_versions')
+        ->condition('nid', $pid)
+        ->condition('tid', $tid)
+        ->condition('major', $major)
+        ->execute();
 
-      $num_recommended = db_result(db_query("SELECT COUNT(*) FROM {project_release_supported_versions} WHERE nid = %d AND tid = %d AND supported = %d AND recommended = %d", $pid, $tid, 1, 1));
+      $num_recommended = db_select('project_release_supported_versions', 'psrv')
+        ->condition('psrv.nid', $pid)
+        ->condition('psrv.tid', $tid)
+        ->condition('psrv.supported', 1)
+        ->condition('psrv.recommended', 1)
+        ->countQuery()->execute()->fetchField();
       if ($num_recommended > 1) {
         // Something seriously bogus, clear out the values and start over.
-        db_query("UPDATE {project_release_supported_versions} SET recommended = %d WHERE nid = %d AND tid = %d", 0, $pid, $tid);
-        $num_recommended = 0;
+        db_update('project_release_supported_versions')
+          ->fields(array(
+            'recommended' => 0,
+          ))
+          ->condition('nid', $pid)
+          ->condition('tid', $tid)
+          ->execute();
       }
     }
   }
@@ -206,10 +227,13 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
     if (!empty($latest_release)) {
       // We have at least 1 published release, so make sure we have an entry
       // for this major version in {project_release_supported_versions}.
-      $current_branches = db_query("SELECT major FROM {project_release_supported_versions} WHERE nid = %d AND tid = %d", $pid, $tid);
+      $query = db_select('project_release_supported_versions', 'psrv')
+        ->fields('psrv', array('major'))
+        ->condition('psrv.nid', $pid)
+        ->condition('psrv.tid', $tid);
       $have_current_branch = FALSE;
       $num_branches = 0;
-      while (($branch = db_fetch_object($current_branches)) !== FALSE) {
+      foreach ($query->execute() as $branch) {
         $num_branches++;
         if ($branch->major == $major) {
           $have_current_branch = TRUE;
@@ -219,13 +243,34 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
       if ($num_branches == 0 || !$have_current_branch) {
         // First entry for this API tid/major version pair, so add a new
         // record to the table as supported but not recommended.
-        db_query("INSERT INTO {project_release_supported_versions} (nid, tid, major, supported, recommended, snapshot, recommended_release, latest_release, latest_security_release) VALUES (%d, %d, %d, %d, %d, %d, %d, %d, %d)", $pid, $tid, $major, 1, 0, 0, $recommended_release, $latest_release, $latest_security_release);
+        db_insert('project_release_supported_versions')
+          ->fields(array(
+            'nid' => $pid,
+            'tid' => $tid,
+            'major' => $major,
+            'supported' => 1,
+            'recommended' => 0,
+            'snapshot' => 0,
+            'recommended_release' => $recommended_release,
+            'latest_release' => $latest_release,
+            'latest_security_release' => $latest_security_release,
+          ))
+          ->execute();
       }
       else {
         // We already have this branch in the table, but the latest_release
         // and recommended_release fields might be stale based on whatever
         // node was just added or edited.
-        db_query("UPDATE {project_release_supported_versions} SET recommended_release = %d, latest_release = %d, latest_security_release = %d WHERE nid = %d AND tid = %d AND major = %d", $recommended_release, $latest_release, $latest_security_release, $pid, $tid, $major);
+        db_update('project_release_supported_versions')
+          ->fields(array(
+            'recommended_release' => $recommended_release,
+            'latest_release' => $latest_release,
+            'latest_security_release' => $latest_security_release,
+          ))
+          ->condition('nid', $pid)
+          ->condition('tid', $tid)
+          ->condition('major', $major)
+          ->execute();
       }
       $did_update = TRUE;
     }
@@ -313,9 +358,8 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete) {
  */
 function project_release_compute_update_status($pid, $api_tid, $major) {
   $latest_release = $recommended_release = $latest_security_release = 0;
-  $nid_update_map = array();
-  $query = project_release_query_releases_by_branch($pid, $api_tid, $major);
-  while ($release = db_fetch_object($query)) {
+  $insecure_nids = array();
+  foreach (project_release_query_releases_by_branch($pid, $api_tid, $major) as $release) {
     // Clear out the status so we always start fresh with each release.
     unset($update_status);
     if (empty($latest_release)) {
@@ -323,7 +367,7 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
       // If this is the latest release, it's current.
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
     }
-    if (empty($recommended_release) && empty($release->version_extra)) {
+    if (empty($recommended_release) && empty($release->field_release_version_extra[$release->language][0]['value'])) {
       $recommended_release = $release->nid;
       // If this is the recommended release, it's current.
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
@@ -332,7 +376,7 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
       $latest_security_release = $release->nid;
     }
     // Releases which rebuild are always current.
-    if (!empty($release->rebuild)) {
+    if ($release->field_release_build_type[$release->language][0]['value'] === 'dynamic') {
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
     }
 
@@ -353,23 +397,19 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
       }
     }
 
-    // If the status is different than what we have in the DB, remember that
-    // we need to update this nid in the DB.
-    if ($update_status != $release->update_status) {
-      $nid_update_map[$update_status][] = $release->nid;
+    // If the status is different than what we have in the DB, update it.
+    if (empty($release->field_release_update_status) || $update_status != $release->field_release_update_status[$release->language][0]['value']) {
+      $release->field_release_update_status[$release->language][0]['value'] = $update_status;
+      node_save($release);
+
+      if ($update_status === PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE) {
+        $insecure_nids[] = $release->nid;
+      }
     }
   }
 
-  if (!empty($nid_update_map)) {
-    foreach ($nid_update_map as $update_status => $nids) {
-      if (!empty($nids)) {
-        $placeholders = db_placeholders($nids);
-        db_query("UPDATE {project_release_nodes} SET update_status = %d WHERE nid IN ($placeholders)", array_merge(array($update_status), $nids));
-        if ($update_status == PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE && module_exists('project_package')) {
-          project_package_check_update_status($nids);
-        }
-      }
-    }
+  if (!empty($insecure_nids) && module_exists('project_package')) {
+    project_package_check_update_status($insecure_nids);
   }
 }
 
@@ -509,7 +549,7 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
 /**
  * Implements hook_node_validate().
  */
-function project_release_node_validate($node, $form, &$form_state) {
+function project_release_node_validate(&$node, $form, &$form_state) {
   if (project_node_is_project($node)) {
     // If sandbox projects are configured to not allow releases, and this is a
     // sandbox project, and has project releases is selected.
@@ -518,48 +558,58 @@ function project_release_node_validate($node, $form, &$form_state) {
     }
   }
   elseif (project_release_node_is_release($node)) {
-    // Validate version.
-    $regexp = '/^';
-    foreach (project_release_get_version_format($node) as $part) {
-      if (is_array($part)) {
-        // Optional non-capturing group with delimiter, since each part is
-        // optional. Followed by a capturing group to extract the actual parts.
-        $regexp .= '(?:' . preg_quote($part['delimiter']) . '(';
-        switch ($part['label']) {
-          case 'api':
-            // Match the selected API compatibility term.
-            $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
-            $api_term = taxonomy_term_load($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid']);
-            $regexp .= preg_quote($api_term->name);
-            break;
-
-          case 'major':
-          case 'minor':
-            // Numeric, including decimals.
-            $regexp .= '[0-9.]+';
-            break;
-
-          case 'patch':
-            // Numeric, including decimals, or 'x'.
-            $regexp .= '[0-9.]+|x';
-            break;
-
-          case 'extra':
-            // Anything.
-            $regexp .= '.+';
-            break;
-        }
-        $regexp .= '))?';
-      }
-      else {
-        $regexp .= preg_quote($part);
-      }
+    // Make sure version is unique per-project.
+    $project_nid = project_release_get_release_project_nid($node);
+    $version = $node->field_release_version[$node->language][0]['value'];
+    $existing_nid = project_release_exists($project_nid, $version);
+    if ($existing_nid !== FALSE && $existing_nid != $node->nid) {
+      $project = node_load($project_nid);
+      form_error($form['field_release_version'], t('Version %version already exists for %project.', array('%version' => $version, '%project' => $project->title)));
     }
-    $regexp .= '$/';
-    if (!preg_match($regexp, $node->field_release_version[$node->language][0]['value'])) {
+    // Validate version.
+    if (project_release_parse_version($node) === FALSE) {
       form_error($form['field_release_version'], t('Version does match the required format.'));
     }
   }
+}
+
+/**
+ * Get the term ID in the API vocabulary for a release node.
+ *
+ * @param $node
+ *   A release node object.
+ *
+ * @return
+ *   A term ID.
+ */
+function project_release_get_release_api_tid($node) {
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
+}
+
+/**
+ * Get the project nid of a release's project node.
+ *
+ * @param $node
+ *   A release node object.
+ *
+ * @return integer
+ *   A node ID.
+ */
+function project_release_get_release_project_nid($node) {
+  $item = menu_get_item();
+  if ($item['path'] === 'node/add/project-release/%') {
+    // The field is not set until the release node is saved.
+    $project = menu_get_object('project', 3);
+    return $project->nid;
+  }
+
+  if (!isset($node->field_release_project)) {
+    // Reload node since not all properties are set during node form submit.
+    $node = node_load($node->nid);
+  }
+
+  return $node->field_release_project[$node->language][0]['target_id'];
 }
 
 /**
@@ -572,6 +622,18 @@ function project_release_node_submit($node, $form, $form_state) {
       // set project using the menu-loaded node.
       $project = menu_get_object('project', 3);
       $node->field_release_project[$node->language][0]['target_id'] = $project->nid;
+    }
+
+    // Save version information.
+    foreach (project_release_parse_version($node) as $part => $value) {
+      if ($part === 'patch' && !is_numeric($value)) {
+        // If the patch field is set to a non-numeric value, we just want to
+        // keep it as a NULL in the DB, instead of casting it to a 0.
+        $node->{'field_release_version_' . $part}[$node->language][0] = array();
+      }
+      else {
+        $node->{'field_release_version_' . $part}[$node->language][0]['value'] = $value;
+      }
     }
   }
 }
@@ -595,16 +657,7 @@ function project_release_node_submit($node, $form, $form_state) {
  *     assigned to the label.
  */
 function project_release_get_version_format($release) {
-  // Find the project.
-  if (isset($release->nid)) {
-    // Reload node since not all properties are set on node edit.
-    $release = node_load($release->nid);
-    $project = node_load($release->field_release_project[$release->language][0]['target_id']);
-  }
-  else {
-    // Use menu-loaded node for node add page.
-    $project = menu_get_object('project', 3);
-  }
+  $project = node_load(project_release_get_release_project_nid($release));
 
   // Get the version format from the project or node type default.
   if (empty($project->field_release_version_format)) {
@@ -648,42 +701,115 @@ function project_release_get_version_format($release) {
 }
 
 /**
+ * Parse a release node's version string.
+ *
+ * @param $node
+ *   A release node object.
+ *
+ * @return
+ *   If the string is invalid, FALSE. Otherwise, an array with the version
+ *   components.
+ */
+function project_release_parse_version($node) {
+  $regexp = '/^';
+  $components = array('full');
+  foreach (project_release_get_version_format($node) as $part) {
+    if (is_array($part)) {
+      // Optional non-capturing group with delimiter, since each part is
+      // optional. Followed by a capturing group to extract the actual parts.
+      $regexp .= '(?:' . preg_quote($part['delimiter']) . '(';
+      switch ($part['label']) {
+        case 'api':
+          // Match the selected API compatibility term.
+          $api_term = taxonomy_term_load(project_release_get_release_api_tid($node));
+          $regexp .= preg_quote($api_term->name);
+          break;
+
+        case 'major':
+        case 'minor':
+          // An integer.
+          $regexp .= '[0-9]+';
+          break;
+
+        case 'patch':
+          // An integer or 'x'.
+          $regexp .= '[0-9]+|x';
+          break;
+
+        case 'extra':
+          // Anything.
+          $regexp .= '.+';
+          break;
+      }
+      $regexp .= '))?';
+      $components[] = $part['label'];
+    }
+    else {
+      $regexp .= preg_quote($part);
+    }
+  }
+  $regexp .= '$/';
+
+  if (preg_match($regexp, $node->field_release_version[$node->language][0]['value'], $match)) {
+    $version = array_merge(
+      // Provide default values so something is always saved.
+      array(
+        'major' => NULL,
+        'minor' => NULL,
+        'patch' => NULL,
+        'extra' => NULL,
+        'ext_weight' => NULL,
+        'ext_delta' => NULL,
+      ),
+      // Map $match to named keys.
+      array_combine($components, array_pad($match, count($components), ''))
+    );
+    if (isset($version['extra'])) {
+      // Since we have extra defined, see what the weight should be, based on
+      // our current mapping of version_extra prefixes to weights.
+      foreach (project_release_get_version_extra_weight_map() as $prefix => $weight) {
+        // If extra starts with $prefix.
+        if (strpos($version['extra'], $prefix) === 0) {
+          $version['ext_weight'] = $weight;
+          break;
+        }
+      }
+      // If version_extra contains any digits, save them. This is used to
+      // ensure that alpha10 is considered "newer" than alpha9.
+      if (preg_match('/(\d+)/', $version['extra'], $match)) {
+        $version['ext_delta'] = $match[1];
+      }
+    }
+    return $version;
+  }
+  return FALSE;
+}
+
+function project_release_node_insert($node) {
+  if (project_release_node_is_release($node)) {
+    project_release_check_supported_versions(project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+  }
+}
+
+function project_release_node_update($node) {
+  if (project_release_node_is_release($node)) {
+    project_release_check_supported_versions(project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+  }
+}
+
+function project_release_node_delete($node) {
+  if (project_release_node_is_release($node)) {
+    // Use a shutdown function so action is taken after the node is deleted
+    // from the DB.
+    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value'], TRUE);
+  }
+}
+
+/**
  * hook_nodeapi implementation specific to "project_release" nodes.
- *
- * We use hook_nodeapi() for our own node type to trigger some code that has
- * to happen after taxonomy_nodeapi() runs.  project_release already has to be
- * weighted heavier than taxonomy for other things to work.
- *
- * @ingroup project_release_nodeapi
- * @see project_release_nodeapi().
  */
 function project_release_release_nodeapi(&$node, $op, $arg) {
   switch ($op) {
-    case 'insert':
-    case 'update':
-    case 'delete':
-      // Since release nodes can be unpublished, we need to make sure that the
-      // recommended branch information is still up to date.
-      if (module_exists('taxonomy')) {
-        if (isset($node->project_release['version_api_tid'])) {
-          $tid = $node->project_release['version_api_tid'];
-        }
-        else {
-          $vid = _project_release_get_api_vid();
-          if (isset($node->taxonomy[$vid])) {
-            $tid = $node->taxonomy[$vid];
-            // In some cases this may end up being an array, so take the first value if applicable.
-            if (is_array($tid)) {
-              $tid = reset($tid);
-            }
-          }
-        }
-        if (isset($tid)) {
-          project_release_check_supported_versions($node->project_release['pid'], $tid, $node->project_release['version_major'], ($op == 'delete' ? TRUE : FALSE));
-        }
-      }
-      break;
-
     case 'rss item':
       // Prepend the table of release info whenever a release is in a feed.
       if (isset($node->body)) {
@@ -793,12 +919,11 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
 function project_release_find_latest_releases($project_nid, $api_tid, $major, $access = FALSE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
 
-  $query = project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access);
-  while ($release = db_fetch_object($query)) {
+  foreach (project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access) as $release) {
     if (empty($latest_release)) {
       $latest_release = $release->nid;
     }
-    if (empty($recommended_release) && empty($release->version_extra)) {
+    if (empty($recommended_release) && empty($release->field_release_version_extra[$release->language][0]['value'])) {
       $recommended_release = $release->nid;
     }
     if (empty($latest_security_release) && !empty($release->security_update)) {
@@ -827,7 +952,7 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
 }
 
 /**
- * Build a query for releases on a given branch, ordered by version.
+ * Find releases on a given branch, ordered by version.
  *
  * @param $project_nid
  *   The project node ID.
@@ -843,57 +968,48 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  *   responsible for ensuring access.
  *
  * @return
- *   A database query result resource, as returned by db_query().
+ *   An associative array of stub entities, as retured by
+ *   entity_create_stub_entity(). Keys are node IDs.
  *
- * @see db_query()
  * @see project_release_find_latest_releases()
  */
 function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
-  $wheres = $params = $order_bys = array();
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project_release')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('field_release_project', 'target_id', $project_nid)
+    ->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $api_tid)
+    ->fieldCondition('field_release_version_major', 'value', $major)
+    // We always want the dev snapshots to show up last.
+    ->fieldOrderBy('field_release_build_type', 'value', 'DESC')
+    // Sort by the obvious integer values along the branch (minor and patch).
+    ->fieldOrderBy('field_release_version_minor', 'value', 'DESC')
+    ->fieldOrderBy('field_release_version_patch', 'value', 'DESC')
+    // To reliably sort release with version_extra, use version_extra_weight.
+    ->fieldOrderBy('field_release_version_ext_weight', 'value', 'DESC')
+    // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2),
+    // sort by version_extra_delta.
+    ->fieldOrderBy('field_release_version_ext_delta', 'value', 'DESC')
+    // Within releases of the same version_extra_weight and
+    // version_extra_delta, sort alphabetically. This shouldn't normally
+    // happen, but just in case you have multiple releases with the same delta
+    // (e.g. "alpha-one", "alpha-two" etc), at least you'll get deterministic
+    // results.
+    ->fieldOrderBy('field_release_version_ext_delta', 'value', 'DESC');
 
-  $wheres[] = '(r.pid = %d)';
-  $params[] = $project_nid;
-
-  $wheres[] = '(r.version_api_tid = %d)';
-  $params[] = $api_tid;
-
-  $wheres[] = '(r.version_major = %d)';
-  $params[] = $major;
-
-  $wheres[] = '(n.status = %d)';
-  $params[] = 1;
-
-  $where = 'WHERE ' . implode(' AND ', $wheres);
-
-  // We always want the dev snapshots to show up last.
-  $order_bys[] = 'r.rebuild';
-  // Sort by the obvious integer values along the branch (minor and patch).
-  $order_bys[] = 'r.version_minor DESC';
-  $order_bys[] = 'r.version_patch DESC';
-  // To reliably sort release with version_extra, use version_extra_weight.
-  $order_bys[] = 'r.version_extra_weight DESC';
-  // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2),
-  // sort by version_extra_delta.
-  $order_bys[] = 'r.version_extra_delta DESC';
-  // Within releases of the same version_extra_weight and version_extra_delta,
-  // sort alphabetically. This shouldn't normally happen, but just in case you
-  // have multiple releases with the same delta (e.g. "alpha-one", "alpha-two"
-  // etc), at least you'll get deterministic results.
-  $order_bys[] = 'r.version_extra DESC';
-
-  $order_by = 'ORDER BY '. implode(', ', $order_bys);
-
-  $sql = "SELECT n.nid, n.title, n.created, r.* FROM {node} n ".
-    "INNER JOIN {project_release_nodes} r ON r.nid = n.nid ".
-    "$where $order_by";
-
-  // Only enforce node access via db_rewrite_sql() if the caller specifically
-  // requested that behavior.
-  if ($access) {
-    $sql = db_rewrite_sql($sql);
+  // Only enforce node access if the caller specifically requested that
+  // behavior.
+  if (!$access) {
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
   }
 
-  return db_query($sql, $params);
+  $result = $query->execute();
+  if (empty($result)) {
+    return array();
+  }
+  return node_load_multiple(array_keys($result['node']));
 }
 
 /**
@@ -1341,18 +1457,29 @@ function theme_project_release_download_text_unsupported($release, $text_type) {
 /**
  * Determine if a release already exists with the given version.
  *
- * @param stdClass $version
- *   An object containing fields that define the version for a release. Must
- *   include 'pid', the project node ID. Can also include 'version_api_tid',
- *   'version_major', 'version_minor', 'version_patch', 'version_extra',
- *   and/or 'version' (the full version string itself).
+ * @param $project_nid
+ *   A project node ID.
+ * @param $version
+ *   A string version number for a release.
  *
  * @return integer
  *   The node ID of an existing release with the given version information, or
  *   FALSE if no such release already exists.
  */
-function project_release_exists($version) {
-  // @todo
+function project_release_exists($project_nid, $version) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project_release')
+    ->fieldCondition('field_release_project', 'target_id', $project_nid)
+    ->fieldCondition('field_release_version', 'value', $version);
+  $result = $query->execute();
+  if (empty($result)) {
+    return FALSE;
+  }
+  else {
+    $nids = array_keys($result['node']);
+    return reset($nids);
+  }
 }
 
 /**
@@ -1474,7 +1601,7 @@ function project_release_theme() {
       ),
     ),
     'project_release_form_value' => array(
-      'file' => 'includes/release_node_form.inc',
+      'file' => 'includes/project_edit_releases.inc',
       'arguments' => array(
         'element' => NULL,
       ),
@@ -1484,11 +1611,9 @@ function project_release_theme() {
         'node' => NULL,
       ),
     ),
-    'project_release_project_edit_form' => array(
-      'file' => 'includes/release_node_form.inc',
-      'arguments' => array(
-        'form' => NULL,
-      ),
+    'project_release_edit_table' => array(
+      'file' => 'includes/project_edit_releases.inc',
+      'render element' => 'api',
     ),
     'project_release_table_overview' => array(
       'arguments' => array(

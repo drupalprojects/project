@@ -160,6 +160,325 @@ function _project_release_create_release_node_type() {
   );
   field_create_instance($instance);
 
+  // Major component of version number.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_version_major',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version major',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_major',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
+  // The minor version number of a release.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_version_minor',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version minor',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_minor',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
+  // The patch level version number of a release.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_version_patch',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version patch',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_patch',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
+  // A text string that can be used to provide additional information about a
+  // release. Ex: BETA
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '255',
+    ),
+    'field_name' => 'field_release_version_extra',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version extra',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_extra',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
+  // Numeric code for ordering releases that define "version_extra".
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_version_ext_weight',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version extra weight',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_ext_weight',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
+  // The first span of digits found in version_extra. This is needed because we
+  // cannot natural sort natively without a stored procedure.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_version_ext_delta',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Version extra delta',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_version_ext_delta',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
   $field = array(
     'translatable' => '0',
     'settings' => array(
@@ -265,6 +584,63 @@ function _project_release_create_release_node_type() {
   );
   field_create_instance($instance);
 
+  // Flag to record the update status for this release. Allowed values:
+  // PROJECT_RELEASE_UPDATE_STATUS_CURRENT (0),
+  // PROJECT_RELEASE_UPDATE_STATUS_NOT_CURRENT (1),
+  // PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE (2)
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_update_status',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Update status',
+    'widget' => array(
+      'weight' => '4',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => '',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '13',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_update_status',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
   // Field to mark if a project has releases.
   field_create_field(array(
     'translatable' => '0',
@@ -337,9 +713,17 @@ function _project_release_delete_release_node_type() {
   $fields = array(
     'field_release_project',
     'field_release_version',
+    'field_release_version_major',
+    'field_release_version_minor',
+    'field_release_version_patch',
+    'field_release_version_extra',
+    'field_release_version_ext_weight',
+    'field_release_version_ext_delta',
     'field_release_vcs_label',
     'field_release_build_type',
+    'field_release_update_status',
     'field_project_has_releases',
+    'field_release_version_format',
   );
   foreach ($fields as $field) {
     field_delete_field($field);
