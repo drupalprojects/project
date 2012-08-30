@@ -3,7 +3,7 @@
 define('PROJECT_RELEASE_FILE_EXTENSIONS', 'zip gz tar bz2 rar tgz tar.gz dmg rpm deb');
 
 /**
- * Constants for the possible values of {project_release_nodes}.update_status.
+ * Constants for the possible values of field_release_update_status.
  */
 define('PROJECT_RELEASE_UPDATE_STATUS_CURRENT', 0);
 define('PROJECT_RELEASE_UPDATE_STATUS_NOT_CURRENT', 1);
@@ -277,8 +277,8 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
   }
 
   // Regardless of insert/edit/delete, we want to go through and recompute
-  // {project_release_nodes}.update_status for all records on this branch.
-  // Note: we end up doing the same query in here that we performed in
+  // field_release_update_status for all records on this branch. Note: we end
+  // up doing the same query in here that we performed in
   // project_release_find_latest_releases(), we just need to process the
   // results differently. However, to keep the code sane, we invoke the query
   // again. If this becomes a performance problem, we can always refactor.
@@ -293,7 +293,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
 }
 
 /**
- * Compute the {project_release_nodes}.update_status values for a given branch.
+ * Compute the field_release_update_status values for a given branch.
  *
  * For any given release node, there are three possible status values for if
  * if the release needs an update or not:
@@ -320,21 +320,20 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  *  - 1.2.1-beta1: 'not-secure'  (since 1.2.1 official was a security update)
  *  - 1.2.0: 'not-secure'
  *
- * This status is recorded in the {project_release_nodes}.update_status column
- * in the database. Whenever a release is created, updated, or deleted, we
- * need to inspect all the other releases on the same branch to potentially
- * modify the update_status column as needed.
+ * This status is recorded in the field_release_update_status field in the
+ * database. Whenever a release is created, updated, or deleted, we need to
+ * inspect all the other releases on the same branch to potentially modify the
+ * update_status column as needed.
  *
- * This function walks through all the records in the {project_release_nodes}
- * table matching the given branch (API compatibility term ID and major
- * version) for a specified project in version order (as determined by
- * project_release_query_releases_by_branch() which sorts by version_minor,
- * version_patch, version_extra_weight and finally version_extra), and
- * compares them with that branch's latest release, recommended release, and
- * latest security release to compute their update status. If the release is
- * the latest or recommended, it's 'current'. Otherwise, it's 'not-current'
- * if we haven't passed a security update yet, or 'not-secure' once we find a
- * security update.
+ * This function walks through all the release nodes matching the given branch
+ * (API compatibility term ID and major version) for a specified project in
+ * version order (as determined by project_release_query_releases_by_branch()
+ * which sorts by version_minor, version_patch, version_extra_weight and
+ * finally version_extra), and compares them with that branch's latest release,
+ * recommended release, and latest security release to compute their update
+ * status. If the release is the latest or recommended, it's 'current'.
+ * Otherwise, it's 'not-current' if we haven't passed a security update yet, or
+ * 'not-secure' once we find a security update.
  *
  * Note that releases which are rebuilt (e.g. -dev releases) always show up
  * last (so that we do the right thing when looking for latest official,
@@ -349,8 +348,8 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  *   The major version of the new/modified/deleted release.
  *
  * @return
- *   Void. This function directly updates the {project_release_nodes} table
- *   with the appropriate values.
+ *   Void. This function directly updates field_release_update_status with the
+ *   appropriate values.
  *
  * @see project_release_check_supported_versions()
  * @see project_release_query_releases_by_branch()
@@ -842,10 +841,9 @@ function project_release_release_nodeapi(&$node, $op, $arg) {
  * Fetch information about the current releases for a given project.
  *
  * This just queries the {project_release_supported_versions} table for either
- * the latest release or the recommended release, and retrieves data about
- * that release from the {node} and {project_release_nodes} tables. To
- * actually recompute the latest and recommended releases for a given branch,
- * you must use project_release_find_latest_releases().
+ * the latest release or the recommended release, and retrieves the release
+ * node. To actually recompute the latest and recommended releases for a given
+ * branch, you must use project_release_find_latest_releases().
  *
  * @param $project_nid
  *   The nid of the project to find the current release for.
@@ -887,7 +885,7 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
  * @param $api_tid
  *   The API compatibility term ID to search.
  * @param $major
- *   The {project_release_nodes}.version_major field of the branch to search.
+ *   The field_release_version_major field of the branch to search.
  * @param $access
  *   Optional boolean to indicate if node access checks should be enforced.
  *   Defaults to FALSE since the caller might not actually have access to all
