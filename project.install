@@ -147,9 +147,10 @@ function project_update_7001() {
  * Finish renaming 'project_project' node type to 'project', move some {project_projects} data into fields.
  */
 function project_update_7002() {
+  $t = get_t();
   // Check if we need to run.
   if (!db_table_exists('project_projects')) {
-    return t('No legacy data detected, skipping this update.');
+    return $t('No legacy data detected, skipping this update.');
   }
 
   // Update the node type in the database.
