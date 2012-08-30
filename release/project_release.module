@@ -854,38 +854,23 @@ function project_release_release_nodeapi(&$node, $op, $arg) {
  * @param $recommended_major
  *   An optional major version to search. If not specified, the current
  *   recommended branch from {project_release_supported_versions} is used.
- * @param $type
- *   String for what kind of release to get ('recommended' or 'latest').
  *
  * @return
- *   An object containing all the fields from {project_release_nodes}, along
- *   with {node}.title and {node}.created, for the appropriate release; or
- *   FALSE if no published releases exists that the caller can access on the
- *   requested branch of the desired project.
+ *   A release node object or FALSE if no published releases exists that the
+ *   caller can access on the requested branch of the desired project.
  */
-function project_release_get_current_recommended($project_nid, $api_tid, $recommended_major = NULL, $type = 'recommended') {
-  // Compute the appropriate JOIN ON clauses based on the arguments.
-  $prsv_joins[] = 'n.nid = ' . ($type == 'recommended' ? 'prsv.recommended_release' : 'prsv.latest_release');
-  $prsv_joins[] = 'prsv.nid = %d';
-  $join_params[] = $project_nid;
-  $prsv_joins[] = 'prsv.tid = %d';
-  $join_params[] = $api_tid;
-  if (!isset($recommended_major)) {
-    $prsv_joins[] = 'prsv.recommended = %d';
-    $join_params[] = 1;
+function project_release_get_current_recommended($project_nid, $api_tid, $recommended_major = NULL) {
+  $query = db_select('project_release_supported_versions', 'psrv')
+    ->fields('psrv', array('recommended_release'))
+    ->condition('psrv.nid', $project_nid)
+    ->condition('psrv.tid', $api_tid);
+  if (isset($recommended_major)) {
+    $query->condition('psrv.major', $recommended_major);
   }
   else {
-    $prsv_joins[] = 'prsv.major = %d';
-    $join_params[] = $recommended_major;
+    $query->condition('psrv.recommended', 1);
   }
-  // Build the actual JOIN ON string by AND'ing all the clauses together.
-  $prsv_join = implode(' AND ', $prsv_joins);
-  $result = db_query(db_rewrite_sql(
-    "SELECT n.nid, n.title, n.created, r.* FROM {node} n ".
-    "INNER JOIN {project_release_nodes} r ON r.nid = n.nid ".
-    "INNER JOIN {project_release_supported_versions} prsv ON $prsv_join "),
-    $join_params);
-  return db_fetch_object($result);
+  return node_load($query->execute()->fetchField());
 }
 
 /**
@@ -1598,12 +1583,6 @@ function project_release_theme() {
       'arguments' => array(
         'release' => NULL,
         'text_type' => NULL,
-      ),
-    ),
-    'project_release_form_value' => array(
-      'file' => 'includes/project_edit_releases.inc',
-      'arguments' => array(
-        'element' => NULL,
       ),
     ),
     'project_release_project_download_table' => array(
