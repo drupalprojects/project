@@ -39,38 +39,6 @@ function project_release_uninstall() {
  * Implementation of hook_schema().
  */
 function project_release_schema() {
-  $schema['project_release_projects'] = array(
-    'description' => 'Table used to store release specific information about projects.',
-    'fields' => array(
-      'nid' => array(
-        'description' => 'Primary Key: The {project_projects}.nid of the project_project node.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'releases' => array(
-        'description' => 'A flag indicating whether or not releases are enabled for a project.',
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => FALSE,
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-      'version_format' => array(
-        'description' => 'A string used to designate the format of the {project_release_nodes}.version field for releases of a project.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-    ),
-    'primary key' => array('nid'),
-    'indexes' => array(
-      'project_release_projects_releases' => array('releases')
-    ),
-  );
-
   $schema['project_release_supported_versions'] = array(
     'description' => 'Table used to store information about which major versions of a project are supported and/or recommended.',
     'fields' => array(

@@ -512,7 +512,9 @@ function project_release_alter_project_promote_confirm_form(&$form, &$form_state
  * Submit handler for project promote confirm form.
  */
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
-  db_query("UPDATE {project_release_projects} SET releases = %d WHERE nid = %d", $form_state['values']['releases'], $form_state['values']['nid']);
+  $project = node_load($form_state['values']['nid']);
+  $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
+  node_save($project);
   unset($_SESSION['project_promote_project_releases']);
 }
 
