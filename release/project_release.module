@@ -371,7 +371,7 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
       // If this is the recommended release, it's current.
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
     }
-    if (empty($latest_security_release) && !empty($release->security_update)) {
+    if (empty($latest_security_release) && project_release_is_security_update($release)) {
       $latest_security_release = $release->nid;
     }
     // Releases which rebuild are always current.
@@ -788,13 +788,17 @@ function project_release_parse_version($node) {
 
 function project_release_node_insert($node) {
   if (project_release_node_is_release($node)) {
-    project_release_check_supported_versions(project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+    // Use a shutdown function so action is taken after the node is saved in
+    // the DB.
+    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
   }
 }
 
 function project_release_node_update($node) {
   if (project_release_node_is_release($node)) {
-    project_release_check_supported_versions(project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+    // Use a shutdown function so action is taken after the node is updated in
+    // the DB.
+    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
   }
 }
 
@@ -911,7 +915,7 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
     if (empty($recommended_release) && empty($release->field_release_version_extra[$release->language][0]['value'])) {
       $recommended_release = $release->nid;
     }
-    if (empty($latest_security_release) && !empty($release->security_update)) {
+    if (empty($latest_security_release) && project_release_is_security_update($release)) {
       $latest_security_release = $release->nid;
     }
 
@@ -995,6 +999,36 @@ function project_release_query_releases_by_branch($project_nid, $api_tid, $major
     return array();
   }
   return node_load_multiple(array_keys($result['node']));
+}
+
+/**
+ * Determine if a release node is a security update.
+ *
+ * If a site sets the 'project_release_security_update_tid' variable, releases
+ * with that term are security updates.
+ *
+ * @param $node
+ *   A release node object.
+ *
+ * @return
+ *   Boolean, TRUE if $node is a security release.
+ */
+function project_release_is_security_update($node) {
+  $term = taxonomy_term_load(variable_get('project_release_security_update_tid', FALSE));
+  if ($term === FALSE) {
+    return FALSE;
+  }
+
+  if (empty($node->{'taxonomy_' . $term->vocabulary_machine_name})) {
+    return FALSE;
+  }
+  foreach ($node->{'taxonomy_' . $term->vocabulary_machine_name}[$node->language] as $value) {
+    if ($value['tid'] == $term->tid) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 /**
