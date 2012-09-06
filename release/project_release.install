@@ -853,6 +853,196 @@ function project_release_update_7000() {
     'bundle' => 'project_release',
   ));
 
+  // Field collection for release files.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'path' => '',
+    ),
+    'field_name' => 'field_release_files',
+    'type' => 'field_collection',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '-1',
+  ));
+  field_create_instance(array(
+    'label' => 'Release files',
+    'widget' => array(
+      'weight' => '5',
+      'type' => 'field_collection_embed',
+      'active' => 0,
+      'settings' => array(),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'field_collection_fields',
+        'weight' => '14',
+        'settings' => array(
+          'view_mode' => 'full',
+        ),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'field_name' => 'field_release_files',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+    'default_value' => NULL,
+  ));
+
+  // Stores information about files attached to release nodes.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'display_field' => 0,
+      'display_default' => 1,
+      'uri_scheme' => 'public',
+    ),
+    'field_name' => 'field_release_file',
+    'type' => 'file',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Release file',
+    'widget' => array(
+      'weight' => '1',
+      'type' => 'file_generic',
+      'active' => 1,
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+    ),
+    'settings' => array(
+      'file_directory' => 'project',
+      'file_extensions' => 'zip gz tar bz2 rar tgz tar.gz dmg rpm deb',
+      'max_filesize' => '',
+      'description_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'file_default',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'field_name' => 'field_release_file',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
+  // An MD5 hash of the file.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '32',
+    ),
+    'field_name' => 'field_release_file_hash',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Release file hash',
+    'widget' => array(
+      'weight' => '2',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'text_default',
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'text_default',
+        'settings' => array(),
+        'weight' => 1,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_hash',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
+  // Number of times this file has been downloaded. This value is updated by
+  // site specific means.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_release_file_downloads',
+    'type' => 'number_integer',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => 'Release file downloads',
+    'widget' => array(
+      'weight' => '3',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'number_integer',
+        'formatter_settings' => array(
+          'thousand_separator' => ',',
+          'prefix_suffix' => 0,
+        ),
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'min' => '0',
+      'max' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'number_integer',
+        'settings' => array(
+          'thousand_separator' => ' ',
+          'decimal_separator' => '.',
+          'scale' => 0,
+          'prefix_suffix' => TRUE,
+        ),
+        'weight' => 2,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_downloads',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
   // Field to mark if a project has releases.
   field_create_field(array(
     'translatable' => '0',

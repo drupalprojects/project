@@ -522,28 +522,30 @@ function project_release_project_promote_confirm_form_submit($form, &$form_state
  * Implements hook_field_widget_form_alter().
  */
 function project_release_field_widget_form_alter(&$element, &$form_state, $context) {
-  switch ($element['#field_name']) {
-    case 'field_release_version_format':
-      // Add dynamic description to custom version format string.
-      // todo this just uses the first release node type. What to do if there are
-      // multiple?
-      $element['value']['#description'] = '<p>' . t('Optionally override default <code>@string</code>', array('@string' => variable_get('project_release_version_format_' . reset(project_release_release_node_types()), ''))) . '</p>' . PROJECT_RELEASE_VERSION_FORMAT_HELP;
-      $element['value']['#element_validate'] = array('_project_release_validate_format_string');
-      break;
+  if (isset($element['#field_name'])) {
+    switch ($element['#field_name']) {
+      case 'field_release_version_format':
+        // Add dynamic description to custom version format string.
+        // todo this just uses the first release node type. What to do if there are
+        // multiple?
+        $element['value']['#description'] = '<p>' . t('Optionally override default <code>@string</code>', array('@string' => variable_get('project_release_version_format_' . reset(project_release_release_node_types()), ''))) . '</p>' . PROJECT_RELEASE_VERSION_FORMAT_HELP;
+        $element['value']['#element_validate'] = array('_project_release_validate_format_string');
+        break;
 
-    case 'field_release_version':
-      // Create readable string from format for help text.
-      $string = '';
-      foreach (project_release_get_version_format($element['#entity']) as $part) {
-        if (is_array($part)) {
-          $string .= $part['delimiter'] . '[' . $part['label'] . ']';
+      case 'field_release_version':
+        // Create readable string from format for help text.
+        $string = '';
+        foreach (project_release_get_version_format($element['#entity']) as $part) {
+          if (is_array($part)) {
+            $string .= $part['delimiter'] . '[' . $part['label'] . ']';
+          }
+          else {
+            $string .= $part;
+          }
         }
-        else {
-          $string .= $part;
-        }
-      }
-      $element['value']['#description'] = t('Format: <code>@format</code>', array('@format' => $string));
-      break;
+        $element['value']['#description'] = t('Format: <code>@format</code>', array('@format' => $string));
+        break;
+    }
   }
 }
 
