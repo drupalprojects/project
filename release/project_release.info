@@ -6,4 +6,5 @@ dependencies[] = views
 dependencies[] = list
 dependencies[] = text
 dependencies[] = entityreference
+dependencies[] = field_collection
 core = 7.x
