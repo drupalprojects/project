@@ -413,24 +413,6 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
 }
 
 /**
- * @defgroup project_release_api Project release functions that other
- * modules might want to use
- */
-function theme_project_release_download_file($file, $download_link = TRUE) {
-  $output = '';
-  if ($download_link) {
-    $output .= '<small><strong>'. t('Download: !file', array('!file' => theme('project_release_download_link', $file->filepath))) .'</strong></small><br />';
-  }
-  else {
-    $output .= '<small><strong>'. t('File: @filepath', array('@filepath' => $file->filepath)) .'</strong></small><br />';
-  }
-  $output .= '<small>'. t('Size: !size', array('!size' => format_size($file->filesize))) .'</small><br />';
-  $output .= '<small>'. t('md5_file hash: !filehash', array('!filehash' => $file->filehash)) .'</small><br />';
-  $output .= '<small>'. t('Last updated: !changed', array('!changed' => format_date($file->timestamp))) .'</small><br />';
-  return $output;
-}
-
-/**
  * @defgroup project_release_fapi Form API hooks
  */
 
@@ -1582,12 +1564,6 @@ function project_release_flush_caches() {
  */
 function project_release_theme() {
   return array(
-    'project_release_download_file' => array(
-      'arguments' => array(
-        'file' => NULL,
-        'download_link' => TRUE,
-      ),
-    ),
     'project_release_download_link' => array(
       'arguments' => array(
         'filepath' => NULL,
