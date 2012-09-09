@@ -7,4 +7,5 @@ dependencies[] = list
 dependencies[] = text
 dependencies[] = entityreference
 dependencies[] = field_collection
+stylesheets[all][] = project_release.css
 core = 7.x
