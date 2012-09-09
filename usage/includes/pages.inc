@@ -58,10 +58,10 @@ function project_usage_dispatch($key) {
     // Make sure that the user has the permission to view this project/
     // project_release node.
     if (node_access('view', $node)) {
-      if ($node->type == 'project_project') {
+      if (project_node_is_project($node)) {
         return project_usage_project_page($node);
       }
-      if ($node->type == 'project_release') {
+      if (project_release_node_is_release($node)) {
         return project_usage_release_page($node);
       }
     }
@@ -394,7 +394,7 @@ function project_usage_release_page($node) {
   // Load the API functions we need for manipulating dates and timestamps.
   module_load_include('inc', 'project_usage', 'includes/date_api');
 
-  $project = node_load($node->project_release['pid']);
+  $project = node_load(project_release_get_release_project_nid($node));
   $breadcrumb = array(
     l(t('Usage'), 'project/usage'),
     l($project->title, 'project/usage/' . $project->nid),

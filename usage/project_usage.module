@@ -214,3 +214,20 @@ function project_usage_get_release_usage($nid) {
   return $usage[$nid];
 }
 
+/**
+ * Implements hook_node_view().
+ */
+function project_usage_node_view($node) {
+  if (project_release_node_is_release($node)) {
+    $node->content['links']['project_usage'] = array(
+      '#theme' => 'links__node__project_usage',
+      '#links' => array(
+        'node-usage' => array(
+          'title' => t('View usage statistics for this release'),
+          'href' => 'project/usage/' . $node->nid,
+        ),
+      ),
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+}
