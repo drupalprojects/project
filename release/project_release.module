@@ -622,7 +622,7 @@ function project_release_node_submit($node, $form, $form_state) {
     }
 
     // Save file information.
-    foreach ($node->field_release_files[$node->language] as $n => $collection) {
+    foreach ($node->field_release_files[$node->language] as $collection) {
       $file = file_load($collection['entity']->field_release_file[$node->language][0]['fid']);
       $collection['entity']->field_release_file_hash[$node->language][0]['value'] = md5_file($file->uri);
     }
