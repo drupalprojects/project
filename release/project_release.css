@@ -86,6 +86,6 @@ table.releases tr.error {
   width: 20%;
 }
 
-.project-release-files .views-field-filehash {
+.view-project-release-files td.views-field-field-release-file-hash {
   color: #999;
 }

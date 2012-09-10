@@ -801,6 +801,75 @@ function project_release_node_delete($node) {
 }
 
 /**
+ * Implements hook_node_view().
+ */
+function project_release_node_view($node, $view_mode, $langcode) {
+  if (project_release_node_is_release($node)) {
+    $project = node_load(project_release_get_release_project_nid($node));
+
+    if ($view_mode === 'full') {
+      // Breadcrumb navigation
+      $breadcrumb[] = l($project->title, 'node/'. $project->nid);
+      $breadcrumb[] = l(t('Releases'), 'node/'. $project->nid .'/release');
+      project_project_set_breadcrumb($project, $breadcrumb);
+    }
+
+    // Add "Release notes" header.
+    if (isset($node->content['body'])) {
+      $node->content['body']['#prefix'] = '<h3>' . t('Release notes') . '</h3>';
+    }
+
+    // Replace files with a view.
+    list($view_name, $display_name) = explode(':', variable_get('project_release_files_view', 'project_release_files:default'));
+    $node->content['field_release_files'] = array('#markup' => views_embed_view($view_name, $display_name, $node->nid));
+
+    // Last updated release file.
+    $max_file_timestamp = 0;
+    foreach ($node->field_release_files[$node->language] as $item) {
+      $max_file_timestamp = max($max_file_timestamp, field_collection_field_get_entity($item)->field_release_file[$node->language][0]['timestamp']);
+    }
+    if ($max_file_timestamp > 0) {
+      $node->content['field_release_files']['#suffix'] = '<div class="last-updated">' . t('Last updated: !changed', array('!changed' => format_date($max_file_timestamp))) . '</div>';
+    }
+
+    /* todo d7
+    $rebuild_version = db_result(db_query("SELECT rebuild_version FROM {project_release_node_rebuild_metadata} WHERE nid = %d", $node->nid));
+    if (!empty($rebuild_version)) {
+      $output .= '<div class="rebuild-version">' . t('Last packaged version: @rebuild_version', array('@rebuild_version' => $rebuild_version)) . '</div>';
+    }
+    */
+
+    // VCS info.
+    if (!empty($node->content['field_release_vcs_label'])) {
+      if ($node->field_release_build_type[$node->language][0]['value'] === 'dynamic') {
+        $node->content['field_release_vcs_label']['#title'] = t('Nightly development snapshot from branch');
+      }
+      else {
+        $node->content['field_release_vcs_label']['#title'] = t('Official release from tag');
+      }
+    }
+
+    // Display packaging errors to admins.
+    if (project_user_access($project, 'administer releases')) {
+      $rows = unserialize(db_select('project_release_package_errors', 'prpe')
+        ->fields('prpe', array('messages'))
+        ->condition('prpe.nid', $node->nid)
+        ->execute()->fetchField());
+      if (!empty($rows)) {
+        $node->content['release_errors'] = array(
+          '#theme' => 'item_list',
+          '#title' => t('Packaging error messages'),
+          '#items' => $rows,
+          '#weight' => -6,
+          '#prefix' => '<div class="messages error">',
+          '#suffix' => '</div>',
+        );
+      }
+    }
+  }
+}
+
+/**
  * hook_nodeapi implementation specific to "project_release" nodes.
  */
 function project_release_release_nodeapi(&$node, $op, $arg) {

@@ -3,196 +3,152 @@
 $view = new view;
 $view->name = 'project_release_files';
 $view->description = 'List of all files attached to a given release';
-$view->tag = 'Project release';
-$view->view_php = '';
-$view->base_table = 'files';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->tag = 'default';
+$view->base_table = 'field_collection_item';
+$view->human_name = 'Project release files';
+$view->core = 7;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-$handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('relationships', array(
-  'nid' => array(
-    'label' => 'Release node',
-    'required' => 1,
-    'id' => 'nid',
-    'table' => 'project_release_file',
-    'field' => 'nid',
-    'relationship' => 'none',
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'item_id' => 'item_id',
+  'field_release_file' => 'field_release_file',
+  'field_release_file_hash' => 'field_release_file_hash',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'item_id' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
   ),
-));
-$handler->override_option('fields', array(
-  'file_name' => array(
-    'label' => 'Download',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'link_to_file' => 1,
-    'exclude' => 0,
-    'id' => 'file_name',
-    'table' => 'project_release_file',
-    'field' => 'file_name',
-    'relationship' => 'none',
+  'field_release_file' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
   ),
-  'filesize' => array(
-    'label' => 'Size',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 1,
-    'empty_zero' => 0,
-    'file_size_display' => 'formatted',
-    'exclude' => 0,
-    'id' => 'filesize',
-    'table' => 'files',
-    'field' => 'filesize',
-    'relationship' => 'none',
+  'field_release_file_hash' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
   ),
-  'filehash' => array(
-    'label' => 'md5 hash',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 1,
-    'empty_zero' => 0,
-    'exclude' => 0,
-    'id' => 'filehash',
-    'table' => 'project_release_file',
-    'field' => 'filehash',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('sorts', array(
-  'weight' => array(
-    'order' => 'ASC',
-    'id' => 'weight',
-    'table' => 'project_release_file',
-    'field' => 'weight',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
-  'nid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => '',
-    'breadcrumb' => '',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'node',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'nid',
-    'table' => 'node',
-    'field' => 'nid',
-    'relationship' => 'nid',
-    'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(),
-    'default_options_div_prefix' => '',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'project_release' => 'project_release',
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(),
-    'validate_argument_type' => 'tid',
-    'validate_argument_transform' => 0,
-    'validate_user_restrict_roles' => 0,
-    'validate_argument_project_term_vocabulary' => array(),
-    'validate_argument_project_term_argument_type' => 'tid',
-    'validate_argument_project_term_argument_action_top_without' => 'pass',
-    'validate_argument_project_term_argument_action_top_with' => 'pass',
-    'validate_argument_project_term_argument_action_child' => 'pass',
-    'validate_argument_php' => '',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-));
-$handler->override_option('cache', array(
-  'type' => 'none',
-));
-$handler->override_option('items_per_page', 0);
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => '',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'columns' => array(
-    'file_name' => 'file_name',
-    'filesize' => 'filesize',
-    'filehash' => 'filehash',
-  ),
-  'info' => array(
-    'file_name' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'filesize' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'filehash' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-  ),
-  'default' => '-1',
-));
+);
+$handler->display->display_options['style_options']['override'] = 0;
+$handler->display->display_options['style_options']['sticky'] = 0;
+$handler->display->display_options['style_options']['empty_table'] = 0;
+/* Relationship: Field collection item: Release file (field_release_file:fid) */
+$handler->display->display_options['relationships']['field_release_file_fid']['id'] = 'field_release_file_fid';
+$handler->display->display_options['relationships']['field_release_file_fid']['table'] = 'field_data_field_release_file';
+$handler->display->display_options['relationships']['field_release_file_fid']['field'] = 'field_release_file_fid';
+$handler->display->display_options['relationships']['field_release_file_fid']['required'] = 1;
+/* Relationship: Field collection item: Entity with the Release files (field_release_files) */
+$handler->display->display_options['relationships']['field_release_files_node']['id'] = 'field_release_files_node';
+$handler->display->display_options['relationships']['field_release_files_node']['table'] = 'field_collection_item';
+$handler->display->display_options['relationships']['field_release_files_node']['field'] = 'field_release_files_node';
+$handler->display->display_options['relationships']['field_release_files_node']['required'] = 1;
+/* Field: Field collection item: Release file */
+$handler->display->display_options['fields']['field_release_file']['id'] = 'field_release_file';
+$handler->display->display_options['fields']['field_release_file']['table'] = 'field_data_field_release_file';
+$handler->display->display_options['fields']['field_release_file']['field'] = 'field_release_file';
+$handler->display->display_options['fields']['field_release_file']['label'] = 'Download';
+$handler->display->display_options['fields']['field_release_file']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_release_file']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_release_file']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_release_file']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_release_file']['element_label_colon'] = 0;
+$handler->display->display_options['fields']['field_release_file']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_release_file']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_release_file']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_release_file']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_release_file']['click_sort_column'] = 'fid';
+$handler->display->display_options['fields']['field_release_file']['field_api_classes'] = 0;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['filesize']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['external'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['filesize']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['filesize']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['filesize']['alter']['html'] = 0;
+$handler->display->display_options['fields']['filesize']['element_label_colon'] = 0;
+$handler->display->display_options['fields']['filesize']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['filesize']['hide_empty'] = 0;
+$handler->display->display_options['fields']['filesize']['empty_zero'] = 0;
+$handler->display->display_options['fields']['filesize']['hide_alter_empty'] = 1;
+/* Field: Field collection item: Release file hash */
+$handler->display->display_options['fields']['field_release_file_hash']['id'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['table'] = 'field_data_field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['field'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['label'] = 'md5 hash';
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['field_release_file_hash']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_release_file_hash']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_release_file_hash']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_release_file_hash']['field_api_classes'] = 0;
+/* Sort criterion: File: Name */
+$handler->display->display_options['sorts']['filename']['id'] = 'filename';
+$handler->display->display_options['sorts']['filename']['table'] = 'file_managed';
+$handler->display->display_options['sorts']['filename']['field'] = 'filename';
+$handler->display->display_options['sorts']['filename']['relationship'] = 'field_release_file_fid';
+/* Contextual filter: Content: Nid */
+$handler->display->display_options['arguments']['nid']['id'] = 'nid';
+$handler->display->display_options['arguments']['nid']['table'] = 'node';
+$handler->display->display_options['arguments']['nid']['field'] = 'nid';
+$handler->display->display_options['arguments']['nid']['relationship'] = 'field_release_files_node';
+$handler->display->display_options['arguments']['nid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['nid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['nid']['default_argument_skip_url'] = 0;
+$handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['nid']['break_phrase'] = 0;
+$handler->display->display_options['arguments']['nid']['not'] = 0;
