@@ -37,7 +37,7 @@ function _project_release_create_release_node_type() {
   // Define default fields and field instances.
 
   // Project
-  $field = array(
+  field_create_field(array(
     'entity_types' => array(),
     'settings' => array(
       'target_type' => 'node',
@@ -55,17 +55,14 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
     'columns' => array(
       'target_id' => array(
-        'description' => 'The id of the target entity',
+        'description' => $t('The id of the target entity'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
       ),
     ),
-  );
-  field_create_field($field);
-
-  $instance = array(
-    'bundle' => 'project_release',
+  ));
+  field_create_instance(array(
     'entity_types' => array(),
     'settings' => array(
       'target_type' => 'node',
@@ -87,19 +84,17 @@ function _project_release_create_release_node_type() {
           ),
         ),
       ),
+      'user_register_form' => FALSE,
     ),
-    'entity_type' => 'node',
     'required' => 1,
     'description' => '',
     'default_value' => NULL,
-    'field_name' => 'field_release_project',
     'label' => $t('Project'),
     'type' => 'entityreference',
     'module' => 'entityreference',
     'widget' => array(
-      'weight' => -1,
+      'weight' => '-1',
       'type' => 'field_extrawidgets_hidden',
-      'module' => 'options',
       'active' => 1,
       'settings' => array(
         'match_operator' => 'CONTAINS',
@@ -107,10 +102,27 @@ function _project_release_create_release_node_type() {
         'path' => '',
       ),
     ),
-  );
-  field_create_instance($instance);
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '7',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'field_name' => 'field_release_project',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
 
-  $field = array(
+  // Full version number.
+  field_create_field(array(
     'translatable' => '0',
     'settings' => array(
       'max_length' => '255',
@@ -120,10 +132,8 @@ function _project_release_create_release_node_type() {
     'active' => '1',
     'locked' => '0',
     'cardinality' => '1',
-  );
-  field_create_field($field);
-
-  $instance = array(
+  ));
+  field_create_instance(array(
     'label' => $t('Version'),
     'widget' => array(
       'weight' => '0',
@@ -139,10 +149,10 @@ function _project_release_create_release_node_type() {
     ),
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'type' => 'text_default',
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '4',
         'settings' => array(),
-        'weight' => 2,
       ),
       'teaser' => array(
         'type' => 'hidden',
@@ -157,8 +167,7 @@ function _project_release_create_release_node_type() {
     'field_name' => 'field_release_version',
     'entity_type' => 'node',
     'bundle' => 'project_release',
-  );
-  field_create_instance($instance);
+  ));
 
   // Major component of version number.
   field_create_field(array(
@@ -171,7 +180,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version major',
+    'label' => $t('Version major'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -196,7 +205,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '8',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -225,7 +234,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version minor',
+    'label' => $t('Version minor'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -250,7 +259,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '9',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -279,7 +288,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version patch',
+    'label' => $t('Version patch'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -304,7 +313,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '14',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -336,13 +345,12 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version extra',
+    'label' => $t('Version extra'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
       'active' => 1,
-      'settings' => array(
-      ),
+      'settings' => array(),
     ),
     'settings' => array(
       'text_processing' => '0',
@@ -352,7 +360,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '12',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -381,7 +389,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version extra weight',
+    'label' => $t('Version extra weight'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -436,7 +444,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Version extra delta',
+    'label' => $t('Version extra delta'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -461,7 +469,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '11',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -479,7 +487,8 @@ function _project_release_create_release_node_type() {
     'bundle' => 'project_release',
   ));
 
-  $field = array(
+  // Version control system label, a tag or branch name.
+  field_create_field(array(
     'translatable' => '0',
     'settings' => array(
       'max_length' => '255',
@@ -489,10 +498,8 @@ function _project_release_create_release_node_type() {
     'active' => '1',
     'locked' => '0',
     'cardinality' => '1',
-  );
-  field_create_field($field);
-
-  $instance = array(
+  ));
+  field_create_instance(array(
     'label' => $t('VCS Label'),
     'widget' => array(
       'weight' => '1',
@@ -508,10 +515,10 @@ function _project_release_create_release_node_type() {
     ),
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'type' => 'text_default',
+        'label' => 'inline',
+        'type' => 'text_plain',
+        'weight' => '1',
         'settings' => array(),
-        'weight' => 3,
       ),
       'teaser' => array(
         'type' => 'hidden',
@@ -526,15 +533,16 @@ function _project_release_create_release_node_type() {
     'field_name' => 'field_release_vcs_label',
     'entity_type' => 'node',
     'bundle' => 'project_release',
-  );
-  field_create_instance($instance);
+  ));
 
-  $field = array(
+  // Build type: static, built once from a tag; dynamic, built multiple times
+  // from a branch.
+  field_create_field(array(
     'translatable' => '0',
     'settings' => array(
       'allowed_values' => array(
-        'static' => 'Static',
-        'dynamic' => 'Dynamic',
+        'static' => $t('Static'),
+        'dynamic' => $t('Dynamic'),
       ),
       'allowed_values_function' => '',
     ),
@@ -543,10 +551,8 @@ function _project_release_create_release_node_type() {
     'active' => '1',
     'locked' => '0',
     'cardinality' => '1',
-  );
-  field_create_field($field);
-
-  $instance = array(
+  ));
+  field_create_instance(array(
     'label' => $t('Release type'),
     'widget' => array(
       'weight' => '2',
@@ -559,10 +565,10 @@ function _project_release_create_release_node_type() {
     ),
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'type' => 'list_default',
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '5',
         'settings' => array(),
-        'weight' => 4,
       ),
       'teaser' => array(
         'type' => 'hidden',
@@ -572,7 +578,7 @@ function _project_release_create_release_node_type() {
       ),
     ),
     'required' => 1,
-    'description' => $t("How is this release built? Can be either 'Static' if the files associated with it are built once and remain unchanged (e.g. an official release from a tag), or 'Dynamic' if the files are regularly rebuilt and updated (e.g. a development snapshot rebuilt from the end of a branch)."),
+    'description' => $t('How is this release built? Can be either \'Static\' if the files associated with it are built once and remain unchanged (e.g. an official release from a tag), or \'Dynamic\' if the files are regularly rebuilt and updated (e.g. a development snapshot rebuilt from the end of a branch).'),
     'default_value' => array(
       0 => array(
         'value' => 'static',
@@ -581,8 +587,7 @@ function _project_release_create_release_node_type() {
     'field_name' => 'field_release_build_type',
     'entity_type' => 'node',
     'bundle' => 'project_release',
-  );
-  field_create_instance($instance);
+  ));
 
   // Flag to record the update status for this release. Allowed values:
   // PROJECT_RELEASE_UPDATE_STATUS_CURRENT (0),
@@ -598,7 +603,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Update status',
+    'label' => $t('Update status'),
     'widget' => array(
       'weight' => '4',
       'type' => 'field_extrawidgets_hidden',
@@ -623,7 +628,7 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
-        'weight' => '13',
+        'weight' => '10',
         'settings' => array(),
       ),
       'teaser' => array(
@@ -654,7 +659,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '-1',
   ));
   field_create_instance(array(
-    'label' => 'Release files',
+    'label' => $t('Release files'),
     'widget' => array(
       'weight' => '5',
       'type' => 'field_collection_embed',
@@ -666,9 +671,9 @@ function _project_release_create_release_node_type() {
     ),
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'type' => 'field_collection_fields',
-        'weight' => '14',
+        'weight' => '0',
         'settings' => array(
           'view_mode' => 'full',
         ),
@@ -703,7 +708,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Release file',
+    'label' => $t('Release file'),
     'widget' => array(
       'weight' => '1',
       'type' => 'file_generic',
@@ -723,8 +728,8 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'above',
         'type' => 'file_default',
+        'weight' => '0',
         'settings' => array(),
-        'weight' => 0,
       ),
     ),
     'required' => 0,
@@ -747,7 +752,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Release file hash',
+    'label' => $t('Release file hash'),
     'widget' => array(
       'weight' => '2',
       'type' => 'field_extrawidgets_hidden',
@@ -765,8 +770,8 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'above',
         'type' => 'text_default',
+        'weight' => '1',
         'settings' => array(),
-        'weight' => 1,
       ),
     ),
     'required' => 0,
@@ -789,7 +794,7 @@ function _project_release_create_release_node_type() {
     'cardinality' => '1',
   ));
   field_create_instance(array(
-    'label' => 'Release file downloads',
+    'label' => $t('Release file downloads'),
     'widget' => array(
       'weight' => '3',
       'type' => 'field_extrawidgets_hidden',
@@ -814,13 +819,13 @@ function _project_release_create_release_node_type() {
       'default' => array(
         'label' => 'above',
         'type' => 'number_integer',
+        'weight' => '2',
         'settings' => array(
-          'thousand_separator' => ' ',
+          'thousand_separator' => ',',
+          'prefix_suffix' => 1,
           'decimal_separator' => '.',
           'scale' => 0,
-          'prefix_suffix' => TRUE,
         ),
-        'weight' => 2,
       ),
     ),
     'required' => 0,
