@@ -727,7 +727,9 @@ function project_release_parse_version($node) {
         case 'api':
           // Match the selected API compatibility term.
           $api_term = taxonomy_term_load(project_release_get_release_api_tid($node));
-          $regexp .= preg_quote($api_term->name);
+          if ($api_term !== FALSE) {
+            $regexp .= preg_quote($api_term->name);
+          }
           break;
 
         case 'major':
