@@ -1084,6 +1084,8 @@ function project_release_release_nodeapi(&$node, $op, $arg) {
             if (is_array($tid)) {
               $tid = reset($tid);
             }
+            // In newer versions of core, this ends up being an object.
+            $tid = $tid->tid;
           }
         }
         if (isset($tid)) {
