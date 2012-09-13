@@ -100,6 +100,9 @@ function project_update_7000() {
   require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
   $t = get_t();
 
+  // Enable new dependency on machine name.
+  module_enable(array('machine_name'));
+
   /**
    * Set up project-specific field for project type.
    */
