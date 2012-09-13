@@ -1078,15 +1078,9 @@ function project_release_release_nodeapi(&$node, $op, $arg) {
         }
         else {
           $vid = _project_release_get_api_vid();
-          if (isset($node->taxonomy[$vid])) {
-            $tid = $node->taxonomy[$vid];
-            // In some cases this may end up being an array, so take the first value if applicable.
-            if (is_array($tid)) {
-              $tid = reset($tid);
-            }
-            // In newer versions of core, this ends up being an object.
-            if (is_object($tid)) {
-              $tid = $tid->tid;
+          foreach ($node->taxonomy as $tid => $term) {
+            if ($term->vid === $vid) {
+              break;
             }
           }
         }
