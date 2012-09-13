@@ -510,7 +510,8 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
         // Add dynamic description to custom version format string.
         // todo this just uses the first release node type. What to do if there are
         // multiple?
-        $element['value']['#description'] = '<p>' . t('Optionally override default <code>@string</code>', array('@string' => variable_get('project_release_version_format_' . reset(project_release_release_node_types()), ''))) . '</p>' . PROJECT_RELEASE_VERSION_FORMAT_HELP;
+        $types = project_release_release_node_types();
+        $element['value']['#description'] = '<p>' . t('Optionally override default <code>@string</code>', array('@string' => variable_get('project_release_version_format_' . reset($types), ''))) . '</p>' . PROJECT_RELEASE_VERSION_FORMAT_HELP;
         $element['value']['#element_validate'] = array('_project_release_validate_format_string');
         break;
 
