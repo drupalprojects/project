@@ -681,7 +681,7 @@ function project_release_get_version_format($release) {
   );
   $delimiter = NULL;
   $format = array();
-  foreach (preg_split('/([!#%])(api|major|patch|extra)/', $format_string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
+  foreach (preg_split('/([!#%])(api|major|minor|patch|extra)/', $format_string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
     if (is_null($delimiter)) {
       // Previous token was not a delimiter.
       if (isset($delimiters[$token])) {
