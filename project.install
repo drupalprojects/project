@@ -228,4 +228,7 @@ function project_update_7002() {
 
   // Since we have manually injected data, we need to explicitly clear the field cache.
   field_cache_clear();
+
+  // Also ensure the node types cache is rebuilt.
+  node_types_rebuild();
 }
