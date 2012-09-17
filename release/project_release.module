@@ -886,39 +886,19 @@ function project_release_node_view($node, $view_mode, $langcode) {
         );
       }
     }
-  }
-}
 
-/**
- * hook_nodeapi implementation specific to "project_release" nodes.
- */
-function project_release_release_nodeapi(&$node, $op, $arg) {
-  switch ($op) {
-    case 'rss item':
-      // Prepend the table of release info whenever a release is in a feed.
-      if (isset($node->body)) {
-        $node->body = $node->content['release_info']['#value'] . $node->body;
-      }
-      if (isset($node->teaser)) {
-        $node->teaser = $node->content['release_info']['#value'] . $node->teaser;
-      }
-      // If the release node has a file, include an enclosure attribute for it.
-      if (!empty($node->project_release['files'])) {
-        // RSS will only take the first file.
-        $file = reset($node->project_release['files']);
-        $file_link = theme('project_release_download_link', $file->filepath, NULL, TRUE);
-        return array(
-          array(
-            'key' => 'enclosure',
-            'attributes' => array(
-              'url' => $file_link['href'],
-              'length' => $file->filesize,
-              'type' => 'application/octet-stream',
-            )
-          )
-        );
-      }
-      break;
+    // If the release node has a file, include an enclosure attribute for it.
+    if ($view_mode === 'rss' && isset($files)) {
+      // RSS will only take the first file.
+      $node->rss_elements[] = array(
+        'key' => 'enclosure',
+        'attributes' => array(
+          'url' => drupal_render(field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$node->language][0], array('type' => 'file_url_plain'))),
+          'length' => $files[0]->field_release_file[$node->language][0]['filesize'],
+          'type' => 'application/octet-stream',
+        ),
+      );
+    }
   }
 }
 
