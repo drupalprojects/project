@@ -890,10 +890,11 @@ function project_release_node_view($node, $view_mode, $langcode) {
     // If the release node has a file, include an enclosure attribute for it.
     if ($view_mode === 'rss' && isset($files)) {
       // RSS will only take the first file.
+      $url = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$node->language][0], array('type' => 'file_url_plain'));
       $node->rss_elements[] = array(
         'key' => 'enclosure',
         'attributes' => array(
-          'url' => drupal_render(field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$node->language][0], array('type' => 'file_url_plain'))),
+          'url' => drupal_render($url),
           'length' => $files[0]->field_release_file[$node->language][0]['filesize'],
           'type' => 'application/octet-stream',
         ),
