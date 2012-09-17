@@ -842,9 +842,10 @@ function project_release_node_view($node, $view_mode, $langcode) {
 
     // Last updated release file.
     if (!empty($node->field_release_files)) {
+      $files = array_map('field_collection_field_get_entity', $node->field_release_files[$node->language]);
       $max_file_timestamp = 0;
-      foreach ($node->field_release_files[$node->language] as $item) {
-        $max_file_timestamp = max($max_file_timestamp, field_collection_field_get_entity($item)->field_release_file[$node->language][0]['timestamp']);
+      foreach ($files as $file) {
+        $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[$node->language][0]['timestamp']);
       }
       if ($max_file_timestamp > 0) {
         $node->content['field_release_files']['#suffix'] = '<div class="last-updated">' . t('Last updated: !changed', array('!changed' => format_date($max_file_timestamp))) . '</div>';
