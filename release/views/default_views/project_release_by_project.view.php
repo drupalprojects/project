@@ -5,192 +5,117 @@
  * List of all releases associated with a particular project.
  */
 
-$view = new view;
+$view = new view();
 $view->name = 'project_release_by_project';
-$view->description = 'List the project release nodes associated with a particular project.';
-$view->tag = 'Project release';
-$view->view_php = '';
+$view->description = '';
+$view->tag = 'default';
 $view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
-$view->disabled = FALSE;
-$handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('fields', array(
-  'nid' => array(
-    'id' => 'nid',
-    'table' => 'node',
-    'field' => 'nid',
-    'label' => 'Nid',
-    'relationship' => 'none',
-    'link_to_node' => 0,
-  ),
-  'title' => array(
-    'id' => 'title',
-    'table' => 'node',
-    'field' => 'title',
-    'label' => 'Title',
-    'relationship' => 'none',
-    'link_to_node' => 0,
-  ),
-  'version' => array(
-    'id' => 'version',
-    'table' => 'project_release_nodes',
-    'field' => 'version',
-    'label' => 'Version string',
-    'relationship' => 'none',
-    'link_to_node' => 1,
-  ),
-));
-$handler->override_option('sorts', array(
-  'created' => array(
-    'id' => 'created',
-    'table' => 'node',
-    'field' => 'created',
-    'order' => 'DESC',
-    'granularity' => 'minute',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
-  'pid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(
-      'count' => TRUE,
-      'override' => FALSE,
-      'items_per_page' => 25,
-    ),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => 'Releases for %1',
-    'breadcrumb' => 'project',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'project_nid',
-    'validate_fail' => 'empty',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'pid',
-    'table' => 'project_release_nodes',
-    'field' => 'pid',
-    'relationship' => 'none',
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-  ),
-));
-$handler->override_option('filters', array(
-  'type' => array(
-    'id' => 'type',
-    'table' => 'node',
-    'field' => 'type',
-    'operator' => 'in',
-    'value' => array(
-      'project_release' => 'project_release',
-    ),
-    'group' => 0,
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'relationship' => 'none',
-    'expose_button' => array(
-      'button' => 'Expose',
-    ),
-  ),
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
-  ),
-  'project_release_api_version' => array(
-    'operator' => 'or',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => TRUE,
-    'expose' => array(
-      'use_operator' => 0,
-      'operator' => 'project_release_api_version_op',
-      'identifier' => 'api_version',
-      'label' => 'API version',
-      'optional' => 1,
-      'single' => 0,
-      'remember' => 0,
-      'reduce' => 0,
-    ),
-    'type' => 'select',
-    'reduce_duplicates' => TRUE,
-    'id' => 'project_release_api_version',
-    'table' => 'term_node',
-    'field' => 'project_release_api_version',
-    'hierarchy' => 0,
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-  'role' => array(),
-  'perm' => 'access projects',
-));
-$handler->override_option('empty', 'There are no published releases for this project.');
-$handler->override_option('empty_format', '1');
-$handler->override_option('items_per_page', 20);
-$handler->override_option('use_pager', '1');
-$handler->override_option('row_plugin', 'node');
-$handler->override_option('row_options', array(
-  'teaser' => 1,
-  'links' => 1,
-));
-$handler = $view->new_display('page', 'Releases for *project*', 'page');
-$handler->override_option('path', 'node/%/release');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => '0',
-  'name' => 'navigation',
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-));
+$view->human_name = 'Project releases by project';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Releases for [project]';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '20';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'node';
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['label'] = '';
+$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+/* Sort criterion: Content: Post date */
+$handler->display->display_options['sorts']['created']['id'] = 'created';
+$handler->display->display_options['sorts']['created']['table'] = 'node';
+$handler->display->display_options['sorts']['created']['field'] = 'created';
+$handler->display->display_options['sorts']['created']['order'] = 'DESC';
+/* Contextual filter: Content: Project (field_release_project) */
+$handler->display->display_options['arguments']['field_release_project_target_id']['id'] = 'field_release_project_target_id';
+$handler->display->display_options['arguments']['field_release_project_target_id']['table'] = 'field_data_field_release_project';
+$handler->display->display_options['arguments']['field_release_project_target_id']['field'] = 'field_release_project_target_id';
+$handler->display->display_options['arguments']['field_release_project_target_id']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['field_release_project_target_id']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['field_release_project_target_id']['title'] = 'Releases for %1';
+$handler->display->display_options['arguments']['field_release_project_target_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['field_release_project_target_id']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['field_release_project_target_id']['validate']['type'] = 'node';
+$handler->display->display_options['arguments']['field_release_project_target_id']['validate_options']['types'] = array(
+  'project' => 'project',
+);
+$handler->display->display_options['arguments']['field_release_project_target_id']['validate_options']['access'] = TRUE;
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'project_release' => 'project_release',
+);
+/* Filter criterion: Content: Core compatibility (taxonomy_vocabulary_6) */
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['id'] = 'taxonomy_vocabulary_6_tid';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['table'] = 'field_data_taxonomy_vocabulary_6';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['field'] = 'taxonomy_vocabulary_6_tid';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['operator_id'] = 'taxonomy_vocabulary_6_tid_op';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['label'] = 'API version';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['operator'] = 'taxonomy_vocabulary_6_tid_op';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['identifier'] = 'api_version';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['remember_roles'] = array(
+  2 => '2',
+  3 => 0,
+  1 => 0,
+  34 => 0,
+  32 => 0,
+  16 => 0,
+  30 => 0,
+  22 => 0,
+  20 => 0,
+  24 => 0,
+  12 => 0,
+  36 => 0,
+  28 => 0,
+  26 => 0,
+  4 => 0,
+  14 => 0,
+  7 => 0,
+);
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['type'] = 'select';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['vocabulary'] = 'vocabulary_6';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['path'] = 'node/%/release';
+
+/* Display: Feed */
 $handler = $view->new_display('feed', 'Feed', 'feed');
-$handler->override_option('style_plugin', 'rss');
-$handler->override_option('style_options', array(
-  'mission_description' => FALSE,
-  'description' => '',
-));
-$handler->override_option('row_plugin', 'node_rss');
-$handler->override_option('row_options', array(
-  'item_length' => 'default',
-));
-$handler->override_option('path', 'node/%/release/feed');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-  'name' => 'navigation',
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-));
-$handler->override_option('displays', array(
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['style_plugin'] = 'rss';
+$handler->display->display_options['row_plugin'] = 'node_rss';
+$handler->display->display_options['row_options']['item_length'] = 'rss';
+$handler->display->display_options['path'] = 'node/%/release/feed';
+$handler->display->display_options['displays'] = array(
+  'default' => 'default',
   'page' => 'page',
-  'default' => 0,
-));
-$handler->override_option('sitename_title', FALSE);
+);
