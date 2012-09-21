@@ -7,7 +7,6 @@
  * - $options['project_teaser']: If set only the project node's teaser should be displayed.
  * - $options['project_term_links']: If set the project term links should be displayed.
  * - $options['project_release_download_table']: If set the release download table should be displayed.
- * - $options['project_release_download_link']: If set a link to directly download the most recent version should be displayed.
  * - $options['project_issue_issues_link']: If set a link to the project's issue queue should be displayed.
  *
  * - $project:  This is a version of the project node object with only a few selected fields, all of which have been sanitized.
