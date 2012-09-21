@@ -81,15 +81,6 @@ function template_preprocess_project_views_view_row_project_node(&$vars) {
     $vars['project_release']->download_table = $project->download_table = theme('project_release_table_overview', $node, 'recommended', 'all', t('Version'), FALSE);
   }
 
-  // Link to a downloadable file.
-  if (!empty($options['project_release_download_link'])) {
-//  @TODO:  Given the potential for confusion with multiple supported versions, I think it might
-//  be best to not display a download link at all on the project overview page.
-//    if ($node->file_path) {
-//      $vars['project_release']->download_link = theme('project_release_download_link', $node->file_path, t('Download'), 'array');
-//    }
-  }
-
   // Link to the project's issue queue.
   if (!empty($options['project_issue_issues_link'])) {
     if (isset($node->project_issue['issues'])) {
