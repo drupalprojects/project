@@ -904,6 +904,27 @@ function project_release_node_view($node, $view_mode, $langcode) {
 }
 
 /**
+ * Implementation of hook_field_attach_view_alter().
+ *
+ * Changes file URI if custom download base is set.
+ */
+function project_release_field_attach_view_alter(&$output, $context) {
+  if (isset($output['field_release_file'])) {
+    $download_base = variable_get('project_release_download_base_' . $context['entity']->hostEntityBundle(), '');
+    if (!empty($download_base)) {
+      foreach (element_children($output['field_release_file']) as $key) {
+        if ($wrapper = file_stream_wrapper_get_instance_by_uri($output['field_release_file'][$key]['#file']->uri)) {
+          // Parsing pulled from DrupalPublicStreamWrapper::getExternalUrl(),
+          // whose protected methods we can not call.
+          list($scheme, $target) = explode('://', $wrapper->getUri(), 2);
+          $output['field_release_file'][$key]['#file']->uri = $download_base . $wrapper->getDirectoryPath() . '/' . str_replace('\\', '/', trim($target, '\/'));
+        }
+      }
+    }
+  }
+}
+
+/**
  * Fetch information about the current releases for a given project.
  *
  * This just queries the {project_release_supported_versions} table for either
@@ -1143,7 +1164,7 @@ function theme_project_release_project_download_table($node) {
 }
 
 /**
- * Implemenation of hook_project_page_link_alter().
+ * Implementation of hook_project_page_link_alter().
  *
  * Note:  This is *not* an implementation of hook_link_alter().
  */
