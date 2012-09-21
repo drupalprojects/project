@@ -1590,43 +1590,6 @@ function project_release_exists($project_nid, $version) {
 }
 
 /**
- * Generates the appropriate download link for a give file path. This
- * function takes the 'project_release_download_base' setting into
- * account, so it should be used everywhere a download link is made.
- *
- * @param $filepath
- *   The path to the download file, as stored in the database.
- * @param $link_text
- *   The text to use for the download link. If NULL, the basename
- *   of the given $filepath is used.
- * @param $as_array
- *   Should the link be returned as a structured array, or as raw HTML?
- * @return
- *   The link itself, as a structured array.
- */
-function theme_project_release_download_link($filepath, $link_text = NULL, $as_array = FALSE) {
-  if (empty($link_text)) {
-    $link_text = basename($filepath);
-  }
-  $download_base = variable_get('project_release_download_base', '');
-  if (!empty($download_base)) {
-    $link_path = $download_base . $filepath;
-  }
-  else {
-    $link_path = file_create_url($filepath);
-  }
-  if ($as_array) {
-    return array(
-      'title' => $link_text,
-      'href' => $link_path,
-    );
-  }
-  else {
-    return l($link_text, $link_path);
-  }
-}
-
-/**
  * Implementation of hook_file_download().
  *
  * @param $filename
@@ -1662,13 +1625,6 @@ function project_release_flush_caches() {
  */
 function project_release_theme() {
   return array(
-    'project_release_download_link' => array(
-      'arguments' => array(
-        'filepath' => NULL,
-        'link_text' => NULL,
-        'as_array' => FALSE,
-      ),
-    ),
     'project_release_download_table_row' => array(
       'arguments' => array(
         'release' => NULL,
