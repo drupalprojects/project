@@ -141,6 +141,7 @@ function project_update_7000() {
   }
 
   project_install_default_project_node_type();
+  node_types_rebuild();
 }
 
 /**
@@ -247,4 +248,21 @@ function project_update_7002() {
 
   // Also ensure the node types cache is rebuilt.
   node_types_rebuild();
+}
+
+
+/**
+ * Ensure the views are reverted to code.
+ */
+function project_update_7003() {
+  ctools_include('object-cache');
+  foreach (array('project_index', 'project_overview', 'project_types') as $viewname) {
+    $view = views_get_view($viewname);
+    if ($view->type == t('Overridden')) {
+      // Revert the view.
+      $view->delete();
+      // Clear its cache.
+      ctools_object_cache_clear('view', $view->name);
+    }
+  }
 }
