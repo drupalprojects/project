@@ -16,7 +16,6 @@ class project_plugin_row_project_node_view extends views_plugin_row {
     }
     if (module_exists('project_release')) {
       $options['project_release_download_table'] = array('default' => TRUE);
-      $options['project_release_download_link'] = array('default' => TRUE);
     }
     if (module_exists('project_issue')) {
       $options['project_issue_issues_link'] = array('default' => TRUE);
@@ -43,11 +42,6 @@ class project_plugin_row_project_node_view extends views_plugin_row {
         '#type' => 'checkbox',
         '#title' => t('Display the release download table'),
         '#default_value' => $this->options['project_release_download_table'],
-      );
-      $form['project_release_download_link'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Display a link to a file download when the version filter is in use'),
-        '#default_value' => $this->options['project_release_download_link'],
       );
     }
     if (module_exists('project_issue')) {
