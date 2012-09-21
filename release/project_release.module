@@ -913,11 +913,18 @@ function project_release_field_attach_view_alter(&$output, $context) {
     $download_base = variable_get('project_release_download_base_' . $context['entity']->hostEntityBundle(), '');
     if (!empty($download_base)) {
       foreach (element_children($output['field_release_file']) as $key) {
-        if ($wrapper = file_stream_wrapper_get_instance_by_uri($output['field_release_file'][$key]['#file']->uri)) {
+        if ($wrapper = file_stream_wrapper_get_instance_by_uri($context['entity']->field_release_file[$context['entity']->hostEntity()->language][$key]['uri'])) {
           // Parsing pulled from DrupalPublicStreamWrapper::getExternalUrl(),
           // whose protected methods we can not call.
           list($scheme, $target) = explode('://', $wrapper->getUri(), 2);
-          $output['field_release_file'][$key]['#file']->uri = $download_base . $wrapper->getDirectoryPath() . '/' . str_replace('\\', '/', trim($target, '\/'));
+          $uri = $download_base . $wrapper->getDirectoryPath() . '/' . str_replace('\\', '/', trim($target, '\/'));
+          // Override output with our URL.
+          if (isset($output['field_release_file'][$key]['#file'])) {
+            $output['field_release_file'][$key]['#file']->uri = $uri;
+          }
+          elseif (isset($output['field_release_file'][$key]['#markup'])) {
+            $output['field_release_file'][$key]['#markup'] = $uri;
+          }
         }
       }
     }
