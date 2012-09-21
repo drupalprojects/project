@@ -1,11 +1,15 @@
 name = Project releases
 description = Provides a release node type to represent releases of projects.
 package = Project
+core = 7.x
+
 dependencies[] = project
 dependencies[] = views
 dependencies[] = list
 dependencies[] = text
 dependencies[] = entityreference
 dependencies[] = field_collection
+
 stylesheets[all][] = project_release.css
-core = 7.x
+
+files[] = views/plugins/project_release_table_plugin_style.inc
