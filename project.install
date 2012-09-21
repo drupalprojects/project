@@ -94,6 +94,21 @@ function project_schema() {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function project_update_dependencies() {
+  $dependencies = array();
+  // Ensure we don't kick in before profile if it is enabled.
+  if (module_exists('profile')) {
+    $dependencies['project'][7000] = array(
+      'profile' => 7001,
+    );
+  }
+  return $dependencies;
+
+}
+
+/**
  * Ensure project node type is properly set up.
  */
 function project_update_7000() {
