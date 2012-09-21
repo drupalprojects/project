@@ -1700,8 +1700,8 @@ function theme_project_release_node_form_version_elements($form) {
  */
 function project_release_views_api() {
   return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'project_release') .'/views',
+    'api' => 3,
+    'path' => drupal_get_path('module', 'project_release') . '/views',
   );
 }
 
