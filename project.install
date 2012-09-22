@@ -98,14 +98,11 @@ function project_schema() {
  */
 function project_update_dependencies() {
   $dependencies = array();
-  // Ensure we don't kick in before profile if it is enabled.
-  if (module_exists('profile')) {
-    $dependencies['project'][7000] = array(
-      'profile' => 7001,
-    );
-  }
+  // @todo Figure out how to make this conditional...
+  $dependencies['project'][7000] = array(
+    'profile' => 7001,
+  );
   return $dependencies;
-
 }
 
 /**
