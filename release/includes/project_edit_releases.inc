@@ -63,10 +63,10 @@ function project_release_project_edit_form($form, $form_state, $node) {
       }
 
       $recommended_options[$major_version] = $major_version;
-      $current_recommeneded = project_release_get_current_recommended($node->nid, $api_tid, $major_version);
+      $current_recommended = project_release_get_current_recommended($node->nid, $api_tid, $major_version);
       $form['api'][$api_tid]['major'][$major_version] = array(
         'current' => array(
-          '#markup' => check_plain($current_recommeneded->field_release_version[$current_recommeneded->language][0]['value']),
+          '#markup' => check_plain($current_recommended->field_release_version[$current_recommended->language][0]['value']),
         ),
         'supported' => array(
           '#type' => 'checkbox',
