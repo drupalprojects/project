@@ -913,22 +913,66 @@ function project_release_field_attach_view_alter(&$output, $context) {
     $download_base = variable_get('project_release_download_base_' . $context['entity']->hostEntityBundle(), '');
     if (!empty($download_base)) {
       foreach (element_children($output['field_release_file']) as $key) {
-        if ($wrapper = file_stream_wrapper_get_instance_by_uri($context['entity']->field_release_file[$context['entity']->hostEntity()->language][$key]['uri'])) {
-          // Parsing pulled from DrupalPublicStreamWrapper::getExternalUrl(),
-          // whose protected methods we can not call.
-          list($scheme, $target) = explode('://', $wrapper->getUri(), 2);
-          $uri = $download_base . $wrapper->getDirectoryPath() . '/' . str_replace('\\', '/', trim($target, '\/'));
-          // Override output with our URL.
-          if (isset($output['field_release_file'][$key]['#file'])) {
-            $output['field_release_file'][$key]['#file']->uri = $uri;
-          }
-          elseif (isset($output['field_release_file'][$key]['#markup'])) {
-            $output['field_release_file'][$key]['#markup'] = $uri;
+        $uri = project_release_add_download_base($context['entity']->field_release_file[$context['entity']->hostEntity()->language][$key]['uri'], $download_base);
+        // Override output with our URL.
+        if (isset($output['field_release_file'][$key]['#file'])) {
+          $output['field_release_file'][$key]['#file']->uri = $uri;
+        }
+        elseif (isset($output['field_release_file'][$key]['#markup'])) {
+          $output['field_release_file'][$key]['#markup'] = $uri;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_pre_render().
+ *
+ * Changes file URI if custom download base is set.
+ */
+function project_release_views_pre_render(&$view) {
+  // Look for file_managed.uri fields,
+  foreach ($view->display_handler->get_handlers('field') as $field) {
+    if ($field->field === 'uri' && $field->table === 'file_managed') {
+      // which have a relationship to field_release_file.
+      foreach ($view->display_handler->get_handlers('relationship') as $relationship) {
+        if ($relationship->alias === $field->relationship && $relationship->table === 'field_data_field_release_file') {
+          // Use the field's alias to find results.
+          foreach ($view->result as $result) {
+            if (!empty($result->{$field->field_alias})) {
+              // Rewrite the results to use the download base.
+              $download_base = variable_get('project_release_download_base_' . $result->_field_data['nid']['entity']->type, '');
+              if (!empty($download_base)) {
+                $result->{$field->field_alias} = project_release_add_download_base($result->{$field->field_alias}, $download_base);
+              }
+            }
           }
         }
       }
     }
   }
+}
+
+/**
+ * Handle rewriting a file URI with a download base.
+ *
+ * @param $uri
+ *   String file URI, like 'public://...'
+ * @param $download_base
+ *   String download_base variable.
+ *
+ * @return
+ *   The rewritten file URI.
+ */
+function project_release_add_download_base($uri, $download_base) {
+  if ($wrapper = file_stream_wrapper_get_instance_by_uri($uri)) {
+    // Parsing pulled from DrupalPublicStreamWrapper::getExternalUrl(),
+    // whose protected methods we can not call.
+    list($scheme, $target) = explode('://', $wrapper->getUri(), 2);
+    $uri = $download_base . $wrapper->getDirectoryPath() . '/' . str_replace('\\', '/', trim($target, '\/'));
+  }
+  return $uri;
 }
 
 /**
