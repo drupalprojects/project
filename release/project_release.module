@@ -962,7 +962,12 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
   else {
     $query->condition('psrv.recommended', 1);
   }
-  return node_load($query->execute()->fetchField());
+  $nid = $query->execute()->fetchField();
+
+  if ($nid) {
+    return node_load($nid);
+  }
+  return FALSE;
 }
 
 /**
