@@ -263,3 +263,20 @@ function project_update_7003() {
     }
   }
 }
+
+/**
+ * Clean up more fallout from the node type rename.
+ */
+function project_update_7004() {
+  $result = db_query('SELECT field_name FROM {field_config_instance} WHERE entity_type = :entity_type AND bundle = :bundle', array(':entity_type' => 'node', ':bundle' => 'project_project'))->fetchCol();
+  foreach ($result as $field) {
+    // @todo field name security check?
+    db_query("UPDATE {field_data_" . $field . "} SET bundle = :newbundle WHERE bundle = :oldbundle", array(':newbundle' => 'project', ':oldbundle' => 'project_project'));
+    db_query("UPDATE {field_revision_" . $field . "} SET bundle = :newbundle WHERE bundle = :oldbundle", array(':newbundle' => 'project', ':oldbundle' => 'project_project'));
+    if ($field != 'body') {
+      // Update the instance config.
+      db_query("UPDATE {field_config_instance} SET bundle = :newbundle WHERE field_name = :name AND entity_type = :type AND bundle = :oldbundle", array(':newbundle' => 'project', ':name' => $field, ':type' => 'node', ':oldbundle' => 'project_project'));
+    }
+  }
+  field_cache_clear();
+}
