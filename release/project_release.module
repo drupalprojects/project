@@ -1265,24 +1265,12 @@ function project_release_theme() {
       'file' => 'includes/project_edit_releases.inc',
       'render element' => 'api',
     ),
-    'project_release_node_form_version_elements' => array(
-      'arguments' => array(
-        'form' => NULL,
-      ),
-    ),
     'project_release_update_status_icon' => array(
       'arguments' => array(
         'status' => NULL,
       ),
     ),
   );
-}
-
-function theme_project_release_node_form_version_elements($form) {
-  $output = '<div class="version-elements">';
-  $output .= drupal_render($form);
-  $output .= '</div>';
-  return $output;
 }
 
 /**
