@@ -1265,11 +1265,6 @@ function project_release_theme() {
       'file' => 'includes/project_edit_releases.inc',
       'render element' => 'api',
     ),
-    'project_release_update_status_icon' => array(
-      'arguments' => array(
-        'status' => NULL,
-      ),
-    ),
   );
 }
 
@@ -1334,35 +1329,6 @@ function project_release_update_status($status = NULL) {
     PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE => t('Not secure'),
   );
   return isset($status) ? $status_map[$status] : $status_map;
-}
-
-/**
- * Render HTML for an icon approrpriate for the given release update status.
- *
- * @param $status
- *   Update status code to get the icon for.
- *
- * @return
- *   Icon to use for the given update status code.
- */
-function theme_project_release_update_status_icon($status) {
-  $label = project_release_update_status($status);
-  $icon = '';
-  switch ($status) {
-    case PROJECT_RELEASE_UPDATE_STATUS_CURRENT:
-      $icon = theme('image', 'misc/watchdog-ok.png', $label, $label);
-      break;
-
-    case PROJECT_RELEASE_UPDATE_STATUS_NOT_CURRENT:
-      $icon = theme('image', 'misc/watchdog-warning.png', $label, $label);
-      break;
-
-    case PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE:
-      $icon = theme('image', 'misc/watchdog-error.png', $label, $label);
-      break;
-  }
-
-  return $icon;
 }
 
 /**

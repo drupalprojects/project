@@ -264,49 +264,6 @@ function project_release_views_data_alter(&$data) {
 }
 
 /**
- * Implementation of hook_views_handlers().
- */
-function project_release_views_handlers() {
-  return array(
-    'info' => array(
-      'path' => drupal_get_path('module', 'project_release') .'/views/handlers',
-    ),
-    'handlers' => array(
-      'project_release_handler_field_download_table' => array(
-        'parent' => 'views_handler_field',
-      ),
-      'project_release_handler_field_most_recent_release' => array(
-        'parent' => 'views_handler_field_date',
-      ),
-      'project_release_handler_field_release_update_status' => array(
-        'parent' => 'views_handler_field',
-      ),
-      'project_release_handler_filter_project_release_api_version' => array(
-        'parent' => 'views_handler_filter_term_node_tid',
-      ),
-      'project_release_handler_filter_release_node_nid' => array(
-        'parent' => 'views_handler_filter',
-      ),
-      'project_release_handler_filter_release_update_status' => array(
-        'parent' => 'views_handler_filter_in_operator',
-      ),
-      'project_release_handler_filter_version_api_tid' => array(
-        'parent' => 'views_handler_filter_in_operator',
-      ),
-      'project_release_handler_relationship_project_project_release_node' => array(
-        'parent' => 'views_handler_relationship',
-      ),
-      'project_release_handler_relationship_supported_versions' => array(
-        'parent' => 'views_handler_relationship',
-      ),
-      'project_release_handler_sort_most_recent_release' => array(
-        'parent' => 'views_handler_sort_date',
-      ),
-    ),
-  );
-}
-
-/**
  * Implement hook_views_plugins().
  */
 function project_release_views_plugins() {
