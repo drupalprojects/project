@@ -899,6 +899,58 @@ function _project_release_create_release_node_type() {
       ),
     ),
   ));
+
+  // Add a recommended toggle to the API taxonomy, if there is one.
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  if ($api_vocabulary !== FALSE) {
+    field_create_field(array(
+      'translatable' => '0',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => $t('Recommended for project releases'),
+        ),
+        'allowed_values_function' => '',
+      ),
+      'field_name' => 'field_release_recommended',
+      'type' => 'list_boolean',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+    ));
+    field_create_instance(array(
+      'label' => $t('Recommended'),
+      'widget' => array(
+        'weight' => '1',
+        'type' => 'options_onoff',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 0,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+          'weight' => '0',
+          'settings' => array(),
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        0 => array(
+          'value' => 1,
+        ),
+      ),
+      'field_name' => 'field_release_recommended',
+      'entity_type' => 'taxonomy_term',
+      'bundle' => $api_vocabulary->machine_name,
+    ));
+  }
 }
 
 /**
