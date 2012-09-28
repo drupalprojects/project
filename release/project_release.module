@@ -828,10 +828,30 @@ function project_release_node_delete($node) {
  */
 function project_release_node_view($node, $view_mode, $langcode) {
   if (project_node_is_project($node)) {
-    $node->content['project_release_downloads'] = array(
-      '#prefix' => '<h3>' . t('Downloads') . '</h3>',
-      '#markup' => views_embed_view('project_release_download_table', 'recommended', $node->nid),
-    );
+    if ($node->field_project_has_releases[$node->language][0]['value']) {
+      // Add releases table and links.
+      $node->content['project_release_downloads'] = array(
+        '#prefix' => '<h3>' . t('Downloads') . '</h3>',
+        '#weight' => 10,
+        'table' => array(
+          '#markup' => views_embed_view('project_release_download_table', 'recommended', $node->nid),
+        ),
+        'links' => array(
+          '#theme' => 'links',
+          '#links' => array(
+            'view_all_releases' => array('title' => t('View all releases'), 'href' => 'node/' . $node->nid . '/release'),
+          ),
+        ),
+      );
+      if (project_user_access($node->nid, 'administer releases')) {
+        $node->content['project_release_downloads']['links']['#links']['add_new_release'] = array(
+          'title' => t('Add new release'), 'href' => 'node/add/project_release/' . $node->nid,
+        );
+        $node->content['project_release_downloads']['links']['#links']['administer_releases'] = array(
+          'title' => t('Administer releases'), 'href' => 'node/' . $node->nid . '/edit/releases',
+        );
+      }
+    }
   }
   elseif (project_release_node_is_release($node)) {
     $project = node_load(project_release_get_release_project_nid($node));
@@ -1178,30 +1198,6 @@ function project_release_is_security_update($node) {
   }
 
   return FALSE;
-}
-
-/**
- * Implementation of hook_project_page_link_alter().
- *
- * Note:  This is *not* an implementation of hook_link_alter().
- */
-function project_release_project_page_link_alter(&$links, $node) {
-  // todo D7, move into project_release_node_view()
-  if (empty($node->project_release['releases'])) {
-    return;
-  }
-  $links['project_release'] = array(
-    'weight' => 2,
-    'clear' => TRUE,
-    'links' => array(
-      'view_all_releases' => l(t('View all releases'), 'node/'. $node->nid .'/release') . theme('project_feed_icon', url('node/'. $node->nid .'/release/feed'), t('RSS feed of all releases'))
-    ),
-  );
-
-  if (project_user_access($node->nid, 'administer releases')) {
-    $links['project_release']['links']['add_new_release'] = l(t('Add new release'), 'node/add/project_release/'. $node->nid);
-    $links['project_release']['links']['administer_releases'] = l(t('Administer releases'), 'node/'. $node->nid .'/edit/releases');
-  }
 }
 
 /**
