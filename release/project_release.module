@@ -421,6 +421,7 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
  * @ingroup project_release_fapi
  */
 function project_release_form_alter(&$form, &$form_state, $form_id) {
+  // todo D7, sandbox promotion
   if ($form_id == 'project_promote_project_form') {
     return project_release_alter_project_promote_form($form, $form_state);
   }
@@ -433,6 +434,7 @@ function project_release_form_alter(&$form, &$form_state, $form_id) {
  * Alters the project settings form.
  */
 function project_release_form_project_main_settings_form_alter(&$form, &$form_state) {
+  // todo D7, sandbox promotion
   $form['sandbox']['project_release_sandbox_allow_release'] = array(
     '#title' => t('Enable releases for sandboxed projects'),
     '#type' => 'checkbox',
@@ -445,6 +447,7 @@ function project_release_form_project_main_settings_form_alter(&$form, &$form_st
  * Alters the form for promoting a project from sandbox to a full project.
  */
 function project_release_alter_project_promote_form(&$form, &$form_state) {
+  // todo D7, sandbox promotion
   // Unset this in case the user cancels on the confirm form so we don't leak
   // this into the $_SESSION permanently. Also ensures we start clean.
   unset($_SESSION['project_promote_project_releases']);
@@ -469,6 +472,7 @@ function project_release_alter_project_promote_form(&$form, &$form_state) {
  * SESSION so it can persist when building the confirm form.
  */
 function project_release_project_promote_form_submit($form, &$form_state) {
+  // todo D7, sandbox promotion
   if (isset($form_state['values']['releases'])) {
     $_SESSION['project_promote_project_releases'] = $form_state['values']['releases'];
   }
@@ -478,6 +482,7 @@ function project_release_project_promote_form_submit($form, &$form_state) {
  * Alters the confirm form for promoting sandbox into a full project.
  */
 function project_release_alter_project_promote_confirm_form(&$form, &$form_state) {
+  // todo D7, sandbox promotion
   if (isset($_SESSION['project_promote_project_releases'])) {
     $form['releases'] = array(
       '#type' => 'value',
@@ -494,6 +499,7 @@ function project_release_alter_project_promote_confirm_form(&$form, &$form_state
  * Submit handler for project promote confirm form.
  */
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
+  // todo D7, sandbox promotion
   $project = node_load($form_state['values']['nid']);
   $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
   node_save($project);
@@ -1180,6 +1186,7 @@ function project_release_is_security_update($node) {
  * Note:  This is *not* an implementation of hook_link_alter().
  */
 function project_release_project_page_link_alter(&$links, $node) {
+  // todo D7, move into project_release_node_view()
   if (empty($node->project_release['releases'])) {
     return;
   }
@@ -1234,6 +1241,7 @@ function project_release_exists($project_nid, $version) {
  *   An array of header fields for the download.
  */
 function project_release_file_download($filename) {
+  // todo D7 update
   $filepath = file_create_path($filename);
   $result = db_query("SELECT prf.nid FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE f.filepath = '%s'", $filepath);
   if ($nid = db_result($result)) {
@@ -1382,6 +1390,7 @@ function project_release_views_default_views_alter(&$views) {
  * Implementation of hook_ctools_plugin_directory().
  */
 function project_release_ctools_plugin_directory($module, $plugin) {
+  // todo D7, needs sampler
   if ($module == 'sampler') {
     switch ($plugin) {
       case 'metric':
