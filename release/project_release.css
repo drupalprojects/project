@@ -1,59 +1,22 @@
-/***************************
-* CSS for tables of releases
-*/
-table.releases {
-  margin-top: .5em;
-}
-
-table.releases .release-title {
-  width: 15%;
-}
-
-table.releases .release-date {
-  width: 15%;
-}
-
-table.releases .release-size {
-  width: 10%;
-}
-
-table.releases .release-links {
-  width: 33%;
-}
-
-table.releases .release-status {
-  width: 25%;
-}
-
-table.releases .release-icon {
-  width: 2%;
-}
-
-.download-table h4 {
-  margin-bottom: 0.67em;
-}
-
+/* Release download tables */
 .download-table-ok tr.odd,
 .download-table-ok tr.odd td.active,
 .download-table-ok tr.even,
-.download-table-ok tr.even td.active,
-table.releases tr.ok {
+.download-table-ok tr.even td.active {
   background-color: #dfd;
 }
 
 .download-table-warning tr.odd,
 .download-table-warning tr.odd td.active,
 .download-table-warning tr.even,
-.download-table-warning tr.even td.active,
-table.releases tr.warning {
+.download-table-warning tr.even td.active {
   background-color: #ffd;
 }
 
 .download-table-error tr.odd,
 .download-table-error tr.odd td.active,
 .download-table-error tr.even,
-.download-table-error tr.even td.active,
-table.releases tr.error {
+.download-table-error tr.even td.active {
   background-color: #fdd;
 }
 
