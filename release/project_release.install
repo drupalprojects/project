@@ -25,7 +25,6 @@ function project_release_uninstall() {
 
   // @todo
   $variables = array(
-    'project_release_active_compatibility_tids',
     'project_release_api_vocabulary',
     'project_release_directory',
     'project_release_overview',
