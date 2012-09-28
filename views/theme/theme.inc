@@ -77,9 +77,6 @@ function template_preprocess_project_views_view_row_project_node(&$vars) {
   $vars['project']->new_date = isset($vars['view']->project->project_new_date[$result_id]) ? $node->changed : FALSE;
   $vars['project']->changed = t('Last changed: !interval ago', array('!interval' => format_interval(time() - $node->changed, 2)));
   $vars['project']->body = check_markup($options['project_teaser'] ? $node->teaser : $node->body, $node->format, FALSE);
-  if (!empty($options['project_release_download_table'])) {
-    $vars['project_release']->download_table = $project->download_table = theme('project_release_table_overview', $node, 'recommended', 'all', t('Version'), FALSE);
-  }
 
   // Link to the project's issue queue.
   if (!empty($options['project_issue_issues_link'])) {
