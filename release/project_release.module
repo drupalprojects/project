@@ -821,7 +821,13 @@ function project_release_node_delete($node) {
  * Implements hook_node_view().
  */
 function project_release_node_view($node, $view_mode, $langcode) {
-  if (project_release_node_is_release($node)) {
+  if (project_node_is_project($node)) {
+    $node->content['project_release_downloads'] = array(
+      '#prefix' => '<h3>' . t('Downloads') . '</h3>',
+      '#markup' => views_embed_view('project_release_download_table', 'recommended', $node->nid),
+    );
+  }
+  elseif (project_release_node_is_release($node)) {
     $project = node_load(project_release_get_release_project_nid($node));
 
     if ($view_mode === 'full') {

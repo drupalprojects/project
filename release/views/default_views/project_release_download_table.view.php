@@ -1,944 +1,442 @@
 <?php
 
-$view = new view;
+$view = new view();
 $view->name = 'project_release_download_table';
-$view->description = 'Provides tables for the latest release from the recommended branches, the latest releases from any supported branches, and development snapshot releases for a project.';
-$view->tag = 'Project release';
-$view->view_php = '';
+$view->description = 'Provides tables for the latest release from the recommended branches, the latest releases from any supported branches, and devel';
+$view->tag = 'default';
 $view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->human_name = 'Project release download table';
+$view->core = 7;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-$handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('relationships', array(
-  'supported_releases_rel' => array(
-    'label' => 'supported versions',
-    'required' => 1,
-    'id' => 'supported_releases_rel',
-    'table' => 'project_release_nodes',
-    'field' => 'supported_releases_rel',
-    'relationship' => 'none',
-  ),
-  'version_api_tid' => array(
-    'label' => 'API compatibility term',
-    'required' => 1,
-    'id' => 'version_api_tid',
-    'table' => 'project_release_nodes',
-    'field' => 'version_api_tid',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('fields', array(
-  'version' => array(
-    'label' => 'Version',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'link_to_node' => 1,
-    'exclude' => 0,
-    'id' => 'version',
-    'table' => 'project_release_nodes',
-    'field' => 'version',
-    'relationship' => 'none',
-  ),
-  'files' => array(
-    'label' => 'Downloads',
-    'alter' => array(
-      'alter_text' => 1,
-      'text' => '[files-ext] <span class="filesize">([files-size])</span>',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'type' => 'separator',
-    'separator' => ' | ',
-    'link_to_file' => 1,
-    'max_files' => '2',
-    'max_weight' => '1',
-    'file_sort' => 'weight',
-    'file_sort_order' => 'ASC',
-    'exclude' => 0,
-    'id' => 'files',
-    'table' => 'project_release_nodes',
-    'field' => 'files',
-    'relationship' => 'none',
-  ),
-  'file_timestamp' => array(
-    'label' => 'Date',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'date_format' => 'custom',
-    'custom_date_format' => 'Y-M-d',
-    'file_order' => 'MIN',
-    'exclude' => 0,
-    'id' => 'file_timestamp',
-    'table' => 'project_release_nodes',
-    'field' => 'file_timestamp',
-    'relationship' => 'none',
-  ),
-  'view_node' => array(
-    'label' => 'Links',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'text' => 'Notes',
-    'exclude' => 0,
-    'id' => 'view_node',
-    'table' => 'node',
-    'field' => 'view_node',
-    'relationship' => 'none',
-  ),
-  'edit_node' => array(
-    'label' => 'Edit link',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'text' => 'Edit',
-    'exclude' => 0,
-    'id' => 'edit_node',
-    'table' => 'node',
-    'field' => 'edit_node',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('sorts', array(
-  'weight' => array(
-    'order' => 'ASC',
-    'id' => 'weight',
-    'table' => 'term_data',
-    'field' => 'weight',
-    'relationship' => 'version_api_tid',
-  ),
-  'version_major' => array(
-    'order' => 'DESC',
-    'id' => 'version_major',
-    'table' => 'project_release_nodes',
-    'field' => 'version_major',
-    'relationship' => 'none',
-  ),
-  'version_minor' => array(
-    'order' => 'DESC',
-    'id' => 'version_minor',
-    'table' => 'project_release_nodes',
-    'field' => 'version_minor',
-    'relationship' => 'none',
-  ),
-  'version_patch' => array(
-    'order' => 'DESC',
-    'id' => 'version_patch',
-    'table' => 'project_release_nodes',
-    'field' => 'version_patch',
-    'relationship' => 'none',
-  ),
-  'version_extra_weight' => array(
-    'order' => 'DESC',
-    'id' => 'version_extra_weight',
-    'table' => 'project_release_nodes',
-    'field' => 'version_extra_weight',
-    'relationship' => 'none',
-  ),
-  'version_extra' => array(
-    'order' => 'DESC',
-    'id' => 'version_extra',
-    'table' => 'project_release_nodes',
-    'field' => 'version_extra',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
-  'pid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(
-      'count' => TRUE,
-      'override' => FALSE,
-      'items_per_page' => 25,
-    ),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => 'Releases for %1',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'node',
-    'validate_fail' => 'empty',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'pid',
-    'table' => 'project_release_nodes',
-    'field' => 'pid',
-    'relationship' => 'none',
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'project_project' => 'project_project',
-    ),
-    'validate_argument_type' => 'tid',
-    'validate_argument_php' => '',
-    'validate_argument_node_access' => 1,
-    'validate_argument_nid_type' => 'nid',
-    'default_options_div_prefix' => '',
-    'validate_argument_project_term_vocabulary' => array(),
-  ),
-));
-$handler->override_option('filters', array(
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
-  ),
-  'version_api_tid' => array(
-    'operator' => 'in',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => 'version_api_tid_op',
-      'label' => 'Project release: API compatibility term',
-      'use_operator' => FALSE,
-      'identifier' => 'version_api_tid',
-      'remember' => FALSE,
-      'single' => TRUE,
-      'optional' => TRUE,
-      'reduce' => FALSE,
-    ),
-    'type' => 'all',
-    'id' => 'version_api_tid',
-    'table' => 'project_release_nodes',
-    'field' => 'version_api_tid',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'supported' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'supported',
-    'table' => 'project_release_supported_versions',
-    'field' => 'supported',
-    'relationship' => 'supported_releases_rel',
-  ),
-  'rebuild' => array(
-    'operator' => '=',
-    'value' => '0',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'rebuild',
-    'table' => 'project_release_nodes',
-    'field' => 'rebuild',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-  'role' => array(),
-  'perm' => 'access projects',
-));
-$handler->override_option('cache', array(
-  'type' => 'none',
-));
-$handler->override_option('header_empty', 0);
-$handler->override_option('empty_format', '1');
-$handler->override_option('items_per_page', 0);
-$handler->override_option('use_pager', '0');
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => '',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'desc',
-  'columns' => array(
-    'version' => 'version',
-    'files' => 'files',
-    'file_timestamp' => 'file_timestamp',
-    'view_node' => 'view_node',
-    'edit_node' => 'view_node',
-  ),
-  'info' => array(
-    'version' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'files' => array(
-      'separator' => '',
-    ),
-    'file_timestamp' => array(
-      'separator' => '',
-    ),
-    'view_node' => array(
-      'separator' => ' | ',
-    ),
-    'edit_node' => array(
-      'separator' => '',
-    ),
-  ),
-  'default' => '-1',
-));
-$handler->override_option('row_options', array(
-  'inline' => array(),
-  'separator' => '',
-));
-$handler = $view->new_display('attachment', 'Recommended branches', 'attachment_1');
-$handler->override_option('fields', array(
-  'version' => array(
-    'label' => 'Version',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'link_to_node' => 1,
-    'exclude' => 0,
-    'id' => 'version',
-    'table' => 'project_release_nodes',
-    'field' => 'version',
-    'relationship' => 'none',
-  ),
-  'files' => array(
-    'label' => 'Downloads',
-    'alter' => array(
-      'alter_text' => 1,
-      'text' => '[files-ext] <span class="filesize">([files-size])</span>',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'type' => 'separator',
-    'separator' => ' | ',
-    'link_to_file' => 1,
-    'max_files' => '2',
-    'max_weight' => '1',
-    'file_sort' => 'weight',
-    'file_sort_order' => 'ASC',
-    'exclude' => 0,
-    'id' => 'files',
-    'table' => 'project_release_nodes',
-    'field' => 'files',
-    'relationship' => 'none',
-  ),
-  'file_timestamp' => array(
-    'label' => 'Date',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'date_format' => 'custom',
-    'custom_date_format' => 'Y-M-d',
-    'file_order' => 'MIN',
-    'exclude' => 0,
-    'id' => 'file_timestamp',
-    'table' => 'project_release_nodes',
-    'field' => 'file_timestamp',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'view_node' => array(
-    'label' => 'Links',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'text' => 'Notes',
-    'exclude' => 0,
-    'id' => 'view_node',
-    'table' => 'node',
-    'field' => 'view_node',
-    'relationship' => 'none',
-  ),
-  'edit_node' => array(
-    'label' => 'Edit link',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'text' => 'Edit',
-    'exclude' => 0,
-    'id' => 'edit_node',
-    'table' => 'node',
-    'field' => 'edit_node',
-    'relationship' => 'none',
-  ),
-  'update_status' => array(
-    'label' => 'Status',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'link_class' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 1,
-    'empty_zero' => 0,
-    'status_text_0' => '',
-    'show_recommended_0' => 0,
-    'show_icon_0' => 0,
-    'status_text_1' => '',
-    'show_recommended_1' => 0,
-    'show_icon_1' => 0,
-    'status_text_2' => 'Not secure',
-    'show_recommended_2' => 0,
-    'show_icon_2' => 1,
-    'exclude' => 0,
-    'id' => 'update_status',
-    'table' => 'project_release_nodes',
-    'field' => 'update_status',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('filters', array(
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
-  ),
-  'version_api_tid' => array(
-    'operator' => 'in',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => 'version_api_tid_op',
-      'label' => 'Project release: API compatibility term',
-      'use_operator' => FALSE,
-      'identifier' => 'version_api_tid',
-      'remember' => FALSE,
-      'single' => TRUE,
-      'optional' => TRUE,
-      'reduce' => FALSE,
-    ),
-    'type' => 'all',
-    'id' => 'version_api_tid',
-    'table' => 'project_release_nodes',
-    'field' => 'version_api_tid',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'supported' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'supported',
-    'table' => 'project_release_supported_versions',
-    'field' => 'supported',
-    'relationship' => 'supported_releases_rel',
-  ),
-  'rebuild' => array(
-    'operator' => '=',
-    'value' => '0',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'rebuild',
-    'table' => 'project_release_nodes',
-    'field' => 'rebuild',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'release_type' => array(
-    'operator' => '=',
-    'value' => 'recommended',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'release_relationship' => 'base',
-    'id' => 'release_type',
-    'table' => 'project_release_supported_versions',
-    'field' => 'release_type',
-    'relationship' => 'supported_releases_rel',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-  ),
-  'recommended' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'recommended',
-    'table' => 'project_release_supported_versions',
-    'field' => 'recommended',
-    'relationship' => 'supported_releases_rel',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-  ),
-));
-$handler->override_option('style_plugin', 'project_release_table');
-$handler->override_option('style_options', array(
-  'grouping' => '',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'columns' => array(
-    'version' => 'version',
-    'files' => 'files',
-    'file_timestamp' => 'file_timestamp',
-    'view_node' => 'view_node',
-    'edit_node' => 'view_node',
-    'update_status' => 'update_status',
-  ),
-  'info' => array(
-    'version' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'files' => array(
-      'separator' => '',
-    ),
-    'file_timestamp' => array(
-      'separator' => '',
-    ),
-    'view_node' => array(
-      'separator' => ' | ',
-    ),
-    'edit_node' => array(
-      'separator' => '',
-    ),
-    'update_status' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-  ),
-  'default' => '-1',
-));
-$handler->override_option('attachment_position', 'before');
-$handler->override_option('inherit_arguments', TRUE);
-$handler->override_option('inherit_exposed_filters', FALSE);
-$handler->override_option('displays', array());
-$handler = $view->new_display('attachment', 'Supported branches', 'attachment_2');
-$handler->override_option('filters', array(
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
-  ),
-  'version_api_tid' => array(
-    'operator' => 'in',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => 'version_api_tid_op',
-      'label' => 'Project release: API compatibility term',
-      'use_operator' => FALSE,
-      'identifier' => 'version_api_tid',
-      'remember' => FALSE,
-      'single' => TRUE,
-      'optional' => TRUE,
-      'reduce' => FALSE,
-    ),
-    'type' => 'all',
-    'id' => 'version_api_tid',
-    'table' => 'project_release_nodes',
-    'field' => 'version_api_tid',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'supported' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'supported',
-    'table' => 'project_release_supported_versions',
-    'field' => 'supported',
-    'relationship' => 'supported_releases_rel',
-  ),
-  'rebuild' => array(
-    'operator' => '=',
-    'value' => '0',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'rebuild',
-    'table' => 'project_release_nodes',
-    'field' => 'rebuild',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'release_type' => array(
-    'operator' => '=',
-    'value' => 'recommended',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'release_relationship' => 'base',
-    'id' => 'release_type',
-    'table' => 'project_release_supported_versions',
-    'field' => 'release_type',
-    'relationship' => 'supported_releases_rel',
-  ),
-  'recommended' => array(
-    'operator' => '=',
-    'value' => '0',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'recommended',
-    'table' => 'project_release_supported_versions',
-    'field' => 'recommended',
-    'relationship' => 'supported_releases_rel',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-  ),
-));
-$handler->override_option('attachment_position', 'before');
-$handler->override_option('inherit_arguments', TRUE);
-$handler->override_option('inherit_exposed_filters', FALSE);
-$handler->override_option('displays', array());
-$handler = $view->new_display('attachment', 'Development snapshots', 'attachment_3');
-$handler->override_option('filters', array(
-  'status_extra' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status_extra',
-    'table' => 'node',
-    'field' => 'status_extra',
-    'relationship' => 'none',
-  ),
-  'version_api_tid' => array(
-    'operator' => 'in',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => 'version_api_tid_op',
-      'label' => 'Project release: API compatibility term',
-      'use_operator' => FALSE,
-      'identifier' => 'version_api_tid',
-      'remember' => FALSE,
-      'single' => TRUE,
-      'optional' => TRUE,
-      'reduce' => FALSE,
-    ),
-    'type' => 'all',
-    'id' => 'version_api_tid',
-    'table' => 'project_release_nodes',
-    'field' => 'version_api_tid',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'supported' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'supported',
-    'table' => 'project_release_supported_versions',
-    'field' => 'supported',
-    'relationship' => 'supported_releases_rel',
-  ),
-  'rebuild' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'rebuild',
-    'table' => 'project_release_nodes',
-    'field' => 'rebuild',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-  'snapshot' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'snapshot',
-    'table' => 'project_release_supported_versions',
-    'field' => 'snapshot',
-    'relationship' => 'supported_releases_rel',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-  ),
-));
-$handler->override_option('attachment_position', 'before');
-$handler->override_option('inherit_arguments', TRUE);
-$handler->override_option('inherit_exposed_filters', FALSE);
-$handler->override_option('displays', array());
 
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['distinct'] = TRUE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'project_release_table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'path' => 'path',
+  'field_release_version' => 'field_release_version',
+  'uri' => 'uri',
+  'uri_1' => 'uri_1',
+  'filesize' => 'filesize',
+  'filesize_1' => 'filesize_1',
+  'extension' => 'extension',
+  'extension_1' => 'extension',
+  'timestamp' => 'timestamp',
+  'view_node' => 'view_node',
+  'edit_node' => 'view_node',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'path' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'field_release_version' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'uri' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'uri_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'filesize' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'filesize_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'extension' => array(
+    'align' => '',
+    'separator' => ' | ',
+    'empty_column' => 0,
+  ),
+  'extension_1' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'timestamp' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'view_node' => array(
+    'align' => '',
+    'separator' => ' | ',
+    'empty_column' => 0,
+  ),
+  'edit_node' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['style_options']['override'] = FALSE;
+/* Header: Global: Text area */
+$handler->display->display_options['header']['area']['id'] = 'area';
+$handler->display->display_options['header']['area']['table'] = 'views';
+$handler->display->display_options['header']['area']['field'] = 'area';
+$handler->display->display_options['header']['area']['label'] = 'Title';
+$handler->display->display_options['header']['area']['content'] = '<h4>Recommended releases</h4>';
+$handler->display->display_options['header']['area']['format'] = '1';
+/* Relationship: Content: Taxonomy terms on node */
+$handler->display->display_options['relationships']['term_node_tid']['id'] = 'term_node_tid';
+$handler->display->display_options['relationships']['term_node_tid']['table'] = 'node';
+$handler->display->display_options['relationships']['term_node_tid']['field'] = 'term_node_tid';
+$handler->display->display_options['relationships']['term_node_tid']['vocabularies'] = array(
+  'vocabulary_1' => 0,
+  'vocabulary_5' => 0,
+  'vocabulary_38' => 0,
+  'vocabulary_54' => 0,
+  'vocabulary_56' => 0,
+  'vocabulary_6' => 0,
+  'vocabulary_4' => 0,
+  'vocabulary_44' => 0,
+  'vocabulary_46' => 0,
+  'vocabulary_3' => 0,
+  'vocabulary_48' => 0,
+  'vocabulary_50' => 0,
+  'vocabulary_52' => 0,
+  'vocabulary_58' => 0,
+  'vocabulary_7' => 0,
+  'vocabulary_2' => 0,
+  'vocabulary_31' => 0,
+  'vocabulary_32' => 0,
+  'vocabulary_33' => 0,
+  'vocabulary_34' => 0,
+  'vocabulary_9' => 0,
+);
+/* Relationship: Content: Release files (field_release_files) */
+$handler->display->display_options['relationships']['field_release_files_value']['id'] = 'field_release_files_value';
+$handler->display->display_options['relationships']['field_release_files_value']['table'] = 'field_data_field_release_files';
+$handler->display->display_options['relationships']['field_release_files_value']['field'] = 'field_release_files_value';
+$handler->display->display_options['relationships']['field_release_files_value']['label'] = 'field collection item from field_release_files 1';
+$handler->display->display_options['relationships']['field_release_files_value']['delta'] = '0';
+/* Relationship: Field collection item: Release file (field_release_file:fid) */
+$handler->display->display_options['relationships']['field_release_file_fid']['id'] = 'field_release_file_fid';
+$handler->display->display_options['relationships']['field_release_file_fid']['table'] = 'field_data_field_release_file';
+$handler->display->display_options['relationships']['field_release_file_fid']['field'] = 'field_release_file_fid';
+$handler->display->display_options['relationships']['field_release_file_fid']['relationship'] = 'field_release_files_value';
+$handler->display->display_options['relationships']['field_release_file_fid']['label'] = 'file from field_release_file 1';
+/* Relationship: Content: Release files (field_release_files) */
+$handler->display->display_options['relationships']['field_release_files_value_1']['id'] = 'field_release_files_value_1';
+$handler->display->display_options['relationships']['field_release_files_value_1']['table'] = 'field_data_field_release_files';
+$handler->display->display_options['relationships']['field_release_files_value_1']['field'] = 'field_release_files_value';
+$handler->display->display_options['relationships']['field_release_files_value_1']['label'] = 'field collection item from field_release_files 2';
+$handler->display->display_options['relationships']['field_release_files_value_1']['delta'] = '1';
+/* Relationship: Field collection item: Release file (field_release_file:fid) */
+$handler->display->display_options['relationships']['field_release_file_fid_1']['id'] = 'field_release_file_fid_1';
+$handler->display->display_options['relationships']['field_release_file_fid_1']['table'] = 'field_data_field_release_file';
+$handler->display->display_options['relationships']['field_release_file_fid_1']['field'] = 'field_release_file_fid';
+$handler->display->display_options['relationships']['field_release_file_fid_1']['relationship'] = 'field_release_files_value_1';
+$handler->display->display_options['relationships']['field_release_file_fid_1']['label'] = 'file from field_release_file 2';
+/* Field: Content: Path */
+$handler->display->display_options['fields']['path']['id'] = 'path';
+$handler->display->display_options['fields']['path']['table'] = 'node';
+$handler->display->display_options['fields']['path']['field'] = 'path';
+$handler->display->display_options['fields']['path']['exclude'] = TRUE;
+$handler->display->display_options['fields']['path']['absolute'] = TRUE;
+/* Field: Content: Version */
+$handler->display->display_options['fields']['field_release_version']['id'] = 'field_release_version';
+$handler->display->display_options['fields']['field_release_version']['table'] = 'field_data_field_release_version';
+$handler->display->display_options['fields']['field_release_version']['field'] = 'field_release_version';
+$handler->display->display_options['fields']['field_release_version']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['field_release_version']['alter']['path'] = '[path]';
+$handler->display->display_options['fields']['field_release_version']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_release_version']['type'] = 'text_plain';
+/* Field: File: Path */
+$handler->display->display_options['fields']['uri']['id'] = 'uri';
+$handler->display->display_options['fields']['uri']['table'] = 'file_managed';
+$handler->display->display_options['fields']['uri']['field'] = 'uri';
+$handler->display->display_options['fields']['uri']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['uri']['exclude'] = TRUE;
+$handler->display->display_options['fields']['uri']['file_download_path'] = TRUE;
+/* Field: File: Path */
+$handler->display->display_options['fields']['uri_1']['id'] = 'uri_1';
+$handler->display->display_options['fields']['uri_1']['table'] = 'file_managed';
+$handler->display->display_options['fields']['uri_1']['field'] = 'uri';
+$handler->display->display_options['fields']['uri_1']['relationship'] = 'field_release_file_fid_1';
+$handler->display->display_options['fields']['uri_1']['label'] = '';
+$handler->display->display_options['fields']['uri_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['uri_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['uri_1']['file_download_path'] = TRUE;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['filesize']['label'] = '';
+$handler->display->display_options['fields']['filesize']['exclude'] = TRUE;
+$handler->display->display_options['fields']['filesize']['element_label_colon'] = FALSE;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize_1']['id'] = 'filesize_1';
+$handler->display->display_options['fields']['filesize_1']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize_1']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize_1']['relationship'] = 'field_release_file_fid_1';
+$handler->display->display_options['fields']['filesize_1']['label'] = '';
+$handler->display->display_options['fields']['filesize_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['filesize_1']['element_label_colon'] = FALSE;
+/* Field: File: Extension */
+$handler->display->display_options['fields']['extension']['id'] = 'extension';
+$handler->display->display_options['fields']['extension']['table'] = 'file_managed';
+$handler->display->display_options['fields']['extension']['field'] = 'extension';
+$handler->display->display_options['fields']['extension']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['extension']['label'] = 'Download';
+$handler->display->display_options['fields']['extension']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['extension']['alter']['text'] = '[extension] <span class="filesize">([filesize])</span>';
+$handler->display->display_options['fields']['extension']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['extension']['alter']['path'] = '[uri]';
+/* Field: File: Extension */
+$handler->display->display_options['fields']['extension_1']['id'] = 'extension_1';
+$handler->display->display_options['fields']['extension_1']['table'] = 'file_managed';
+$handler->display->display_options['fields']['extension_1']['field'] = 'extension';
+$handler->display->display_options['fields']['extension_1']['relationship'] = 'field_release_file_fid_1';
+$handler->display->display_options['fields']['extension_1']['label'] = '';
+$handler->display->display_options['fields']['extension_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['extension_1']['alter']['text'] = '[extension_1] <span class="filesize">([filesize_1])</span>';
+$handler->display->display_options['fields']['extension_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['extension_1']['alter']['path'] = '[uri_1]';
+$handler->display->display_options['fields']['extension_1']['element_label_colon'] = FALSE;
+/* Field: File: Upload date */
+$handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
+$handler->display->display_options['fields']['timestamp']['table'] = 'file_managed';
+$handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
+$handler->display->display_options['fields']['timestamp']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['timestamp']['label'] = 'Date';
+$handler->display->display_options['fields']['timestamp']['date_format'] = 'custom';
+$handler->display->display_options['fields']['timestamp']['custom_date_format'] = 'Y-M-d';
+/* Field: Content: Link */
+$handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+$handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+$handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+$handler->display->display_options['fields']['view_node']['label'] = 'Links';
+$handler->display->display_options['fields']['view_node']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['view_node']['alter']['text'] = 'Notes';
+/* Field: Content: Edit link */
+$handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
+$handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
+$handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
+$handler->display->display_options['fields']['edit_node']['label'] = '';
+$handler->display->display_options['fields']['edit_node']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['edit_node']['alter']['text'] = 'Edit';
+$handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
+/* Sort criterion: Taxonomy term: Weight */
+$handler->display->display_options['sorts']['weight']['id'] = 'weight';
+$handler->display->display_options['sorts']['weight']['table'] = 'taxonomy_term_data';
+$handler->display->display_options['sorts']['weight']['field'] = 'weight';
+$handler->display->display_options['sorts']['weight']['relationship'] = 'term_node_tid';
+/* Sort criterion: Content: Version major (field_release_version_major) */
+$handler->display->display_options['sorts']['field_release_version_major_value']['id'] = 'field_release_version_major_value';
+$handler->display->display_options['sorts']['field_release_version_major_value']['table'] = 'field_data_field_release_version_major';
+$handler->display->display_options['sorts']['field_release_version_major_value']['field'] = 'field_release_version_major_value';
+$handler->display->display_options['sorts']['field_release_version_major_value']['order'] = 'DESC';
+/* Sort criterion: Content: Version minor (field_release_version_minor) */
+$handler->display->display_options['sorts']['field_release_version_minor_value']['id'] = 'field_release_version_minor_value';
+$handler->display->display_options['sorts']['field_release_version_minor_value']['table'] = 'field_data_field_release_version_minor';
+$handler->display->display_options['sorts']['field_release_version_minor_value']['field'] = 'field_release_version_minor_value';
+$handler->display->display_options['sorts']['field_release_version_minor_value']['order'] = 'DESC';
+/* Sort criterion: Content: Version patch (field_release_version_patch) */
+$handler->display->display_options['sorts']['field_release_version_patch_value']['id'] = 'field_release_version_patch_value';
+$handler->display->display_options['sorts']['field_release_version_patch_value']['table'] = 'field_data_field_release_version_patch';
+$handler->display->display_options['sorts']['field_release_version_patch_value']['field'] = 'field_release_version_patch_value';
+$handler->display->display_options['sorts']['field_release_version_patch_value']['order'] = 'DESC';
+/* Sort criterion: Content: Version extra weight (field_release_version_ext_weight) */
+$handler->display->display_options['sorts']['field_release_version_ext_weight_value']['id'] = 'field_release_version_ext_weight_value';
+$handler->display->display_options['sorts']['field_release_version_ext_weight_value']['table'] = 'field_data_field_release_version_ext_weight';
+$handler->display->display_options['sorts']['field_release_version_ext_weight_value']['field'] = 'field_release_version_ext_weight_value';
+$handler->display->display_options['sorts']['field_release_version_ext_weight_value']['order'] = 'DESC';
+/* Sort criterion: Content: Version extra (field_release_version_extra) */
+$handler->display->display_options['sorts']['field_release_version_extra_value']['id'] = 'field_release_version_extra_value';
+$handler->display->display_options['sorts']['field_release_version_extra_value']['table'] = 'field_data_field_release_version_extra';
+$handler->display->display_options['sorts']['field_release_version_extra_value']['field'] = 'field_release_version_extra_value';
+$handler->display->display_options['sorts']['field_release_version_extra_value']['order'] = 'DESC';
+/* Sort criterion: Content: Version extra delta (field_release_version_ext_delta) */
+$handler->display->display_options['sorts']['field_release_version_ext_delta_value']['id'] = 'field_release_version_ext_delta_value';
+$handler->display->display_options['sorts']['field_release_version_ext_delta_value']['table'] = 'field_data_field_release_version_ext_delta';
+$handler->display->display_options['sorts']['field_release_version_ext_delta_value']['field'] = 'field_release_version_ext_delta_value';
+$handler->display->display_options['sorts']['field_release_version_ext_delta_value']['order'] = 'DESC';
+/* Contextual filter: Content: Project (field_release_project) */
+$handler->display->display_options['arguments']['field_release_project_target_id']['id'] = 'field_release_project_target_id';
+$handler->display->display_options['arguments']['field_release_project_target_id']['table'] = 'field_data_field_release_project';
+$handler->display->display_options['arguments']['field_release_project_target_id']['field'] = 'field_release_project_target_id';
+$handler->display->display_options['arguments']['field_release_project_target_id']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['field_release_project_target_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['field_release_project_target_id']['summary_options']['items_per_page'] = '25';
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'project_release' => 'project_release',
+);
+/* Filter criterion: Taxonomy term: Recommended (field_release_recommended) */
+$handler->display->display_options['filters']['field_release_recommended_value']['id'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['table'] = 'field_data_field_release_recommended';
+$handler->display->display_options['filters']['field_release_recommended_value']['field'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['relationship'] = 'term_node_tid';
+$handler->display->display_options['filters']['field_release_recommended_value']['value'] = array(
+  1 => '1',
+);
+/* Filter criterion: Content: Update status (field_release_update_status) */
+$handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
+$handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '0';
+/* Filter criterion: Content: Release type (field_release_build_type) */
+$handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['table'] = 'field_data_field_release_build_type';
+$handler->display->display_options['filters']['field_release_build_type_value']['field'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['value'] = array(
+  'static' => 'static',
+);
+
+/* Display: Recommended releases */
+$handler = $view->new_display('block', 'Recommended releases', 'recommended');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+
+/* Display: Other releases */
+$handler = $view->new_display('attachment', 'Other releases', 'other');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Text area */
+$handler->display->display_options['header']['area']['id'] = 'area';
+$handler->display->display_options['header']['area']['table'] = 'views';
+$handler->display->display_options['header']['area']['field'] = 'area';
+$handler->display->display_options['header']['area']['label'] = 'Title';
+$handler->display->display_options['header']['area']['content'] = '<h4>Other releases</h4>';
+$handler->display->display_options['header']['area']['format'] = '1';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'project_release' => 'project_release',
+);
+/* Filter criterion: Taxonomy term: Recommended (field_release_recommended) */
+$handler->display->display_options['filters']['field_release_recommended_value']['id'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['table'] = 'field_data_field_release_recommended';
+$handler->display->display_options['filters']['field_release_recommended_value']['field'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['relationship'] = 'term_node_tid';
+$handler->display->display_options['filters']['field_release_recommended_value']['value'] = array(
+  1 => '1',
+);
+/* Filter criterion: Content: Update status (field_release_update_status) */
+$handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
+$handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '1';
+/* Filter criterion: Content: Release type (field_release_build_type) */
+$handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['table'] = 'field_data_field_release_build_type';
+$handler->display->display_options['filters']['field_release_build_type_value']['field'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['value'] = array(
+  'static' => 'static',
+);
+$handler->display->display_options['displays'] = array(
+  'recommended' => 'recommended',
+  'default' => 0,
+);
+$handler->display->display_options['attachment_position'] = 'after';
+
+/* Display: Development releases */
+$handler = $view->new_display('attachment', 'Development releases', 'development');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Text area */
+$handler->display->display_options['header']['area']['id'] = 'area';
+$handler->display->display_options['header']['area']['table'] = 'views';
+$handler->display->display_options['header']['area']['field'] = 'area';
+$handler->display->display_options['header']['area']['label'] = 'Title';
+$handler->display->display_options['header']['area']['content'] = '<h4>Development releases</h4>';
+$handler->display->display_options['header']['area']['format'] = '1';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'project_release' => 'project_release',
+);
+/* Filter criterion: Taxonomy term: Recommended (field_release_recommended) */
+$handler->display->display_options['filters']['field_release_recommended_value']['id'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['table'] = 'field_data_field_release_recommended';
+$handler->display->display_options['filters']['field_release_recommended_value']['field'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['relationship'] = 'term_node_tid';
+$handler->display->display_options['filters']['field_release_recommended_value']['value'] = array(
+  1 => '1',
+);
+/* Filter criterion: Content: Release type (field_release_build_type) */
+$handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['table'] = 'field_data_field_release_build_type';
+$handler->display->display_options['filters']['field_release_build_type_value']['field'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['value'] = array(
+  'dynamic' => 'dynamic',
+);
+$handler->display->display_options['displays'] = array(
+  'recommended' => 'recommended',
+  'default' => 0,
+);
+$handler->display->display_options['attachment_position'] = 'after';
