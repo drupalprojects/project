@@ -250,37 +250,4 @@ function project_release_views_data_alter(&$data) {
       'numeric' => TRUE,
     ),
   );
-
-  // Project download table field
-  $data['node']['download_table'] = array(
-    'group' => t('Project release'),
-    'field' => array(
-      'title' => t('Download table'),
-      'help' => t('A project release download table for the project.'),
-      'handler' => 'project_release_handler_field_download_table',
-      'format' => 'format',
-    ),
-  );
-}
-
-/**
- * Implement hook_views_plugins().
- */
-function project_release_views_plugins() {
-  return array(
-    'style' => array(
-      'project_release_table' => array(
-        'title' => t('Project release table'),
-        'help' => t('Table with colored rows depending on release update status.'),
-        'handler' => 'project_release_table_plugin_style',
-        'theme' => 'views_view_table',
-        'theme file' => 'theme.inc',
-        'theme path' => drupal_get_path('module', 'views') . '/theme',
-        'uses row plugin' => FALSE,
-        'uses fields' => TRUE,
-        'uses options' => TRUE,
-        'type' => 'normal',
-      ),
-    ),
-  );
 }

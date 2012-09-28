@@ -11,5 +11,3 @@ dependencies[] = entityreference
 dependencies[] = field_collection
 
 stylesheets[all][] = project_release.css
-
-files[] = views/plugins/project_release_table_plugin_style.inc
