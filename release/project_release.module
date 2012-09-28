@@ -1837,32 +1837,6 @@ function theme_project_release_update_status_icon($status) {
 }
 
 /**
- * Implement hook_preprocess_views_view_table().
- *
- * Adds row classes based on release update_status.
- */
-function project_release_preprocess_views_view_table(&$variables) {
-  if ($variables['view']->plugin_name === 'project_release_table') {
-    foreach ($variables['view']->result as $num => $result) {
-      if (isset($result->field_field_release_update_status)) {
-        $variables['row_classes'][$num][] = 'release-update-status-' . $result->field_field_release_update_status[0]['raw']['value'];
-      }
-    }
-    $variables['classes_array'][] = 'project-release';
-  }
-}
-
-/**
- * Implement hook_views_analyze(). Provide a notice for project release tables
- * without an update status column.
- */
-function project_release_views_analyze($view) {
-  if ($view->display_handler->get_option('style_plugin') === 'project_release_table' && !array_key_exists('field_release_update_status', $view->get_items('field'))) {
-    return array(views_ui_analysis(t('The <em>Project release table</em> format needs the <em>Update status</em> field to be colored by status.'), 'warning'));
-  }
-}
-
-/**
  * Implement hook_views_default_views_alter().
  */
 function project_release_views_default_views_alter(&$views) {

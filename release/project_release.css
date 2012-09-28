@@ -33,7 +33,6 @@ table.releases .release-icon {
   margin-bottom: 0.67em;
 }
 
-.project-release tr.release-update-status-0,
 .download-table-ok tr.odd,
 .download-table-ok tr.odd td.active,
 .download-table-ok tr.even,
@@ -42,7 +41,6 @@ table.releases tr.ok {
   background-color: #dfd;
 }
 
-.project-release tr.release-update-status-1,
 .download-table-warning tr.odd,
 .download-table-warning tr.odd td.active,
 .download-table-warning tr.even,
@@ -51,7 +49,6 @@ table.releases tr.warning {
   background-color: #ffd;
 }
 
-.project-release tr.release-update-status-2,
 .download-table-error tr.odd,
 .download-table-error tr.odd td.active,
 .download-table-error tr.even,
