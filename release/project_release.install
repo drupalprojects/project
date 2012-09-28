@@ -23,7 +23,6 @@ function project_release_uninstall() {
   require_once dirname(__FILE__)  . '/project_release.module';
   _project_release_delete_release_node_type();
 
-  // @todo
   $variables = array(
     'project_release_api_vocabulary',
     'project_release_directory',

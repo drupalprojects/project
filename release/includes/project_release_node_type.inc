@@ -971,6 +971,7 @@ function _project_release_delete_release_node_type() {
     'field_release_update_status',
     'field_project_has_releases',
     'field_release_version_format',
+    'field_release_recommended',
   );
   foreach ($fields as $field) {
     field_delete_field($field);
