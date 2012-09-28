@@ -218,7 +218,5 @@ function project_release_project_edit_form_submit($form, &$form_state) {
     ->condition('nid', $nid)
     ->execute();
 
-  cache_clear_all('table:' . $nid . ':', 'cache_project_release', TRUE);
-
   drupal_set_message(t('Release settings have been saved.'));
 }

@@ -138,11 +138,6 @@ package_releases($task, $project_id);
 chdir($tmp_root);
 drupal_exec("$rm -rf $tmp_dir");
 
-if ($task == 'branch') {
-  // Clear any cached data set to expire.
-  cache_clear_all(NULL, 'cache_project_release');
-}
-
 // ------------------------------------------------------------
 // Functions: main work
 // ------------------------------------------------------------
