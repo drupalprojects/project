@@ -178,7 +178,9 @@ function project_release_update_last_removed() {
  * Ensure project release node type is properly set up.
  */
 function project_release_update_7000() {
-  module_enable(array('field_collection'));
+  // Enable new dependencies.
+  module_enable(array('entity', 'entityreference', 'field_collection'));
+  drupal_flush_all_caches();
 
   $t = get_t();
 
