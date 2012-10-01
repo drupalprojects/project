@@ -1600,8 +1600,21 @@ function project_release_update_7009() {
 }
 
 /**
- * Remove project release cache
+ * Remove project release cache.
  */
 function project_release_update_7010() {
   db_drop_table('cache_project_release');
+}
+
+/**
+ * Re-add the missing version field.
+ */
+function project_release_update_7011() {
+  if (function_exists('project_issue_issue_node_types')) {
+    // Resave the issue node types to pick up changes.
+    foreach (project_issue_issue_node_types() as $node_type) {
+      $type = node_type_load($node_type);
+      node_type_save($type);
+    }
+  }
 }
