@@ -16,6 +16,7 @@ files[] = views/handlers/project_handler_filter_project_sort_method.inc
 files[] = views/handlers/project_handler_filter_project_status.inc
 files[] = views/handlers/project_handler_filter_project_type_vid.inc
 files[] = views/handlers/project_handler_filter_term_node_project_type_tid.inc
+files[] = views/handlers/project_handler_filter_project_behavior.inc
 
 files[] = views/plugins/project_plugin_argument_default_project_type.inc
 files[] = views/plugins/project_plugin_argument_validate_project_nid.inc

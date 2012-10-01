@@ -196,6 +196,19 @@ function project_views_data() {
  * Implementation of hook_views_data_alter().
  */
 function project_views_data_alter(&$data) {
+  // Restrict content type by the behavior defined on the content types..
+  $data['node']['project_type'] = array(
+    'group' => t('Project'),
+    'title' => t('Project system behavior'),
+    'help' => t('This filter restricts content to the set of types that have a specific purpose in the Project system.'),
+    'real field' => 'type',
+    'filter' => array(
+      'handler' => 'project_handler_filter_project_behavior',
+    ),
+  );
+
+  // @todo Throw most of the below out.
+
   // @TODO:  Rewrite the help and title to be more descriptive?
   $data['term_node']['term_node_tid_depth_project'] = array(
     'group' => t('Taxonomy'),
@@ -261,6 +274,10 @@ function project_views_handlers() {
       'path' => drupal_get_path('module', 'project') .'/views/handlers',
     ),
     'handlers' => array(
+      'project_handler_filter_project_behavior' => array(
+        'parent' => 'views_handler_filter',
+      ),
+      // @todo Throw most of this out.
       'project_handler_argument_project_nid' => array(
         'parent' => 'views_handler_argument_node_nid',
       ),
