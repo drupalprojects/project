@@ -1466,7 +1466,9 @@ function project_release_project_node_type_settings($form) {
       '#maxlength' => 255,
       '#description' => PROJECT_RELEASE_VERSION_FORMAT_HELP,
       '#element_validate' => array('_project_release_validate_format_string'),
-      '#required' => TRUE,
+      // @todo Fix this -- it's only required when we're working with release
+      // node types.
+      //'#required' => TRUE,
     ),
   );
 }
