@@ -1498,7 +1498,6 @@ function project_release_update_7008() {
     if ($tgt == 'version_extra' || $tgt == 'vcs_label') {
       $query->addExpression(':format', "field_release_{$tgt}_format", array(':format' => NULL));
     }
-    $query->condition("p.$src", '', '<>');
 
     db_insert("field_data_field_release_$tgt")
       ->from($query)
@@ -1517,7 +1516,6 @@ function project_release_update_7008() {
     if ($tgt == 'version_extra' || $tgt == 'vcs_label') {
       $query->addExpression(':format', "field_release_{$tgt}_format", array(':format' => NULL));
     }
-    $query->condition("p.$src", '', '<>');
 
     db_insert("field_revision_field_release_$tgt")
       ->from($query)

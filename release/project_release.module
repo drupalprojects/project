@@ -1105,7 +1105,15 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
 }
 
 /**
- * Find releases on a given branch, ordered by version.
+ * Deprecated, use project_release_query_releases().
+ */
+function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
+  return project_release_query_releases($project_nid, $api_tid, $major, $access);
+}
+
+
+/**
+ * Find releases, optionally limited to a branch and major, ordered by version.
  *
  * @param $project_nid
  *   The project node ID.
@@ -1119,25 +1127,24 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  *   the releases or projects. However, this function usually has to compute
  *   the accurate values regardless of access, and consumers of this data are
  *   responsible for ensuring access.
- *
+ * @param $dev_first
+ *   Return the development releases at the top of the list instead of the bottom.
  * @return
  *   An associative array of stub entities, as retured by
  *   entity_create_stub_entity(). Keys are node IDs.
  *
  * @see project_release_find_latest_releases()
  */
-function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+function project_release_query_releases($project_nid, $api_tid = NULL, $major = NULL, $access = FALSE, $dev_first = FALSE) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'project_release')
+    ->entityCondition('bundle', project_release_release_node_types())
     ->propertyCondition('status', 1)
     ->fieldCondition('field_release_project', 'target_id', $project_nid)
-    ->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $api_tid)
-    ->fieldCondition('field_release_version_major', 'value', $major)
-    // We always want the dev snapshots to show up last.
-    ->fieldOrderBy('field_release_build_type', 'value', 'DESC')
+    // We always want the dev snapshots to show up either first or last.
+    ->fieldOrderBy('field_release_build_type', 'value', ($dev_first ? 'ASC' : 'DESC'))
     // Sort by the obvious integer values along the branch (minor and patch).
+    ->fieldOrderBy('field_release_version_major', 'value', 'DESC')
     ->fieldOrderBy('field_release_version_minor', 'value', 'DESC')
     ->fieldOrderBy('field_release_version_patch', 'value', 'DESC')
     // To reliably sort release with version_extra, use version_extra_weight.
@@ -1152,6 +1159,15 @@ function project_release_query_releases_by_branch($project_nid, $api_tid, $major
     // results.
     ->fieldOrderBy('field_release_version_ext_delta', 'value', 'DESC');
 
+  if (isset($api_tid)) {
+    $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+    $query->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $api_tid);
+  }
+
+  if (isset($major)) {
+    $query->fieldCondition('field_release_version_major', 'value', $major);
+  }
+
   // Only enforce node access if the caller specifically requested that
   // behavior.
   if (!$access) {
@@ -1163,6 +1179,38 @@ function project_release_query_releases_by_branch($project_nid, $api_tid, $major
     return array();
   }
   return node_load_multiple(array_keys($result['node']));
+}
+
+/**
+ * Get a list of valid version strings for a project.
+ */
+function project_release_get_available_versions($project_nid) {
+  // @todo Caching
+  $releases = project_release_query_releases($project_nid, NULL, NULL, FALSE, TRUE);
+  $return = array();
+  foreach ($releases as $release) {
+    $return[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+  }
+  return $return;
+}
+
+/**
+ * Supply the allowed values for a version field, given the value of the project
+ * entityreference field.
+ */
+function project_release_version_allowed_values($field, $instance, $entity_type, $entity) {
+  $return = array();
+  if ($entity) {
+    $settings = $field['settings'];
+    $reference_field = field_info_field($settings['entityreference_field']);
+    $reference_items = field_get_items($entity_type, $entity, $reference_field['field_name']);
+    $referenced_entity_type = $reference_field['settings']['target_type'];
+    $referenced_entity_id = $reference_items[0]['target_id'];
+    if ($referenced_entity_id) {
+      $return = drupal_map_assoc(project_release_get_available_versions($referenced_entity_id));
+    }
+  }
+  return $return;
 }
 
 /**
