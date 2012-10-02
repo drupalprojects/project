@@ -247,7 +247,6 @@ function project_update_7002() {
   node_types_rebuild();
 }
 
-
 /**
  * Ensure the views are reverted to code.
  */
@@ -278,5 +277,150 @@ function project_update_7004() {
       db_query("UPDATE {field_config_instance} SET bundle = :newbundle WHERE field_name = :name AND entity_type = :type AND bundle = :oldbundle", array(':newbundle' => 'project', ':name' => $field, ':type' => 'node', ':oldbundle' => 'project_project'));
     }
   }
+  field_cache_clear();
+}
+
+/**
+ * Migrate misc. data from D6.
+ */
+function project_update_7005() {
+  $t = get_t();
+  // Check if we need to run.
+  if (!db_table_exists('project_projects')) {
+    return $t('No legacy data detected, skipping this update.');
+  }
+
+  if (!module_enable(array('link'))) {
+    // Link module was missing but we have data to migrate.
+    throw new DrupalUpdateException(t('Project requires the Link module during data migration. Please install it and rerun updates.'));
+  }
+
+  foreach (array('homepage', 'changelog', 'demo', 'documentation', 'screenshots', 'license') as $field_name) {
+    $field = array(
+      'translatable' => '0',
+      'settings' => array(
+        'attributes' => array(
+          'target' => 'default',
+          'class' => '',
+          'rel' => 'nofollow',
+        ),
+        'url' => 0,
+        'title' => 'none',
+        'title_value' => '',
+        'title_maxlength' => 128,
+        'enable_tokens' => 1,
+        'display' => array(
+          'url_cutoff' => 80,
+        ),
+      ),
+      'field_name' => 'field_project_' . $field_name,
+      'type' => 'link_field',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+    );
+    if (!field_info_field($field['field_name'])) {
+      field_create_field($field);
+    }
+
+    foreach (project_project_node_types() as $type) {
+      $instance = array(
+        'label' => ucfirst($field_name),
+        'widget' => array(
+          'weight' => '5',
+          'type' => 'link_field',
+          'active' => 0,
+          'settings' => array(),
+        ),
+        'settings' => array(
+          'validate_url' => 1,
+          'url' => 0,
+          'title' => 'none',
+          'title_value' => '',
+          'title_maxlength' => '128',
+          'enable_tokens' => 1,
+          'display' => array(
+            'url_cutoff' => '80',
+          ),
+          'attributes' => array(
+            'target' => 'default',
+            'rel' => 'nofollow',
+            'class' => '',
+            'configurable_title' => 0,
+            'title' => '',
+          ),
+          'rel_remove' => 'default',
+          'user_register_form' => FALSE,
+        ),
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'type' => 'link_default',
+            'settings' => array(),
+            'weight' => 12,
+          ),
+          'teaser' => array(
+            'type' => 'hidden',
+            'label' => 'above',
+            'settings' => array(),
+            'weight' => 0,
+          ),
+          'issuemetadata' => array(
+            'type' => 'hidden',
+            'label' => 'above',
+            'settings' => array(),
+            'weight' => 0,
+          ),
+        ),
+        'required' => 0,
+        'description' => 'Link to project ' . $field_name . '.',
+        'default_value' => NULL,
+        'field_name' => 'field_project_' . $field_name,
+        'entity_type' => 'node',
+        'bundle' => $type,
+      );
+      if (!field_info_instance('node', $instance['field_name'], $instance['bundle'])) {
+        field_create_instance($instance);
+      }
+    }
+
+    // Bulk convert sandbox -> project_type
+    $query = db_select('project_projects', 'p');
+    $query->innerJoin('node', 'n', 'p.nid = n.nid');
+    $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+    $query->addField('n', 'type', 'bundle');
+    $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+    $query->addField('p', 'nid', 'entity_id');
+    $query->addField('n', 'vid', 'revision_id');
+    $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+    $query->addExpression(':delta', 'delta', array(':delta' => 0));
+    $query->addField('p', $field_name, 'field_project_' . $field_name . '_url');
+    $query->addExpression(':title', 'field_project_' . $field_name . '_title', array(':title' => ''));
+    $query->addExpression(':data', 'field_project_' . $field_name . '_attributes', array(':data' => serialize(array())));
+
+    db_insert('field_data_field_project_' . $field_name)
+      ->from($query)
+      ->execute();
+
+    $query = db_select('project_projects', 'p');
+    $query->innerJoin('node', 'nn', 'p.nid = nn.nid');
+    $query->innerJoin('node_revision', 'n', 'p.nid = n.nid');
+    $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
+    $query->addField('nn', 'type', 'bundle');
+    $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
+    $query->addField('p', 'nid', 'entity_id');
+    $query->addField('n', 'vid', 'revision_id');
+    $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
+    $query->addExpression(':delta', 'delta', array(':delta' => 0));
+    $query->addField('p', $field_name, 'field_project_' . $field_name . '_url');
+    $query->addExpression(':title', 'field_project_' . $field_name . '_title', array(':title' => ''));
+    $query->addExpression(':data', 'field_project_' . $field_name . '_attributes', array(':data' => serialize(array())));
+
+    db_insert('field_revision_field_project_' . $field_name)
+      ->from($query)
+      ->execute();
+  }
+
+  // Since we have manually injected data, we need to explicitly clear the field cache.
   field_cache_clear();
 }
