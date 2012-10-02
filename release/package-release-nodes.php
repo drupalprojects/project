@@ -330,11 +330,6 @@ function drupal_chdir($dir) {
   return true;
 }
 
-/// TODO: remove this before the final script goes live -- debugging only.
-function wprint($var) {
-  watchdog('package_debug', '<pre>' . var_export($var, TRUE));
-}
-
 /**
  * Wrapper function for watchdog() to log notice messages. Uses a
  * different watchdog message type depending on the task (branch vs. tag).
