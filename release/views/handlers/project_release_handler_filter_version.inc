@@ -58,7 +58,7 @@ class project_release_handler_filter_version extends views_handler_filter_field_
     if (empty($form_state['exposed'])) {
       $form['warning'] = array(
         '#type' => 'markup',
-        '#value' => t('You can only select options if you expose this filter and have a project argument'),
+        '#markup' => t('You can only select options if you expose this filter and have a project argument'),
       );
     }
   }
@@ -73,9 +73,18 @@ class project_release_handler_filter_version extends views_handler_filter_field_
     if ($this->is_exposed && !empty($this->view->args)) {
       $arg = $this->view->args[$this->view->argument[$this->options['project_argument']]->position];
       $project = project_load($arg);
+      $this->value_options = array();
       if ($project) {
-        $this->value_options = drupal_map_assoc(project_release_get_available_versions($project->nid));
-        // @todo D7 Add the core compatibility options and implement query() to apply them!!!
+        // Add the enabled compatibility terms.
+        $data = taxonomy_get_tree(variable_get('project_release_api_vocabulary', ''), 0, 1, TRUE);
+        foreach ($data as $term) {
+          if (!empty($term->field_release_recommended[LANGUAGE_NONE][0]['value'])) {
+            $this->value_options['__series:' . $term->tid] = t('- @series issues -', array('@series' => $term->name));
+          }
+        }
+
+        // And then the normal options.
+        $this->value_options += drupal_map_assoc(project_release_get_available_versions($project->nid));
       }
       else {
         $this->value_options = array();
@@ -84,6 +93,28 @@ class project_release_handler_filter_version extends views_handler_filter_field_
     else {
       $this->value_options = array();
     }
+  }
+
+  function query() {
+    // Walk the value list and replace tid series references with lists of release version strings.
+    foreach ($this->value as $key => $value) {
+      // A series term was passed, we need to expand it to all the applicable releases.
+      if (substr($value, 0, 9) == '__series:') {
+        $tid = substr($value, 9);
+        if (!$this->view->args) {
+          // Skip filter, we can't do an all projects query for all releases in one series.
+          return;
+        }
+        // Grab the project from the arguments.
+        $arg = $this->view->args[$this->view->argument[$this->options['project_argument']]->position];
+        $project = project_load($arg);
+        // Remove the original entry in the value list.
+        unset ($this->value[$key]);
+        // Append the version list.
+        $this->value += project_release_get_available_versions($project->nid, $tid);
+      }
+    }
+    return parent::query();
   }
 
 }

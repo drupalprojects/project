@@ -1184,9 +1184,9 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
 /**
  * Get a list of valid version strings for a project.
  */
-function project_release_get_available_versions($project_nid) {
+function project_release_get_available_versions($project_nid, $api_tid = NULL) {
   // @todo Caching
-  $releases = project_release_query_releases($project_nid, NULL, NULL, FALSE, TRUE);
+  $releases = project_release_query_releases($project_nid, $api_tid, NULL, FALSE, TRUE);
   $return = array();
   foreach ($releases as $release) {
     $return[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
