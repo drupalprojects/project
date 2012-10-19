@@ -1,179 +1,71 @@
-#!/usr/bin/php
 <?php
-
 
 /**
  * @file
- * Automated packaging script to generate tarballs from release nodes.
+ * Drush command for packaging files for release nodes.
  *
  * @author Derek Wright (http://drupal.org/user/46549)
  */
 
-// ------------------------------------------------------------
-// Required customization
-// ------------------------------------------------------------
+function project_release_drush_command() {
+  return array(
+    'release-package' => array(
+      'description' => 'Package files for release nodes.',
+      'arguments' => array(
+        'type' => '"branch" or "tag", required.',
+        'project_id' => 'Project, either a Node ID or machine name. Omit to build all projects.'
+      ),
+    ),
+  );
+}
 
-// The root of your Drupal installation, so we can properly bootstrap
-// Drupal. This should be the full path to the directory that holds
-// your index.php file, the "includes" subdirectory, etc.
-$drupal_root = '';
+function project_release_drush_help($section) {
+  switch ($section) {
+    case 'meta:project_release:title':
+      return dt('Project release commands');
 
-// The name of your site. Required so that when we bootstrap Drupal in
-// this script, we find the right settings.php file in your sites folder.
-// For example, on drupal.org:
-// $site_name = 'drupal.org';
-$site_name = '';
-
-// Root of the temporary directory where you want packages to be
-// made. Subdirectories will be created depending on the task.
-$tmp_root = '';
-
-// ------------------------------------------------------------
-// Optional customization
-// ------------------------------------------------------------
-
-// ----------------
-// File destination
-// ----------------
-// This assumes you want to install the packaged releases in the
-// "files/projects" directory of your root Drupal installation. If
-// that's not the case, you should customize these.
-$dest_root = $drupal_root;
-$dest_rel = 'files/projects';
-
-// --------------
-// External tools
-// --------------
-// If you want this program to always use absolute paths for all the
-// tools it invokes, provide a full path for each one. Otherwise,
-// the script will find these tools in your PATH.
-$rm = '/bin/rm';
-$php = '/usr/bin/php';
-
-// If you are using project-release-create-history.php to generate XML release
-// history files, if you include the full path to your copy of that script
-// here, after all the packages are re(generated), this script will regenerate
-// the XML release history files for any projects with new/updated releases.
-$project_release_create_history = '';
-
-
-// ------------------------------------------------------------
-// Initialization
-// (Real work begins here, nothing else to customize)
-// ------------------------------------------------------------
-
-// Check if all required variables are defined
-$vars = array(
-  'drupal_root' => $drupal_root,
-  'site_name' => $site_name,
-  'tmp_root' => $tmp_root,
-);
-foreach ($vars as $name => $val) {
-  if (empty($val)) {
-    print "ERROR: \"\$$name\" variable not set, aborting\n";
-    $fatal_err = true;
+    case 'drush:release-package':
+      return dt('Package files for release nodes.');
   }
 }
-if (!empty($fatal_err)) {
-  exit(1);
+
+function drush_project_release_release_package_validate($type = NULL, $project_id = NULL) {
+  if ($type !== 'tag' && $type !== 'branch') {
+    return drush_set_error('INVALID_TYPE', dt('First type must be "branch" or "tag".'));
+  }
 }
 
-$script_name = $argv[0];
+function drush_project_release_release_package($type, $project_id = NULL) {
+  // Force the right umask while this script runs, so that everything is created
+  // with sane file permissions.
+  umask(0022);
 
-// Find what kind of packaging we need to do
-if (!empty($argv[1])) {
-  $task = $argv[1];
-}
-else {
-  $task = 'tag';
-}
-switch($task) {
-  case 'tag':
-  case 'branch':
-    break;
+  // Load the include file for packager-related helper functions.
+  module_load_include('inc', 'project_release', 'includes/packager');
 
-  default:
-    print "ERROR: $argv[0] invoked with invalid argument: \"$task\"\n";
-    exit (1);
-}
+  // Initialize temporary directory.
+  $tmp_dir = drush_tempdir();
 
-$project_id = 0;
-if (!empty($argv[2])) {
-  $project_id = $argv[2];
-}
-
-// Setup variables for Drupal bootstrap
-$_SERVER['HTTP_HOST'] = $site_name;
-$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-$_SERVER['REQUEST_METHOD']  = 'GET';
-$_SERVER['REQUEST_URI'] = '/' . $script_name;
-$_SERVER['SERVER_SOFTWARE'] = 'PHP CLI';
-$_SERVER['QUERY_STRING']    = '';
-$_SERVER['SCRIPT_NAME'] = '/' . $script_name;
-$_SERVER['PHP_SELF'] = '/' . $script_name;
-$_SERVER['SCRIPT_FILENAME'] = $_SERVER['PWD'] . '/' . $script_name;
-$_SERVER['PATH_TRANSLATED'] = $_SERVER['SCRIPT_FILENAME'];
-
-
-if (!chdir($drupal_root)) {
-  print "ERROR: Can't chdir($drupal_root): aborting.\n";
-  exit(1);
-}
-
-// Force the right umask while this script runs, so that everything is created
-// with sane file permissions.
-umask(0022);
-
-require_once 'includes/bootstrap.inc';
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-// We have to initialize the theme() system before we leave $drupal_root
-$hack = theme('placeholder', 'hack');
-
-// Load the include file for packager-related helper functions.
-module_load_include('inc', 'project_release', 'includes/packager');
-
-initialize_tmp_dir($task);
-package_releases($task, $project_id);
-// Now that we're done, clean out the tmp/task dir we created
-chdir($tmp_root);
-drupal_exec("$rm -rf $tmp_dir");
-
-// ------------------------------------------------------------
-// Functions: main work
-// ------------------------------------------------------------
-
-function package_releases($type, $project_id = 0) {
-  global $drupal_root, $dest_root, $dest_rel, $tmp_dir, $wd_err_msg;
-  global $php, $project_release_create_history;
-
-  if (!empty($project_id)) {
-    if (is_numeric($project_id)) {
-      $project_nid = $project_id;
-    }
-    else {
-      $project_nid = db_result(db_query("SELECT nid FROM {project_projects} WHERE uri = '%s'", $project_id));
-    }
-    // We repeatedly clear the node_load() cache, but we have our own cache
-    // for loading the project nodes since those tend to repeat and we need to
-    // load less of them.
-    $project_node = project_release_packager_node_load($project_nid);
-    if (empty($project_node)) {
-      wd_err('ERROR: Project ID %id not found', array('%id' => $project_id));
-      return FALSE;
+  // If specified, find the project.
+  if (!is_null($project_id)) {
+    $project_node = project_load($project_id);
+    if ($project_node === FALSE) {
+      return drush_set_error('INVALID_PROJECT', dt('ERROR: Project ID @id not found', array('@id' => $project_id)));
     }
   }
 
-  $rel_node_join = '';
-  $where_args = array();
-  if ($type == 'tag') {
-    $where = " AND (prn.rebuild = %d) AND (f.filepath IS NULL OR f.filepath = '')";
-    $where_args[] = 0;  // prn.rebuild
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project_release');
+  if ($type === 'tag') {
+    $query->fieldCondition('field_release_build_type', 'value', 'static');
+    $where = " AND (f.filepath IS NULL OR f.filepath = '')";
     $plural = t('tags');
   }
-  elseif ($type == 'branch') {
+  elseif ($type === 'branch') {
+    $query->fieldCondition('field_release_build_type', 'value', 'dynamic');
     $rel_node_join = " INNER JOIN {node} nr ON prn.nid = nr.nid";
-    $where = " AND (prn.rebuild = %d) AND ((f.filepath IS NULL) OR (f.filepath = '') OR (nr.status = %d))";
-    $where_args[] = 1;  // prn.rebuild
+    $where = " AND ((f.filepath IS NULL) OR (f.filepath = '') OR (nr.status = %d))";
     $where_args[] = 1;  // nr.status
     $plural = t('branches');
     if (empty($project_node)) {
@@ -182,10 +74,6 @@ function package_releases($type, $project_id = 0) {
     else {
       wd_msg("Starting to package snapshot releases for project id: %project_short_name.", array('%project_short_name' => $project_node->project['uri']), l(t('view'), 'node/' . $project_node->nid));
     }
-  }
-  else {
-    wd_err("ERROR: package_releases() called with unknown type: %type", array('%type' => $type));
-    return FALSE;
   }
   $args = array();
   $args[] = 1;    // Account for np.status = 1.
@@ -196,6 +84,24 @@ function package_releases($type, $project_id = 0) {
   }
   $args = array_merge($args, $where_args);
   $query = db_query("SELECT prn.nid FROM {project_release_nodes} prn $rel_node_join LEFT JOIN {project_release_file} prf ON prn.nid = prf.nid LEFT JOIN {files} f ON prf.fid = f.fid INNER JOIN {project_projects} pp ON prn.pid = pp.nid INNER JOIN {node} np ON prn.pid = np.nid INNER JOIN {project_release_projects} prp ON prp.nid = prn.pid WHERE np.status = %d AND prp.releases = %d " . $where . ' ORDER BY pp.uri', $args);
+}
+
+/*
+// This assumes you want to install the packaged releases in the
+// "files/projects" directory of your root Drupal installation. If
+// that's not the case, you should customize these.
+$dest_root = $drupal_root;
+$dest_rel = 'files/projects';
+
+// If you are using project-release-create-history.php to generate XML release
+// history files, if you include the full path to your copy of that script
+// here, after all the packages are re(generated), this script will regenerate
+// the XML release history files for any projects with new/updated releases.
+$project_release_create_history = '';
+
+function package_releases($type, $project_id = 0) {
+  global $dest_root, $dest_rel, $wd_err_msg;
+  global $php, $project_release_create_history;
 
   $num_built = 0;
   $num_considered = 0;
@@ -232,11 +138,9 @@ function package_releases($type, $project_id = 0) {
 
     db_query("DELETE FROM {project_release_package_errors} WHERE nid = %d", $release_node->nid);
 
-    chdir($drupal_root);
     $files = array();
     $rval = $packager->createPackage($files);
     $num_considered++;
-    chdir($drupal_root);
 
     switch ($rval) {
       case 'success':
@@ -332,11 +236,11 @@ function drupal_chdir($dir) {
 
 /**
  * Wrapper function for watchdog() to log notice messages. Uses a
- * different watchdog message type depending on the task (branch vs. tag).
+ * different watchdog message type depending on the type (branch vs. tag).
  */
 function wd_msg($msg, $variables = array(), $link = NULL) {
-  global $task;
-  watchdog('package_' . $task, $msg, $variables, WATCHDOG_NOTICE, $link);
+  global $type;
+  watchdog('package_' . $type, $msg, $variables, WATCHDOG_NOTICE, $link);
   echo t($msg, $variables) . "\n";
 }
 
@@ -351,33 +255,4 @@ function wd_err($msg, $variables = array(), $link = NULL) {
   watchdog('package_error', $msg, $variables, WATCHDOG_ERROR, $link);
   echo t($msg, $variables) . "\n";
   $wd_err_msg[] = t($msg, $variables);
-}
-
-/**
- * Initialize the tmp directory. Use different subdirs for building
- * snapshots than official tags, so there's no potential directory
- * collisions and race conditions if both are running at the same time
- * (due to how long it takes to complete a branch snapshot run, and
- * how often we run this for tag-based releases).
- */
-function initialize_tmp_dir($task) {
-  global $tmp_dir, $tmp_root, $rm;
-
-  if (!is_dir($tmp_root) && !@mkdir($tmp_root, 0777, TRUE)) {
-    wd_err("ERROR: mkdir(@dir) (tmp_root) failed", array('@dir' => $tmp_root));
-    exit(1);
-  }
-
-  // Use a tmp directory *specific* to this invocation, so that we don't
-  // clobber other runs if the script is invoked twice (e.g. via cron and
-  // manually, etc).
-  $tmp_dir = $tmp_root . '/' . $task . '.' . getmypid();
-  if (is_dir($tmp_dir)) {
-    // Make sure we start with a clean slate
-    drupal_exec("$rm -rf $tmp_dir/*");
-  }
-  else if (!@mkdir($tmp_dir, 0777, TRUE)) {
-    wd_err("ERROR: mkdir(@dir) failed", array('@dir' => $tmp_dir));
-    exit(1);
-  }
 }

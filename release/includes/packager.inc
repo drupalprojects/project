@@ -195,24 +195,3 @@ function project_release_packager_update_node($release_node, $file_destination_d
     node_save($release_node);
   }
 }
-
-/**
- * Load a node.
- *
- * This function maintains its own static cache of loaded nodes.
- *
- * @param integer $nid
- *   The node ID of the node to load.
- *
- * @return
- *   The fully-loaded node for the given node ID.
- *
- * @see node_load()
- */
-function project_release_packager_node_load($nid) {
-  static $nodes = array();
-  if (empty($nodes[$nid])) {
-    $nodes[$nid] = node_load($nid);
-  }
-  return $nodes[$nid];
-}
