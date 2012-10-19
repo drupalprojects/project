@@ -210,6 +210,30 @@ function project_permission() {
       'description' => t('Administer all projects.'),
       'restrict access' => TRUE,
     ),
+    'create sandbox projects' => array(
+      'title' => t('Create sandbox projects'),
+      'description' => t('Create any type of projects as a sandbox. Users must also have the correct project-type create permission.'),
+    ),
+    'create full projects' => array(
+      'title' => t('Create full projects'),
+      'description' => t('Create any type of project as a full project. Users must also have the correct project-type create permission.'),
+    ),
+    'delete any full project' => array(
+      'title' => t('Delete any full project'),
+      'description' => t('Delete any type of full project. Users must also have the correct project-type delete permission.'),
+    ),
+    'delete own full project' => array(
+      'title' => t('Delete own full project'),
+      'description' => t('Delete full projects that the user owns. Users must also have the correct project-type delete permission.'),
+    ),
+    'delete any sandbox project' => array(
+      'title' => t('Delete any sandbox project'),
+      'description' => t('Delete any type of sandbox project. Users must also have the correct project-type delete permission.'),
+    ),
+    'delete own sandbox project' => array(
+      'title' => t('Delete own sandbox project'),
+      'description' => t('Delete sandbox projects that the user owns. Users must also have the correct project-type delete permission.'),
+    ),
   );
 }
 
@@ -287,16 +311,46 @@ function project_node_update($node) {
  * Implements hook_node_access().
  */
 function project_node_access($node, $op, $account) {
-  switch (gettype($node)) {
-    case 'object':
-      if (project_node_is_project($node)) {
-        return (project_user_access($node, $op . ' project', $account)) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
-      }
+  $type = is_string($node) ? $node : $node->type;
+  if (project_node_type_is_project($type)) {
+    switch ($op) {
+      case 'create':
+        if (!user_access('create full projects')
+            && !user_access('create sandbox projects')) {
+          return NODE_ACCESS_DENY;
+        }
+        break;
 
-      return NODE_ACCESS_IGNORE;
+      case 'delete':
+        $is_owner = $node->uid == $account->uid;
+        if (project_project_is_sandbox($node)) {
+          $any_perm = user_access('delete any sandbox project');
+          $own_perm = user_access('delete own sandbox project');
+        }
+        else {
+          $any_perm = user_access('delete any full project');
+          $own_perm = user_access('delete own full project');
+        }
+        if ($is_owner) {
+          if (!$any_perm && !$own_perm) {
+            return NODE_ACCESS_DENY;
+          }
+        }
+        // Not the owner.
+        else {
+          if (!$any_perm) {
+            return NODE_ACCESS_DENY;
+          }
+        }
+        break;
+    }
 
-    default:
-      return NODE_ACCESS_IGNORE;
+    // If we haven't already denied, and we're not trying to create, check the
+    // per-project permissions for the given user.
+    if ($op != 'create') {
+      return (project_user_access($node, $op . ' project', $account)) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+    }
+
   }
 }
 
@@ -534,6 +588,20 @@ function project_projects_select_options(array $conditions = array()) {
     }
   }
   return $projects;
+}
+
+/**
+ * Determine if a given node is a sandbox or full project.
+ *
+ * @param $node
+ *   A fully-loaded node object representing the project.
+ *
+ * @return boolean
+ *   TRUE if the given node is a sandbox project, FALSE if full.
+ */
+function project_project_is_sandbox($node) {
+  return !empty($node->field_project_type[LANGUAGE_NONE][0]['value'])
+    && $node->field_project_type[LANGUAGE_NONE][0]['value'] == 'sandbox';
 }
 
 /**
