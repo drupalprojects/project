@@ -643,7 +643,9 @@ function project_promote_project_form($form_state, $project) {
   if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
     // Unset this in case the user cancels on the confirm form so we don't leak
     // this into the $_SESSION permanently. Also ensures we start clean.
-    unset($_SESSION['project_promote_project_shortname']);
+    // Note that we append the nid to the variable name in case a user is
+    // promoting multiple projects simultaneously (yes, it happens).
+    unset($_SESSION['project_promote_project_shortname_' . $project->nid]);
     $form['shortname'] = array(
       '#type' => 'textfield',
       '#title' => t('Short project name'),
@@ -695,7 +697,10 @@ function project_promote_project_form_validate($form, &$form_state) {
  */
 function project_promote_project_form_submit($form, &$form_state) {
   if (isset($form_state['values']['shortname'])) {
-    $_SESSION['project_promote_project_shortname'] = $form_state['values']['shortname'];
+    // Note that we append the nid to the variable name in case a user is
+    // promoting multiple projects simultaneously (yes, it happens).
+    $session_var = 'project_promote_project_shortname_' . $form_state['values']['pid'];
+    $_SESSION[$session_var] = $form_state['values']['shortname'];
   }
   $form_state['redirect'] = 'node/' . $form_state['values']['pid'] . '/edit/promote/confirm';
 }
@@ -713,8 +718,8 @@ function project_promote_project_confirm_form($form_state, $project) {
     '#value' => $project->nid,
   );
 
-  if (isset($_SESSION['project_promote_project_shortname'])) {
-    $shortname = $_SESSION['project_promote_project_shortname'];
+  if (isset($_SESSION['project_promote_project_shortname_' . $project->nid])) {
+    $shortname = $_SESSION['project_promote_project_shortname_' . $project->nid];
     // Note: we can't unset this value from the $_SEESSION here, or this form
     // element won't be included when building the form during submission. So,
     // we'll unset once we actually submit the confirm form.
@@ -750,7 +755,7 @@ function project_promote_project_confirm_form_submit($form, &$form_state) {
   $project = node_load($form_state['values']['nid']);
   $project->project['sandbox'] = 0;
 
-  unset($_SESSION['project_promote_project_shortname']);
+  unset($_SESSION['project_promote_project_shortname_' . $project->nid]);
   // Only update the shortname if it is relevant, and included in the original
   // form.
   if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
