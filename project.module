@@ -129,6 +129,26 @@ function project_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['node/%project/edit/promote'] = array(
+    'title' => 'Promote',
+    'page callback' => 'project_promote_project_page',
+    'page arguments' => array(1),
+    'access callback' => 'project_promote_project_access',
+    'access arguments' => array(1),
+    'file' => 'includes/project_promote.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['node/%project/edit/promote/confirm'] = array(
+    'title' => 'Promote',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('project_promote_project_confirm_form', 1),
+    'access callback' => 'project_promote_project_access',
+    'access arguments' => array(1),
+    'file' => 'includes/project_promote.inc',
+    'type' => MENU_CALLBACK,
+  );
+
   $items['admin/config/project'] = array(
     'title' => t('Project'),
     'access callback' => 'user_access',
@@ -157,6 +177,42 @@ function project_menu_alter(&$callbacks) {
   // Only take over secondary local tasks for projects.
   $callbacks['node/%node/edit/project']['access callback'] = 'project_user_access';
   $callbacks['node/%node/edit/project']['access arguments'] = array(1, 'edit project');
+}
+
+/**
+ * Menu access callback for the promote tab at node/%project/edit/promote.
+ *
+ * @param $node
+ *   The project object to check access against.
+ */
+function project_promote_project_access($node) {
+  // This callback is only valid for projects that are sandboxes. Further,
+  // restrict to users with either 'administer projects' or users that have
+  // access to edit the project and 'create full projects' permission.
+  return project_promote_project_is_sandbox($node) && (user_access('administer projects') || (project_user_access($node, 'edit project') && user_access('create full projects')));
+}
+
+/**
+ * Page callback for promote subtab.
+ */
+function project_promote_project_page($node) {
+  project_project_set_breadcrumb($node);
+  drupal_set_title(check_plain($node->title));
+  return drupal_get_form('project_promote_project_form', $node);
+}
+
+/**
+ * Determine if a given node is a sandbox or full project.
+ *
+ * @param $node
+ *   A fully-loaded node object representing the project.
+ *
+ * @return boolean
+ *   TRUE if the given node is a sandbox project, FALSE if full.
+ */
+function project_promote_project_is_sandbox($node) {
+  return !empty($node->field_project_type[LANGUAGE_NONE][0]['value'])
+    && $node->field_project_type[LANGUAGE_NONE][0]['value'] == 'sandbox';
 }
 
 /**
@@ -195,6 +251,25 @@ function project_main_settings_form() {
       'auto' => t('Autocomplete'),
     ),
     '#default_value' => variable_get('project_selection_widget', 'select'),
+  );
+
+  $form['project_allow_machinename_update'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow changing project shortnames'),
+    '#default_value' => variable_get('project_allow_machinename_update', FALSE),
+    '#description' => t('If checked, someone with the right permissions will be able to change the shortname of a project, which also changes the automatically generated URL of that project.'),
+  );
+
+  $form['sandbox'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sandbox settings'),
+    '#collapsible' => TRUE,
+  );
+  $form['sandbox']['project_sandbox_numeric_shortname'] = array(
+    '#title' => t('Auto generate short name for sandboxes'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('project_sandbox_numeric_shortname', FALSE),
+    '#description' => t('If checked, projects marked as sandboxes will be have their shortname automatically generated using a unique numeric identifier.'),
   );
 
   return system_settings_form($form);
@@ -323,7 +398,7 @@ function project_node_access($node, $op, $account) {
 
       case 'delete':
         $is_owner = $node->uid == $account->uid;
-        if (project_project_is_sandbox($node)) {
+        if (project_promote_project_is_sandbox($node)) {
           $any_perm = user_access('delete any sandbox project');
           $own_perm = user_access('delete own sandbox project');
         }
@@ -591,20 +666,6 @@ function project_projects_select_options(array $conditions = array()) {
 }
 
 /**
- * Determine if a given node is a sandbox or full project.
- *
- * @param $node
- *   A fully-loaded node object representing the project.
- *
- * @return boolean
- *   TRUE if the given node is a sandbox project, FALSE if full.
- */
-function project_project_is_sandbox($node) {
-  return !empty($node->field_project_type[LANGUAGE_NONE][0]['value'])
-    && $node->field_project_type[LANGUAGE_NONE][0]['value'] == 'sandbox';
-}
-
-/**
  * Implements hook_FORM_ID_form_alter().
  *
  * This adds a 'Project settings' vertical tab to the node_type_form and the
@@ -670,4 +731,99 @@ function project_project_node_type_settings($form) {
   return array(
     '#behavior_label' => t('Used for projects'),
   );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function project_form_alter(&$form, &$form_state, $form_id) {
+  // On node forms, if we're adding or updating a project type, don't let the
+  // user directly manipulate field_project_type but force them to go through
+  // the promote UI instead.
+  if (!empty($form['#node_edit_form'])) {
+    $node = $form_state['build_info']['args'][0];
+    if (project_node_type_is_project($node->type)) {
+      if (!empty($form['field_project_type'])) {
+        $create_full = user_access('create full projects');
+        if (!empty($node->field_project_type) || !$create_full) {
+          $form['field_project_type']['#access'] = FALSE;
+          if (!$create_full) {
+            $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Validate the short name (machine name) of a project node.
+ *
+ * @param $node
+ *   A project node with relevant fields pre-filled
+ * @return
+ *   A string containing an error message, or FALSE if no errors were found.
+ */
+function project_validate_project_shortname(&$node) {
+  if (empty($node->field_project_machine_name[LANGUAGE_NONE][0]['value'])) {
+    return t('A short project name is required.');
+  }
+  else {
+    // Make sure the machine name (shortname) only includes valid characters
+    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $node->field_project_machine_name[LANGUAGE_NONE][0]['value'])) {
+      return t('Please only use alphanumeric characters for the project short name.');
+    }
+
+    // Make sure machine name isn't already in use, or reserved.  Includes all
+    // X from project/issues/X paths used in project_issues module
+    $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
+    if (in_array(strtolower($node->field_project_machine_name[LANGUAGE_NONE][0]['value']), $reserved_names)) {
+      return t('This project short name is reserved.');
+    }
+    $existing_nid = project_get_nid_from_machinename($node->field_project_machine_name[LANGUAGE_NONE][0]['value']);
+    if (!empty($existing_nid) && $existing_nid != $node->nid) {
+      return t('This project short name is already in use.');
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Find a project node ID (nid) based on project machine name (shortname).
+ *
+ * @param $machinename
+ *   The project machine name (shortname) to search for.
+ *
+ * @return
+ *   The project node ID (nid) of the given project, or FALSE if not found.
+ */
+function project_get_nid_from_machinename($machinename) {
+  // @TODO : is the static caching here useful at all ?  Does it ever "hit" or
+  // is it just needless complication ?
+  static $nids = array();
+  if (isset($nids[$machinename])) {
+    return $nids[$machinename];
+  }
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node', '=')
+    ->fieldCondition('field_project_machine_name', 'value', $machinename, '=')
+    ->execute();
+  if (!empty($result['node'])) {
+    foreach ($result['node'] as $matchingnid => $matchingobj) {
+      // Check node type without doing an entity_load()
+      if (!isset($matchingobj->type) || !project_node_type_is_project($matchingobj->type)) {
+        continue;
+      }
+      $nids[$machinename] = $matchingnid;
+    }
+  }
+  // return the nid
+  if (array_key_exists($machinename, $nids)) {
+    return $nids[$machinename];
+  }
+  else {
+    return FALSE;
+  }
 }
