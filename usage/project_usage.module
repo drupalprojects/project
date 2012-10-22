@@ -40,7 +40,7 @@ define('PROJECT_USAGE_SHOW_WEEKS', 6);
  * Implements hook_menu().
  */
 function project_usage_menu() {
-  $items['admin/project/project-usage-settings'] = array(
+  $items['admin/config/project/project-usage-settings'] = array(
     'title' => 'Project usage settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('project_usage_settings_form'),
