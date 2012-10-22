@@ -155,7 +155,7 @@ function project_menu() {
     'access arguments' => array('administer projects'),
   );
 
-  $items['admin/config/project/settings'] = array(
+  $items['admin/config/project/project-settings'] = array(
     'title' => t('Project settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('project_main_settings_form'),
