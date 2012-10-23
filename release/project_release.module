@@ -780,9 +780,23 @@ function project_release_get_releases($project, $nodes = TRUE, $sort_by = 'versi
       $releases[$obj->nid] = $obj->version;
     }
   }
+  if (!$nodes && $sort_by == 'version') {
+    uasort($releases, '_project_release_version_compare');
+  }
   return $releases;
 }
 
+/**
+ * Helper function for uasort()ing version strings.
+ */
+function _project_release_version_compare($a, $b) {
+  if ($a == $b) {
+    return 0;
+  }
+  $a = str_replace('.x-', '.9999-', $a);
+  $b = str_replace('.x-', '.9999-', $b);
+  return version_compare($a, $b, '>') ? -1 : 1;
+}
 
 /**
  * @defgroup project_release_callback Menu callback functions
