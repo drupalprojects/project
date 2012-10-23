@@ -1189,9 +1189,24 @@ function project_release_get_available_versions($project_nid, $api_tid = NULL) {
   $releases = project_release_query_releases($project_nid, $api_tid, NULL, FALSE, TRUE);
   $return = array();
   foreach ($releases as $release) {
-    $return[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+    $versions[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
   }
-  return $return;
+  uasort($versions, '_project_release_version_compare');
+  return $versions;
+}
+
+/**
+ * Helper function for uasort()ing version strings.
+ */
+function _project_release_version_compare($a, $b) {
+  if ($a == $b) {
+    return 0;
+  }
+  // Minor hack to handle Drupal-specific contrib version numbers. This
+  // shouldn't harm anyone else's sort order.
+  $a = str_replace('.x-', '.9999-', $a);
+  $b = str_replace('.x-', '.9999-', $b);
+  return version_compare($a, $b, '>') ? -1 : 1;
 }
 
 /**
