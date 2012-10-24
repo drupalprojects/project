@@ -1309,6 +1309,15 @@ function project_release_views_api() {
 }
 
 /**
+ * Implements hook_ctools_plugin_api().
+ */
+function project_release_ctools_plugin_api($module, $api) {
+  if ($module == 'field_group' && $api == 'field_group') {
+    return array('version' => 1);
+  }
+}
+
+/**
  * Return the mapping of version_extra prefixes to version_extra_weight values.
  *
  * This mapping allows project_release to use SQL to sort releases by version,
