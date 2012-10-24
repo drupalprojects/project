@@ -104,6 +104,15 @@ function project_views_api() {
 }
 
 /**
+ * Implements hook_ctools_plugin_api().
+ */
+function project_ctools_plugin_api($module, $api) {
+  if ($module == 'field_group' && $api == 'field_group') {
+    return array('version' => 1);
+  }
+}
+
+/**
  * Implementats hook_menu().
  */
 function project_menu() {
