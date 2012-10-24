@@ -14,8 +14,8 @@ function project_release_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_releases|node|project|form';
-  $field_group->group_name = 'group_releases';
+  $field_group->identifier = 'group_project_releases|node|project|form';
+  $field_group->group_name = 'group_project_releases';
   $field_group->entity_type = 'node';
   $field_group->bundle = 'project';
   $field_group->mode = 'form';
@@ -37,6 +37,6 @@ function project_release_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_releases|node|project|form'] = $field_group;
+  $field_groups['group_project_releases|node|project|form'] = $field_group;
   return $field_groups;
 }
