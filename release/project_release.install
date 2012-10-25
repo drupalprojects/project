@@ -1331,24 +1331,25 @@ function project_release_update_7007() {
     return $t('No legacy data detected. Skipping this update.');
   }
 
-  // Create entities 1:1 with project release nodes.
-  // The clever bit is that we're temporarily using the revision_id to store our nid.
+  // Create entities 1:1 with project release files.
+  // The clever bit is that we're temporarily using the revision_id to store our fid.
   // This means we can do everything in the aggregate.
-  db_query("INSERT INTO {field_collection_item} (revision_id, field_name, archived) (SELECT nid, 'field_release_files', 0 FROM {project_release_nodes})");
+  db_query("INSERT INTO {field_collection_item} (revision_id, field_name, archived) (SELECT fid, 'field_release_files', 0 FROM {project_release_file})");
   // Generate revisions 1:1 with the freshly created entities.
   db_query("INSERT INTO {field_collection_item_revision} (item_id) (SELECT item_id FROM {field_collection_item} WHERE field_name = 'field_release_files')");
 
   // Inject the forward references into the host.
   $query = db_select('field_collection_item', 'i');
   $query->innerJoin('field_collection_item_revision', 'r', 'i.item_id = r.item_id');
-  $query->innerJoin('node', 'n', 'i.revision_id = n.nid'); // i.revision_id = temp nid storage.
+  $query->innerJoin('project_release_file', 'f', 'i.revision_id = f.fid'); // i.revision_id = temp fid storage.
+  $query->innerJoin('node', 'n', 'f.nid = n.nid');
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
   $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project_release'));
   $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
-  $query->addField('i', 'revision_id', 'entity_id');
+  $query->addField('n', 'nid', 'entity_id');
   $query->addField('n', 'vid', 'revision_id');
   $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
-  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addField('f', 'delta', 'delta');
   $query->addField('i', 'item_id', 'field_release_files_value');
   $query->addField('r', 'revision_id', 'field_release_files_revision_id');
   $query->distinct();
@@ -1359,14 +1360,15 @@ function project_release_update_7007() {
 
   $query = db_select('field_collection_item', 'i');
   $query->innerJoin('field_collection_item_revision', 'r', 'i.item_id = r.item_id');
-  $query->innerJoin('node_revision', 'n', 'i.revision_id = n.nid'); // i.revision_id = temp nid storage.
+  $query->innerJoin('project_release_file', 'f', 'i.revision_id = f.fid'); // i.revision_id = temp fid storage.
+  $query->innerJoin('node_revision', 'n', 'f.nid = n.nid');
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
   $query->addExpression(':bundle', 'bundle', array(':bundle' => 'project_release'));
   $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
-  $query->addField('i', 'revision_id', 'entity_id');
+  $query->addField('n', 'nid', 'entity_id');
   $query->addField('n', 'vid', 'revision_id');
   $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
-  $query->addExpression(':delta', 'delta', array(':delta' => 0));
+  $query->addField('f', 'delta', 'delta');
   $query->addField('i', 'item_id', 'field_release_files_value');
   $query->addField('r', 'revision_id', 'field_release_files_revision_id');
 
@@ -1386,14 +1388,14 @@ function project_release_update_7007() {
   // field_release_file
   $query = db_select('field_collection_item', 'i');
   $query->innerJoin('field_data_field_release_files', 'r', 'i.item_id = r.field_release_files_value');
-  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid');
+  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid AND r.delta = f.delta'); // Use the delta to select the correct file for each.
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'field_collection_item'));
   $query->addExpression(':bundle', 'bundle', array(':bundle' => 'field_release_files'));
   $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
   $query->addField('i', 'item_id', 'entity_id');
   $query->addField('i', 'revision_id', 'revision_id');
   $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
-  $query->addField('f', 'delta', 'delta');
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
   $query->addField('f', 'fid', 'field_release_file_fid');
   $query->addExpression(':frf_display', 'field_release_file_display', array(':frf_display' => 1));
   $query->addExpression(':frf_desc', 'field_release_file_description', array(':frf_desc' => ''));
@@ -1410,14 +1412,14 @@ function project_release_update_7007() {
   // field_release_file_hash
   $query = db_select('field_collection_item', 'i');
   $query->innerJoin('field_data_field_release_files', 'r', 'i.item_id = r.field_release_files_value');
-  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid');
+  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid AND r.delta = f.delta'); // Use the delta to select the correct file for each.
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'field_collection_item'));
   $query->addExpression(':bundle', 'bundle', array(':bundle' => 'field_release_files'));
   $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
   $query->addField('i', 'item_id', 'entity_id');
   $query->addField('i', 'revision_id', 'revision_id');
   $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
-  $query->addField('f', 'delta', 'delta');
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
   $query->addField('f', 'filehash', 'field_release_file_hash_value');
   $query->addExpression(':frh_format', 'field_release_file_hash_format', array(':frh_format' => NULL));
   $query_c = clone($query);
@@ -1433,14 +1435,14 @@ function project_release_update_7007() {
   // field_release_file_downloads
   $query = db_select('field_collection_item', 'i');
   $query->innerJoin('field_data_field_release_files', 'r', 'i.item_id = r.field_release_files_value');
-  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid');
+  $query->innerJoin('project_release_file', 'f', 'r.entity_id = f.nid AND r.delta = f.delta'); // Use the delta to select the correct file for each.
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'field_collection_item'));
   $query->addExpression(':bundle', 'bundle', array(':bundle' => 'field_release_files'));
   $query->addExpression(':deleted', 'deleted', array(':deleted' => 0));
   $query->addField('i', 'item_id', 'entity_id');
   $query->addField('i', 'revision_id', 'revision_id');
   $query->addExpression(':language', 'language', array(':language' => LANGUAGE_NONE));
-  $query->addField('f', 'delta', 'delta');
+  $query->addExpression(':delta', 'delta', array(':delta' => 0));
   $query->addField('f', 'downloads', 'field_release_file_downloads_value');
   $query_c = clone($query);
 
@@ -1453,7 +1455,12 @@ function project_release_update_7007() {
     ->execute();
 
   // Add the file usage.
-  db_query("INSERT INTO {file_usage} (fid, module, type, id, count) (SELECT field_release_file_fid, 'file', 'field_collection_item', entity_id, 0 FROM {field_data_field_release_file})");
+  // Note that during import, the usage is always 1 because we have a single field collection entity and revision per file.
+  db_query("INSERT INTO {file_usage} (fid, module, type, id, count) (SELECT field_release_file_fid, 'file', 'field_collection_item', entity_id, 1 FROM {field_data_field_release_file})");
+  //db_query("INSERT INTO {file_usage} (fid, module, type, id, count) (SELECT field_release_file_fid, 'file', 'field_collection_item', entity_id, COUNT(*) FROM {field_revision_field_release_file} GROUP BY field_release_file_fid, entity_id)");
+
+  // Remove our temporary index.
+  db_drop_index('field_data_field_release_files', 'tmp_rev_idx');
 }
 
 /**
