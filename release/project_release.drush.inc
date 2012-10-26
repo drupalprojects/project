@@ -44,9 +44,6 @@ function drush_project_release_release_package($type, $project_id) {
   // Load the include file for packager-related helper functions.
   module_load_include('inc', 'project_release', 'includes/packager');
 
-  // Initialize temporary directory.
-  $tmp_dir = drush_tempdir();
-
   // Find the project.
   $project_node = project_load($project_id);
   if ($project_node === FALSE) {
@@ -73,6 +70,13 @@ function drush_project_release_release_package($type, $project_id) {
     drush_log(dt('No !type releases found for @id.', array('!type' => $type, '@id' => $project_id)), 'warning');
     return;
   }
+
+  // If needed, prod module_implements() to recognize our
+  // project_release_watchdog() implementation.
+  if (!in_array('project_release', module_implements('watchdog'))) {
+    module_implements('watchdog', FALSE, TRUE);
+  }
+
   foreach (array_keys($result['node']) as $release_nid) {
     // We don't want to waste too much RAM by leaving all these loaded nodes
     // in RAM, so we reset the node_load() cache each time we call it.
@@ -93,7 +97,7 @@ function drush_project_release_release_package($type, $project_id) {
     }
 
     // Find the packager plugin.
-    $packager = project_release_get_packager_plugin($release_node, $tmp_dir);
+    $packager = project_release_get_packager_plugin($release_node, drush_tempdir());
     if ($packager === FALSE) {
       watchdog('package_error', "Can't find packager plugin to use for %release", array('%release' => $release_node->title), WATCHDOG_ERROR);
       continue;
@@ -103,8 +107,8 @@ function drush_project_release_release_package($type, $project_id) {
     db_delete('project_release_package_errors')
       ->condition('nid', $release_node->nid)
       ->execute();
+    project_release_watchdog(NULL, $release_node->nid);
 
-    /*
     $files = array();
     $rval = $packager->createPackage($files);
     $num_considered += 1;
@@ -115,43 +119,56 @@ function drush_project_release_release_package($type, $project_id) {
         project_release_packager_update_node($release_node, $files);
         module_invoke_all('project_release_create_package', $project_node, $release_node);
         $num_built += 1;
-        $packager->cleanupSuccessfulBuild();
-        $release_pid = $release_node->project_release['pid'];
-        $release_node_view_link = l(t('View'), 'node/' . $release_node->nid);
-        if ($rval == 'rebuild') {
+        if ($rval === 'rebuild') {
           $msg = '%release_title has changed, re-packaged.';
         }
         else {
           $msg = 'Packaged %release_title.';
         }
-        wd_msg($msg, array('%release_title' => $release_node->title), $release_node_view_link);
-        break;
-
-      case 'error':
-        $packager->cleanupFailedBuild();
+        watchdog('package_' . $type, $msg, array('%release_title' => $release_node->title), l(t('View'), 'node/' . $release_node->nid));
         break;
     }
 
-    if (count($wd_err_msg)) {
-      db_query("INSERT INTO {project_release_package_errors} (nid, messages) values (%d, '%s')", $release_node->nid, serialize($wd_err_msg));
-    }
-    */
+    // Write any log entries.
+    project_release_watchdog(NULL, FALSE);
   }
 
-  /*
-  if ($num_built || $type == 'branch') {
-    wd_msg("Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.", array('@project_short_name' => $project_node->project['uri'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered));
+  if ($num_built > 0 || $type === 'branch') {
+    watchdog('package_' . $type, "Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.", array('@project_short_name' => $project_node->project['uri'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered));
   }
+}
 
-  // Finally, regenerate release history XML files for all projects we touched.
-  if (!empty($project_release_create_history)) {
-    wd_msg('Re-generating release history XML files');
-    if (drupal_exec("$php $project_release_create_history " . $project_node->nid)) {
-      wd_msg('Done re-generating release history XML files');
-    }
-    else {
-      wd_msg('ERROR: Failed to re-generate release history XML files');
+/**
+ * Drush-only implementation of hook_watchdog(). Write out messages to
+ * project_release_package_errors table.
+ *
+ * @param $log_entry
+ *   An associative array, see hook_watchdog() for keys.
+ * @param $new_nid
+ *   Set release nid for log entries to be stored with. FALSE to reset and
+ *   write out any entries.
+ */
+function project_release_watchdog($log_entry = NULL, $new_nid = NULL) {
+  static $nid = FALSE;
+  static $messages = array();
+
+  if (is_null($new_nid)) {
+    // Invoked via hook_watchdog(), store message if there is a current node.
+    if ($nid !== FALSE) {
+      $messages[] = t($log_entry['message'], $log_entry['variables']);
     }
   }
-  */
+  else {
+    // Clearing out nid, write out messages.
+    if ($new_nid === FALSE && !empty($messages)) {
+      db_insert('project_release_package_errors')->fields(array(
+        'nid' => $nid,
+        'messages' => serialize($messages),
+      ))->execute();
+      $messages = array();
+    }
+
+    // Store new nid.
+    $nid = $new_nid;
+  }
 }

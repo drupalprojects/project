@@ -36,21 +36,6 @@ interface ProjectReleasePackagerInterface {
    *   - 'no-op': There was nothing to do to package the given release
    */
   public function createPackage(&$files);
-
-  /**
-   * Clean up the results of a failed packaging build.
-   *
-   * This function will be invoked if createPackage() returns 'error'.
-   */
-  public function cleanupFailedBuild();
-
-  /**
-   * Clean up the results of a successful packaging build.
-   *
-   * This function will be invoked if createPackage() returns anything other
-   * than 'error'.
-   */
-  public function cleanupSuccessfulBuild();
 }
 
 /**
@@ -118,12 +103,9 @@ function project_release_get_packager_plugin($release_node, $temp_directory) {
  *   the values are the weight for the {project_release_file}.weight column.
  */
 function project_release_packager_update_node($release_node, $files = array()) {
-
   // If the site is using DB replication, force this node_load() to use the
   // primary database to avoid node_load() failures.
-  if (function_exists('db_set_ignore_slave')) {
-    db_set_ignore_slave();
-  }
+  db_ignore_slave();
 
   if (!empty($files)) {
     // PHP will cache the results of stat() and give us stale answers
@@ -131,6 +113,7 @@ function project_release_packager_update_node($release_node, $files = array()) {
     clearstatcache();
 
     foreach ($files as $full_path => $file_weight) {
+      /* todo update $release_node object for node_save()
       // Compute the metadata for this file that we care about.
       $file_name = basename($full_path);
       $file_date = filemtime($full_path);
@@ -153,21 +136,18 @@ function project_release_packager_update_node($release_node, $files = array()) {
         db_query("UPDATE {files} SET uid = %d, filename = '%s', filepath = '%s', filemime = '%s', filesize = %d, status = %d, timestamp = %d WHERE fid = %d", $release_node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date, $file_data->fid);
         db_query("UPDATE {project_release_file} SET filehash = '%s', weight = %d WHERE fid = %d", $file_hash, $file_weight, $file_data->fid);
       }
+       */
     }
   }
 
   // Don't auto-publish security updates.
-  $security_update_tid = variable_get('project_release_security_update_tid', 0);
-  if (empty($release_node->project_release['rebuild']) && !empty($release_node->taxonomy[$security_update_tid])) {
+  if (project_release_is_security_update($release_node)) {
     watchdog('package_security', 'Not auto-publishing security update release.', array(), WATCHDOG_NOTICE, l(t('view'), 'node/' . $release_node->nid));
-    return;
+  }
+  // Finally publish the node if it is currently unpublished.
+  elseif ($release_node->status == NODE_NOT_PUBLISHED) {
+    $release_node->status = NODE_PUBLISHED;
   }
 
-  // Finally publish the node if it is currently unpublished. Instead of
-  // directly updating {node}.status, we use node_save() so that other modules
-  // which implement hook_nodeapi() will know that this node is now published.
-  if (empty($release_node->status)) {
-    $release_node->status = 1;
-    node_save($release_node);
-  }
+  node_save($release_node);
 }
