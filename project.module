@@ -225,9 +225,69 @@ function project_promote_project_is_sandbox($node) {
 }
 
 /**
- * todo D7, reimplement
+ * Set project-specific breadcrumbs.
+ *
+ * @param $project
+ *   A fully-loaded node object representing the project to generate
+ *   breadcrumbs for.
+ * @param boolean $include_project
+ *   Should the breadcrumb trail include a link to the project itself?
+ * @param array $extra
+ *   An array of additional breadcrumb links to include after the main
+ *   project breadcrumb items (e.g. for issue queues, releases, etc).
+ *
+ * @see drupal_set_breadcrumb()
  */
-function project_project_set_breadcrumb() {
+function project_project_set_breadcrumb($project = NULL, $include_project = FALSE, $extra = array()) {
+  $breadcrumb = project_project_get_breadcrumb($project, $include_project, $extra);
+  drupal_set_breadcrumb($breadcrumb);
+}
+
+/**
+ * Return an array of breadcrumb links for a given project.
+ *
+ * @param $project
+ *   A fully-loaded node object representing the project to generate
+ *   breadcrumbs for.
+ * @param boolean $include_project
+ *   Should the breadcrumb trail include a link to the project itself?
+ * @param array $extra
+ *   An array of additional breadcrumb links to include after the main
+ *   project breadcrumb items (e.g. for issue queues, releases, etc).
+ *
+ * @see drupal_set_breadcrumb()
+ */
+function project_project_get_breadcrumb($project = NULL, $include_project = FALSE, $extra = array()) {
+  $breadcrumb = array();
+  $breadcrumb[] = l(t('Home'), NULL);
+
+  // TODO: We want a link to the root of the project browsing, but we're no
+  // longer providing views for that, and we don't want to rely on
+  // project_solr here.
+
+  // TODO: If the site has multiple project node types, perhaps we want a
+  // breadcrumb entry here pointing to the way to browse all projects of the
+  // same type.  E.g. on Drupal.org if we're viewing a module project page,
+  // we'd want a link to the module browsing section.
+
+  if ($include_project && !empty($project)) {
+    $breadcrumb[] = l($project->title, 'node/' . $project->nid);
+  }
+
+  if (!empty($extra)) {
+    $breadcrumb = array_merge($breadcrumb, $extra);
+  }
+
+  return $breadcrumb;
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function project_preprocess_page(&$vars) {
+  if (!empty($vars['node']) && project_node_is_project($vars['node'])) {
+    project_project_set_breadcrumb($vars['node']);
+  }
 }
 
 /**

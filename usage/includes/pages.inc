@@ -206,7 +206,7 @@ function project_usage_project_page($node) {
   $breadcrumb = array(
     l(t('Usage'), 'project/usage'),
   );
-  project_project_set_breadcrumb(NULL, $breadcrumb);
+  project_project_set_breadcrumb(NULL, FALSE, $breadcrumb);
   drupal_set_title(t('Usage statistics for %project', array('%project' => $node->title)), PASS_THROUGH);
 
   // In order to keep the database load down we need to cache these pages.
@@ -399,7 +399,7 @@ function project_usage_release_page($node) {
     l(t('Usage'), 'project/usage'),
     l($project->title, 'project/usage/' . $project->nid),
   );
-  project_project_set_breadcrumb(NULL, $breadcrumb);
+  project_project_set_breadcrumb(NULL, FALSE, $breadcrumb);
   drupal_set_title(t('Usage statistics for %release', array('%release' => $node->title)), PASS_THROUGH);
 
   // Check for a cached page.
