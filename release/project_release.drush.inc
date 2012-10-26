@@ -62,14 +62,6 @@ function drush_project_release_release_package($type, $project_id) {
   $num_built = 0;
   $num_considered = 0;
 
-  /*
-  // This assumes you want to install the packaged releases in the
-  // "files/projects" directory of your root Drupal installation. If
-  // that's not the case, you should customize these.
-  $dest_root = $drupal_root;
-  $dest_rel = 'files/projects';
-   */
-
   // Find release nodes.
   $query = new EntityFieldQuery();
   $result = $query->entityCondition('entity_type', 'node')
@@ -77,6 +69,10 @@ function drush_project_release_release_package($type, $project_id) {
     ->fieldCondition('field_release_project', 'target_id', $project_node->nid)
     ->fieldCondition('field_release_build_type', 'value', $type === 'tag' ? 'static' : 'dynamic')
     ->execute();
+  if (empty($result)) {
+    drush_log(dt('No !type releases found for @id.', array('!type' => $type, '@id' => $project_id)), 'warning');
+    return;
+  }
   foreach (array_keys($result['node']) as $release_nid) {
     // We don't want to waste too much RAM by leaving all these loaded nodes
     // in RAM, so we reset the node_load() cache each time we call it.
@@ -86,32 +82,29 @@ function drush_project_release_release_package($type, $project_id) {
       continue;
     }
 
-    if ($type === 'tag') {
-      // If file is not empty, it is already packaged.
-      /* todo
-      if () {
-        continue;
-      }
-      */
+    // If file is not empty, a tag release is already packaged.
+    if ($type === 'tag' && !empty($release_node->field_release_files)) {
+      continue;
     }
-    elseif ($type === 'branch') {
-      // If published and file is not empty, it is already packaged.
-      /* todo
-      if () {
-        continue;
-      }
-      */
-    }
-
-    /*
-    $packager = project_release_get_packager_plugin($release_node, $dest_root, $dest_rel, $tmp_dir);
-    if (empty($packager)) {
-      wd_err("ERROR: Can't find packager plugin to use for %release", array('%release' => $release_node->title));
+    // If published and file is not empty, a branch release is already
+    // packaged. Published releases may be repackaged.
+    if ($type === 'branch' && $release_node->status == NODE_PUBLISHED && !empty($release_node->field_release_files)) {
       continue;
     }
 
-    db_query("DELETE FROM {project_release_package_errors} WHERE nid = %d", $release_node->nid);
+    // Find the packager plugin.
+    $packager = project_release_get_packager_plugin($release_node, $tmp_dir);
+    if ($packager === FALSE) {
+      watchdog('package_error', "Can't find packager plugin to use for %release", array('%release' => $release_node->title), WATCHDOG_ERROR);
+      continue;
+    }
 
+    // Delete existing log messages.
+    db_delete('project_release_package_errors')
+      ->condition('nid', $release_node->nid)
+      ->execute();
+
+    /*
     $files = array();
     $rval = $packager->createPackage($files);
     $num_considered += 1;
@@ -119,7 +112,7 @@ function drush_project_release_release_package($type, $project_id) {
     switch ($rval) {
       case 'success':
       case 'rebuild':
-        project_release_packager_update_node($release_node, $dest_root, $files);
+        project_release_packager_update_node($release_node, $files);
         module_invoke_all('project_release_create_package', $project_node, $release_node);
         $num_built += 1;
         $packager->cleanupSuccessfulBuild();
@@ -137,7 +130,6 @@ function drush_project_release_release_package($type, $project_id) {
       case 'error':
         $packager->cleanupFailedBuild();
         break;
-
     }
 
     if (count($wd_err_msg)) {

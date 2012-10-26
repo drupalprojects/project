@@ -113,6 +113,12 @@ function project_release_project_permission_info($project = NULL) {
   }
 }
 
+function project_release_ctools_plugin_type() {
+  return array(
+    'release_packager' => array(),
+  );
+}
+
 /**
  * Implements hook_project_maintainer_save().
  */

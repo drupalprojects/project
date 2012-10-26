@@ -14,17 +14,10 @@ interface ProjectReleasePackagerInterface {
    *
    * @param stdClass $release_node
    *   The fully-loaded release node to create package(s) for.
-   * @param string $file_destination_root
-   *   The full path to the root of the directory tree where package files
-   *   should be written. Often this is the same as the site root directory.
-   * @param string $file_destination_subdirectory
-   *   The subdirectory under $file_destination_root where the package files
-   *   should be written. For example, 'files/projects', or
-   *   'sites/default/files/projects'.
    * @param string $temp_directory
    *   The full path to a temporary directory to use during packaging.
    */
-  public function __construct($release_node, $file_destination_root, $file_destination_subdir, $temp_directory);
+  public function __construct($release_node, $temp_directory);
 
   /**
    * Create package(s) for the given release.
@@ -75,42 +68,28 @@ interface ProjectReleasePackagerInterface {
  *
  * @param $release_node
  *   The fully-loaded release node to find the packaging plugin for.
- * @param string $file_destination_root
- *   The full path to the root of the directory tree where package files
- *   should be written. Often this is the same as the site root directory.
- * @param string $file_destination_subdirectory
- *   The subdirectory under $file_destination_root where the package files
- *   should be written. For example, 'files/projects', or
- *   'sites/default/files/projects'.
  * @param string $temp_directory
  *   The full path to a temporary directory to use during packaging.
+ *
  * @return
  *   An instantiated packager plugin for the given release node, or FALSE if
  *   we couldn't find or instantiate the right plugin.
  */
-function project_release_get_packager_plugin($release_node, $file_destination_root, $file_destination_subdir, $temp_directory) {
+function project_release_get_packager_plugin($release_node, $temp_directory) {
   $packager_plugin = '';
   // If this particular release has its own plugin defined, use it.
   if (!empty($release_node->project_release['packager_plugin'])) {
     $packager_plugin = $release_node->project_release['packager_plugin'];
   }
   else {
-    $project_node = project_release_packager_node_load($release_node->project_release['pid']);
+    $project_node = node_load(project_release_get_release_project_nid($release_node));
     // If this particular project has its own plugin defined, use it.
     if (!empty($project_node->project_release['packager_plugin'])) {
       $packager_plugin = $project_node->project_release['packager_plugin'];
     }
     // Otherwise, look for a project-type-specific pluging variable.
-    elseif (project_use_taxonomy()) {
-      $project_types = project_get_project_types();
-      if (!empty($project_node->taxonomy)) {
-        foreach ($project_node->taxonomy as $tid => $term) {
-          if (!empty($project_types[$tid])) {
-            $packager_plugin = variable_get('project_release_packager_plugin_' . $tid, '');
-            break;
-          }
-        }
-      }
+    else {
+      $packager_plugin = variable_get('project_release_packager_plugin_' . $project_node->type, '');
     }
     // If we still don't know the plugin to use, try the site-wide default.
     if (empty($packager_plugin)) {
@@ -122,7 +101,7 @@ function project_release_get_packager_plugin($release_node, $file_destination_ro
     if ($class = ctools_plugin_load_class('project_release', 'release_packager', $packager_plugin, 'packager')) {
       // Make sure the plugin implements the right interface.
       if (in_array('ProjectReleasePackagerInterface', class_implements($class, TRUE))) {
-        return new $class($release_node, $file_destination_root, $file_destination_subdir, $temp_directory);
+        return new $class($release_node, $temp_directory);
       }
     }
   }
@@ -134,13 +113,11 @@ function project_release_get_packager_plugin($release_node, $file_destination_ro
  *
  * @param $release_node
  *   The fully loaded release node to update.
- * @param $file_destination_directory
- *   The full path to the directory where packaged release files are stored.
  * @param $files
  *   Array of files to add to the release node. The keys are filenames, and
  *   the values are the weight for the {project_release_file}.weight column.
  */
-function project_release_packager_update_node($release_node, $file_destination_directory = '', $files = array()) {
+function project_release_packager_update_node($release_node, $files = array()) {
 
   // If the site is using DB replication, force this node_load() to use the
   // primary database to avoid node_load() failures.
@@ -153,10 +130,9 @@ function project_release_packager_update_node($release_node, $file_destination_d
     // here, unless we manually tell it otherwise!
     clearstatcache();
 
-    foreach ($files as $file_path => $file_weight) {
+    foreach ($files as $full_path => $file_weight) {
       // Compute the metadata for this file that we care about.
-      $full_path = $file_destination_directory . '/' . $file_path;
-      $file_name = basename($file_path);
+      $file_name = basename($full_path);
       $file_date = filemtime($full_path);
       $file_size = filesize($full_path);
       $file_hash = md5_file($full_path);
