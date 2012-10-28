@@ -179,7 +179,7 @@ function project_release_update_last_removed() {
  */
 function project_release_update_7000() {
   // Enable new dependencies.
-  module_enable(array('entity', 'entityreference', 'field_collection'));
+  module_enable(array('file', 'entity', 'entityreference', 'field_collection'));
   drupal_flush_all_caches();
 
   $t = get_t();
