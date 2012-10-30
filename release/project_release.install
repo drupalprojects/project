@@ -175,6 +175,17 @@ function project_release_update_last_removed() {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function project_release_update_dependencies() {
+  $dependencies['project_release'][7000] = array(
+    'system' => 7052,
+  );
+
+  return $dependencies;
+}
+
+/**
  * Ensure project release node type is properly set up.
  */
 function project_release_update_7000() {
