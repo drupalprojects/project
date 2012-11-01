@@ -134,7 +134,7 @@ function drush_project_release_release_package($type, $project_id) {
   }
 
   if ($num_built > 0 || $type === 'branch') {
-    watchdog('package_' . $type, "Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.", array('@project_short_name' => $project_node->project['uri'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered));
+    watchdog('package_' . $type, "Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.", array('@project_short_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered));
   }
 }
 
