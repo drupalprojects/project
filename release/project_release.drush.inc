@@ -125,7 +125,7 @@ function drush_project_release_release_package($type, $project_id) {
         else {
           $msg = 'Packaged %release_title.';
         }
-        watchdog('package_' . $type, $msg, array('%release_title' => $release_node->title), l(t('View'), 'node/' . $release_node->nid));
+        watchdog('package_' . $type, $msg, array('%release_title' => $release_node->title), WATCHDOG_INFO, l(t('View'), 'node/' . $release_node->nid));
         break;
     }
 
