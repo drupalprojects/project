@@ -94,6 +94,22 @@ function project_load($arg) {
 }
 
 /**
+ * Menu argument loader: loads a project node type by string.
+ */
+function project_type_load($name) {
+  $type = node_type_load($name);
+  $project_types = project_project_node_types();
+
+  // Return the type only if it's a project.
+  if ($type && array_search($type->type, $project_types) !== FALSE) {
+    return $type;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function project_views_api() {
