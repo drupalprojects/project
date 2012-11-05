@@ -154,7 +154,7 @@ function project_release_watchdog($log_entry = NULL, $new_nid = NULL) {
 
   if (is_null($new_nid)) {
     // Invoked via hook_watchdog(), store message if there is a current node.
-    if ($nid !== FALSE) {
+    if ($nid !== FALSE && $log_entry['severity'] < WATCHDOG_NOTICE) {
       $messages[] = t($log_entry['message'], $log_entry['variables']);
     }
   }
