@@ -98,45 +98,59 @@ function project_release_get_packager_plugin($release_node, $temp_directory) {
  *
  * @param $release_node
  *   The fully loaded release node to update.
- * @param $files
+ * @param $release_files
  *   Array of files to add to the release node. The keys are filenames, and
  *   the values are the weight for the {project_release_file}.weight column.
  */
-function project_release_packager_update_node($release_node, $files = array()) {
+function project_release_packager_update_node($release_node, $release_files = array()) {
   // If the site is using DB replication, force this node_load() to use the
   // primary database to avoid node_load() failures.
   db_ignore_slave();
 
-  if (!empty($files)) {
+  if (!empty($release_files)) {
     // PHP will cache the results of stat() and give us stale answers
     // here, unless we manually tell it otherwise!
     clearstatcache();
 
-    foreach ($files as $full_path => $file_weight) {
-      /* todo update $release_node object for node_save()
-      // Compute the metadata for this file that we care about.
-      $file_name = basename($full_path);
-      $file_date = filemtime($full_path);
-      $file_size = filesize($full_path);
-      $file_hash = md5_file($full_path);
-      $file_mime = file_get_mimetype($full_path);
+    // Load existing files.
+    $existing_files = array();
+    if (!empty($node->field_release_files)) {
+      $existing_files = array_map('field_collection_field_get_entity', $release_node->field_release_files[$release_node->language]);
+    }
+    // Clear out files for repopulation.
+    $release_node->field_release_files[$release_node->language] = array();
 
-      // First, see if we already have this file for this release node
-      $file_data = db_fetch_object(db_query("SELECT prf.* FROM {project_release_file} prf INNER JOIN {files} f ON prf.fid = f.fid WHERE prf.nid = %d AND f.filename = '%s'", $release_node->nid, $file_name));
+    // Sort by weight and use array_keys() to get 0, 1, 2 .. ordering.
+    asort($release_files);
+    foreach (array_keys($release_files) as $delta => $uri) {
+      $existing = FALSE;
+      foreach ($existing_files as $file) {
+        if ($file->field_release_file[$release_node->language][0]['uri'] === $uri) {
+          // Update existing file.
+          $existing = TRUE;
 
-      // Insert or update the record in the DB as need.
-      if (empty($file_data)) {
-        // Don't have this file, insert a new record.
-        db_query("INSERT INTO {files} (uid, filename, filepath, filemime, filesize, status, timestamp) VALUES (%d, '%s', '%s', '%s', %d, %d, %d)", $release_node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date);
-        $fid = db_last_insert_id('files', 'fid');
-        db_query("INSERT INTO {project_release_file} (fid, nid, filehash, weight) VALUES (%d, %d, '%s', %d)", $fid, $release_node->nid, $file_hash, $file_weight);
+          $release_node->field_release_files[$release_node->language][$delta]['entity'] = $file;
+        }
       }
-      else {
-        // Already have this file for this release, update it.
-        db_query("UPDATE {files} SET uid = %d, filename = '%s', filepath = '%s', filemime = '%s', filesize = %d, status = %d, timestamp = %d WHERE fid = %d", $release_node->uid, $file_name, $file_path, $file_mime, $file_size, FILE_STATUS_PERMANENT, $file_date, $file_data->fid);
-        db_query("UPDATE {project_release_file} SET filehash = '%s', weight = %d WHERE fid = %d", $file_hash, $file_weight, $file_data->fid);
+
+      if (!$existing) {
+        // Add new file.
+        $file = new stdClass();
+        $file->fid = NULL;
+        $file->uri = $uri;
+        $file->filename = drupal_basename($uri);
+        $file->filemime = file_get_mimetype($file->uri);
+        $file->uid = $release_node->uid;
+        $file->status = FILE_STATUS_PERMANENT;
+        file_save($file);
+
+        $release_node->field_release_files[$release_node->language][$delta]['entity'] = entity_create('field_collection_item', array('field_name' => 'field_release_files'));
+        $release_node->field_release_files[$release_node->language][$delta]['entity']->field_release_file[$release_node->language][0] = array(
+          'fid' => $file->fid,
+          'display' => 1,
+          'description' => '',
+        );
       }
-       */
     }
   }
 
