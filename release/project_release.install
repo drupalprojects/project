@@ -1277,7 +1277,7 @@ function project_release_update_7006(&$sandbox) {
     // Initialize batch update information.
     $sandbox['progress'] = 0;
     $sandbox['last_nid_processed'] = -1;
-    $sandbox['max'] = db_query("SELECT COUNT(DISTINCT r.nid) FROM {project_release_nodes} r INNER JOIN {node} n ON r.nid = n.nid")->fetchField();
+    $sandbox['max'] = db_query("SELECT COUNT(DISTINCT r.nid) FROM {project_release_nodes} r INNER JOIN {node} n ON r.nid = n.nid INNER JOIN {node} nn ON r.pid = nn.nid")->fetchField();
   }
 
   $limit = variable_get('upload_update_batch_size', 100);
@@ -1286,7 +1286,7 @@ function project_release_update_7006(&$sandbox) {
 
   // Determine releases to process this batch.
   // We will process all files on these releases.
-  $result = db_query_range("SELECT r.* FROM {project_release_nodes} r INNER JOIN {node} n ON r.nid = n.nid WHERE r.nid > :lastnid ORDER BY r.nid", 0, $limit, array(':lastnid' => $sandbox['last_nid_processed']));
+  $result = db_query_range("SELECT r.* FROM {project_release_nodes} r INNER JOIN {node} n ON r.nid = n.nid INNER JOIN {node} nn ON r.pid = nn.nid WHERE r.nid > :lastnid ORDER BY r.nid", 0, $limit, array(':lastnid' => $sandbox['last_nid_processed']));
 
   foreach ($result as $release) {
 
