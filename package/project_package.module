@@ -23,7 +23,7 @@ function project_package_node_update($node) {
   if (project_release_node_is_release($node)) {
     // We can't rely on $node->project_package since nodeapi() doesn't have
     // a fully loaded $node object. :(
-    project_package_node_load($node);
+    project_package_node_load(array($node));
     if (isset($node->project_package)) {
       // Set the {prn}.update_status for a package based on its included items.
       $max = db_query("SELECT MAX(prn.update_status) FROM {project_release_nodes} prn INNER JOIN {project_package_local_release_item} pp ON prn.nid = pp.item_nid WHERE pp.package_nid = :nid", array(':nid' => $node->nid))->fetchField();
