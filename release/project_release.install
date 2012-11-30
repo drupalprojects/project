@@ -164,6 +164,27 @@ function project_release_schema() {
     'primary key' => array('nid', 'uid'),
   );
 
+  $schema['project_release_node_rebuild_metadata'] = array(
+    'description' => t('Tracks metadata about releases that are periodically rebuilt.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('Foreign key: {project_release_node}.nid of the project release.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rebuild_version' => array(
+        'description' => t('The current version string for this release based on the last time it was rebuilt.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+
   return $schema;
 }
 
