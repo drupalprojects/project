@@ -118,7 +118,7 @@ function project_package_check_update_status($item_nids) {
 function project_package_record_local_items($package_nid, $local_item_nids) {
   $success = TRUE;
   foreach ($local_item_nids as $item_nid) {
-    if (!db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (:package, :item)", array(':package' => $package_nid, ':item' => $item_nid))) {
+    if (!db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (:package, :item)", array(':package' => $package_nid, ':item' => (int) $item_nid))) {
       $success = FALSE;
     }
   }
@@ -190,24 +190,28 @@ function project_package_record_patch($package_nid, $patch_url, $item_id, $item_
   $local = ($url['host'] == $local_url['host']);
 
   // If it is local, see if the patch is attached to a node or comment.
-  $patch_issue = array();
+  $patch_issue = array(
+    'package_nid' => $package_nid,
+    'patch_file_url' => $patch_url,
+    ($item_type == 'local' ? 'item_nid' : 'remote_id') => (int) $item_id,
+  );
   if ($local) {
     $filepath = substr($url['path'], 1);
     // Check if the file is attached to an issue with comment_upload.
     $related_issue = db_query("SELECT n.nid as nid, n.title as title, cu.cid as cid FROM {files} f LEFT JOIN {comment_upload} cu ON f.fid = cu.fid LEFT JOIN {node} n ON cu.nid = n.nid WHERE filepath = :filepath LIMIT 1", array(':filepath' => $filepath))->fetchObject();
 
     if ($related_issue) {
-      $patch_issue['nid'] = $related_issue->nid;
-      $patch_issue['cid'] = $related_issue->cid;
-      $patch_issue['description'] = $related_issue->title;
+      $patch_issue['patch_nid'] = $related_issue->nid;
+      $patch_issue['patch_comment_id'] = $related_issue->cid;
+      $patch_issue['patch_description_url'] = $related_issue->title;
     }
 
     // Check if the file is attached to a regular node with upload module.
-    if (!isset($patch_issue['nid'])) {
+    if (!isset($patch_issue['patch_nid'])) {
       $node = db_query("SELECT n.nid as nid, n.title as title FROM files f LEFT JOIN upload u ON f.fid = u.fid LEFT JOIN node n ON u.nid = n.nid WHERE filepath = :filepath", array(':filepath' => $filepath))->fetchObject();
       if ($node) {
-        $patch_issue['nid'] = $node->nid;
-        $patch_issue['description'] = $node->title;
+        $patch_issue['patch_nid'] = $node->nid;
+        $patch_issue['patch_description_url'] = $node->title;
       }
     }
   }
@@ -215,26 +219,18 @@ function project_package_record_patch($package_nid, $patch_url, $item_id, $item_
   // Finally, save a record into {project_package_(remote|local)_patch}.
   $table = 'project_package_' . $item_type . '_patch';
   $rows = db_select($table, 'pp')
-    ->condition('patch_nid', $package_nid)
+    ->condition('package_nid', $package_nid)
     ->condition('patch_file_url', $patch_url)
     ->countQuery()->execute()->fetchField();
   if ($rows > 0) {
     $query = db_update($table)
-      ->condition('patch_nid', $package_nid)
+      ->condition('package_nid', $package_nid)
       ->condition('patch_file_url', $patch_url);
   }
   else {
     $query = db_insert($table);
   }
-  $query->fields(array(
-      'patch_nid' => $package_nid,
-      'patch_file_url' => $patch_url,
-      ($item_type == 'local' ? 'item_nid' : 'remote_id') => $item_id,
-      'patch_description_url' => $patch_issue['description'],
-      'patch_nid' => $patch_issue['nid'],
-      'patch_comment_id' => $patch_issue['cid'],
-    ))
-    ->execute();
+  $query->fields($patch_issue)->execute();
 }
 
 /**
