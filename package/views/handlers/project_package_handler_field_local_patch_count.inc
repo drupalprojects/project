@@ -4,13 +4,12 @@
  * Field handler to provide a count of patches applied to package items.
  */
 class project_package_handler_field_local_patch_count extends views_handler_field {
-
   function construct() {
     parent::construct();
     $this->additional_fields['package_nid'] = 'package_nid';
   }
 
-  function pre_render($values) {
+  function pre_render(&$values) {
     $this->items = array();
 
     // Normally, we'd need to do a separate query for every unique pair of
@@ -35,10 +34,8 @@ class project_package_handler_field_local_patch_count extends views_handler_fiel
     // mostly results across many items from the same package.
     if (count($items_by_package) < count($packages_by_item)) {
       foreach ($items_by_package as $package_nid => $item_nids) {
-        $placeholders = db_placeholders($item_nids);
-        $args = array_merge(array($package_nid), $item_nids);
-        $result = db_query("SELECT COUNT(patch_file_url) AS count, package_nid, item_nid FROM {project_package_local_patch} WHERE package_nid = %d AND item_nid IN ($placeholders) GROUP BY item_nid", $args);
-        while ($data = db_fetch_object($result)) {
+        $result = db_query("SELECT COUNT(patch_file_url) AS count, package_nid, item_nid FROM {project_package_local_patch} WHERE package_nid = :package_nid AND item_nid IN (:item_nids) GROUP BY item_nid", array(':package_nid' => $package_nid, ':item_nids' => $item_nids));
+        foreach ($result as $data) {
           $this->items[$data->package_nid][$data->item_nid] = $data->count;
         }
       }
@@ -47,10 +44,8 @@ class project_package_handler_field_local_patch_count extends views_handler_fiel
     // results across multiple packages for the same item.
     else {
       foreach ($packages_by_item as $item_nid => $package_nids) {
-        $placeholders = db_placeholders($package_nids);
-        $args = array_merge(array($item_nid), $package_nids);
-        $result = db_query("SELECT COUNT(patch_file_url) AS count, package_nid, item_nid FROM {project_package_local_patch} WHERE item_nid = %d AND package_nid IN ($placeholders) GROUP BY package_nid", $args);
-        while ($data = db_fetch_object($result)) {
+        $result = db_query("SELECT COUNT(patch_file_url) AS count, package_nid, item_nid FROM {project_package_local_patch} WHERE item_nid = :item_nid AND package_nid IN (:package_nids) GROUP BY package_nid", array(':item_nid' => $item_nid, ':package_nids' => $package_nids));
+        foreach ($result as $data) {
           $this->items[$data->package_nid][$data->item_nid] = $data->count;
         }
       }
