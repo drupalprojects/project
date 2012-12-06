@@ -176,37 +176,26 @@ function project_package_record_remote_item($package_nid, $item_url, $name) {
  *   correspond with items recorded in {project_package_remote_item}.
  */
 function project_package_record_patch($package_nid, $patch_url, $item_id, $item_type) {
-  global $base_url;
-
-  // See if the patch URL is a local patch
-  $url = parse_url($patch_url);
-  $local_url = parse_url($base_url);
-  $local = ($url['host'] == $local_url['host']);
-
-  // If it is local, see if the patch is attached to a node or comment.
   $patch_issue = array(
     'package_nid' => $package_nid,
     'patch_file_url' => $patch_url,
     ($item_type == 'local' ? 'item_nid' : 'remote_id') => (int) $item_id,
   );
-  if ($local) {
-    $filepath = substr($url['path'], 1);
-    // Check if the file is attached to an issue with comment_upload.
-    $related_issue = db_query("SELECT n.nid as nid, n.title as title, cu.cid as cid FROM {files} f LEFT JOIN {comment_upload} cu ON f.fid = cu.fid LEFT JOIN {node} n ON cu.nid = n.nid WHERE filepath = :filepath LIMIT 1", array(':filepath' => $filepath))->fetchObject();
 
-    if ($related_issue) {
-      $patch_issue['patch_nid'] = $related_issue->nid;
-      $patch_issue['patch_comment_id'] = $related_issue->cid;
-      $patch_issue['patch_description_url'] = $related_issue->title;
-    }
+  // See if the patch URL is a local patch.
+  $url = parse_url($patch_url);
+  $local_url = parse_url(file_create_url('public://'));
+  if ($url['host'] === $local_url['host'] && strpos($url['path'], $local_url['path']) === 0) {
+    // If it is local, see if the patch is attached to a node or comment.
+    $uri = 'public://' . substr($url['path'], strlen($local_url['path']));
 
-    // Check if the file is attached to a regular node with upload module.
-    if (!isset($patch_issue['patch_nid'])) {
-      $node = db_query("SELECT n.nid as nid, n.title as title FROM files f LEFT JOIN upload u ON f.fid = u.fid LEFT JOIN node n ON u.nid = n.nid WHERE filepath = :filepath", array(':filepath' => $filepath))->fetchObject();
-      if ($node) {
-        $patch_issue['patch_nid'] = $node->nid;
-        $patch_issue['patch_description_url'] = $node->title;
-      }
+    // Check if the file is attached to an issue.
+    $issue = db_query_range("SELECT n.nid, n.title FROM {file_managed} fm INNER JOIN {field_data_field_issue_files} fdfif ON fdfif.field_issue_files_fid = fm.fid INNER JOIN {node} n ON n.nid = fdfif.entity_id WHERE fm.uri = :uri", 0, 1, array(':uri' => $uri))->fetchObject();
+    if ($issue) {
+      $patch_issue['patch_nid'] = $issue->nid;
+      $patch_issue['patch_description_url'] = $issue->title;
+
+      // todo when [#1549280] lands, record comment ID in $patch_issue['patch_comment_id'].
     }
   }
 
