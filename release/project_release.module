@@ -1015,6 +1015,47 @@ function project_release_add_download_base($uri, $download_base) {
 }
 
 /**
+ * Implementation of hook_field_formatter_info(). Formats update status as
+ * string.
+ */
+function project_release_field_formatter_info() {
+  return array(
+    'project_release_update_status' => array(
+      'label' => t('Update status'),
+      'field types' => array('number_integer'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_formatter_view(). Formats update status as
+ * string.
+ */
+function project_release_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  static $status;
+  $element = array();
+
+  switch ($display['type']) {
+    case 'project_release_update_status':
+      if (is_null($status)) {
+        $status = array(
+          PROJECT_RELEASE_UPDATE_STATUS_CURRENT => t('Up to date'),
+          PROJECT_RELEASE_UPDATE_STATUS_NOT_CURRENT => t('Update available'),
+          PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE => t('Not secure'),
+        );
+      }
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#markup' => $status[$item['value']],
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
  * Fetch information about the current releases for a given project.
  *
  * This just queries the {project_release_supported_versions} table for either
