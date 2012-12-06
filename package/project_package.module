@@ -51,43 +51,43 @@ function project_package_node_view($node, $view_mode, $langcode) {
       list($view_name, $display_name) = explode(':', $view_info);
       $node->content['release_package_items'] = array(
         '#prefix' => '<h3>' . t('In this package') . '</h3>',
-        '#value' => '<div class="project-release-package-items">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
+        '#markup' => '<div class="project-release-package-items">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
         '#weight' => 2,
       );
     }
 
     // Embed a view into the release node output for local patches.
-    $has_local_patches = db_query("SELECT item_nid FROM {project_package_local_patch} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
+    $has_local_patches = db_query("SELECT 1 FROM {project_package_local_patch} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
     if (!empty($has_local_patches)) {
       $view_info = variable_get('project_package_local_patches_view', 'project_package_local_patches:default');
       list($view_name, $display_name) = explode(':', $view_info);
       $node->content['release_package_local_patches'] = array(
         '#prefix' => '<h3>' . t('Patches applied in this package') . '</h3>',
-        '#value' => '<div class="project-release-package-local-patches">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
+        '#markup' => '<div class="project-release-package-local-patches">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
         '#weight' => 3,
       );
     }
 
     // Embed a view into the release node output for remote items.
-    $has_remote_items = db_query("SELECT id FROM {project_package_remote_item} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
+    $has_remote_items = db_query("SELECT 1 FROM {project_package_remote_item} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
     if (!empty($has_remote_items)) {
       $view_info = variable_get('project_package_remote_items_view', 'project_package_remote_items:default');
       list($view_name, $display_name) = explode(':', $view_info);
       $node->content['release_package_remote_items'] = array(
         '#prefix' => '<h3>' . t('External code in this package') . '</h3>',
-        '#value' => '<div class="project-release-package-remote-items">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
+        '#markup' => '<div class="project-release-package-remote-items">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
         '#weight' => 4,
       );
     }
 
     // Embed a view into the release node output for remote patches.
-    $has_remote_patches = db_query("SELECT remote_id FROM {project_package_remote_patch} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
+    $has_remote_patches = db_query("SELECT 1 FROM {project_package_remote_patch} WHERE package_nid = :nid LIMIT 1", array(':nid' => $node->nid))->fetchField();
     if (!empty($has_remote_patches)) {
       $view_info = variable_get('project_package_remote_patches_view', 'project_package_remote_patches:default');
       list($view_name, $display_name) = explode(':', $view_info);
       $node->content['release_package_remote_patches'] = array(
         '#prefix' => '<h3>' . t('Patches applied to external code in this package') . '</h3>',
-        '#value' => '<div class="project-release-package-remote-patches">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
+        '#markup' => '<div class="project-release-package-remote-patches">' . views_embed_view($view_name, $display_name, $node->nid) . '</div>',
         '#weight' => 5,
       );
     }

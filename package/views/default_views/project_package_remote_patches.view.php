@@ -1,252 +1,94 @@
 <?php
-$view = new view;
+
+$view = new view();
 $view->name = 'project_package_remote_patches';
 $view->description = 'Table of remote patches to a given packaged release.';
 $view->tag = 'Project package';
 $view->base_table = 'project_package_remote_item';
-$view->core = 6;
-$view->api_version = '2';
+$view->human_name = 'Project package - remote patches';
+$view->core = 7;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Defaults */
 $handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('relationships', array(
-  'remote_id' => array(
-    'label' => 'Remote patch',
-    'required' => 1,
-    'id' => 'remote_id',
-    'table' => 'project_package_remote_patch',
-    'field' => 'remote_id',
-    'relationship' => 'none',
-  ),
-  'patch_nid' => array(
-    'label' => 'Patch file node',
-    'required' => 0,
-    'id' => 'patch_nid',
-    'table' => 'project_package_remote_patch',
-    'field' => 'patch_nid',
-    'relationship' => 'remote_id',
-  ),
-));
-$handler->override_option('fields', array(
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['grouping'] = '';
+$handler->display->display_options['style_options']['columns'] = array(
+  'name' => 'name',
+  'patch_nid' => 'patch_nid',
+  'title' => 'title',
+  'patch_file_url' => 'patch_file_url',
+);
+$handler->display->display_options['style_options']['default'] = 'name';
+$handler->display->display_options['style_options']['info'] = array(
   'name' => array(
-    'label' => 'Name',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 1,
-    'exclude' => 0,
-    'id' => 'name',
-    'table' => 'project_package_remote_item',
-    'field' => 'name',
-    'relationship' => 'none',
+    'sortable' => 1,
+    'separator' => '',
   ),
   'patch_nid' => array(
-    'label' => 'Patch node',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 1,
-    'link_to_node' => 0,
-    'exclude' => 1,
-    'id' => 'patch_nid',
-    'table' => 'project_package_remote_patch',
-    'field' => 'patch_nid',
-    'relationship' => 'remote_id',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'title' => array(
-    'label' => 'Patch issue',
-    'alter' => array(
-      'alter_text' => 1,
-      'text' => '#[patch_nid]: [title]',
-      'make_link' => 1,
-      'path' => 'node/[patch_nid]',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 1,
-    'link_to_node' => 0,
-    'exclude' => 0,
-    'id' => 'title',
-    'table' => 'node',
-    'field' => 'title',
-    'relationship' => 'patch_nid',
+    'sortable' => 1,
+    'separator' => '',
   ),
   'patch_file_url' => array(
-    'label' => 'URL',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 1,
-    'display_as_link' => 1,
-    'exclude' => 0,
-    'id' => 'patch_file_url',
-    'table' => 'project_package_remote_patch',
-    'field' => 'patch_file_url',
-    'relationship' => 'remote_id',
+    'sortable' => 1,
+    'separator' => '',
   ),
-));
-$handler->override_option('arguments', array(
-  'package_nid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => '',
-    'breadcrumb' => '',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'node',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'package_nid',
-    'table' => 'project_package_remote_item',
-    'field' => 'package_nid',
-    'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(),
-    'relationship' => 'none',
-    'default_options_div_prefix' => '',
-    'default_taxonomy_tid_term_page' => 0,
-    'default_taxonomy_tid_node' => 0,
-    'default_taxonomy_tid_limit' => 0,
-    'default_taxonomy_tid_vids' => array(),
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'project_release' => 'project_release',
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(),
-    'validate_argument_type' => 'tid',
-    'validate_argument_transform' => 0,
-    'validate_user_restrict_roles' => 0,
-    'validate_argument_node_flag_name' => '*relationship*',
-    'validate_argument_node_flag_test' => 'flaggable',
-    'validate_argument_node_flag_id_type' => 'id',
-    'validate_argument_user_flag_name' => '*relationship*',
-    'validate_argument_user_flag_test' => 'flaggable',
-    'validate_argument_user_flag_id_type' => 'id',
-    'validate_argument_project_term_argument_type' => 'tid',
-    'validate_argument_project_term_argument_action_top_without' => 'pass',
-    'validate_argument_project_term_argument_action_top_with' => 'pass',
-    'validate_argument_project_term_argument_action_child' => 'pass',
-    'validate_argument_php' => '',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-));
-$handler->override_option('cache', array(
-  'type' => 'none',
-));
-$handler->override_option('items_per_page', 0);
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => '',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'summary' => '',
-  'columns' => array(
-    'name' => 'name',
-    'patch_nid' => 'patch_nid',
-    'title' => 'title',
-    'patch_file_url' => 'patch_file_url',
-  ),
-  'info' => array(
-    'name' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'patch_nid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'title' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'patch_file_url' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-  ),
-  'default' => 'name',
-));
+);
+/* Relationship: Project package remote patches: Patch node */
+$handler->display->display_options['relationships']['patch_nid']['id'] = 'patch_nid';
+$handler->display->display_options['relationships']['patch_nid']['table'] = 'project_package_remote_patch';
+$handler->display->display_options['relationships']['patch_nid']['field'] = 'patch_nid';
+/* Field: Project package remote items: Remote item name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'project_package_remote_item';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Name';
+/* Field: Project package remote patches: Patch node */
+$handler->display->display_options['fields']['patch_nid']['id'] = 'patch_nid';
+$handler->display->display_options['fields']['patch_nid']['table'] = 'project_package_remote_patch';
+$handler->display->display_options['fields']['patch_nid']['field'] = 'patch_nid';
+$handler->display->display_options['fields']['patch_nid']['relationship'] = 'remote_id';
+$handler->display->display_options['fields']['patch_nid']['exclude'] = TRUE;
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['relationship'] = 'patch_nid';
+$handler->display->display_options['fields']['title']['label'] = 'Patch issue';
+$handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['title']['alter']['text'] = '#[patch_nid]: [title]';
+$handler->display->display_options['fields']['title']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['title']['alter']['path'] = 'node/[patch_nid]';
+$handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
+/* Field: Project package remote patches: Patch URL */
+$handler->display->display_options['fields']['patch_file_url']['id'] = 'patch_file_url';
+$handler->display->display_options['fields']['patch_file_url']['table'] = 'project_package_remote_patch';
+$handler->display->display_options['fields']['patch_file_url']['field'] = 'patch_file_url';
+$handler->display->display_options['fields']['patch_file_url']['relationship'] = 'remote_id';
+$handler->display->display_options['fields']['patch_file_url']['label'] = 'URL';
+/* Contextual filter: Project package remote patches: Package node */
+$handler->display->display_options['arguments']['package_nid_1']['id'] = 'package_nid_1';
+$handler->display->display_options['arguments']['package_nid_1']['table'] = 'project_package_remote_patch';
+$handler->display->display_options['arguments']['package_nid_1']['field'] = 'package_nid';
+$handler->display->display_options['arguments']['package_nid_1']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['package_nid_1']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['package_nid_1']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['package_nid_1']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['package_nid_1']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['package_nid_1']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['package_nid_1']['validate']['type'] = 'node';
+$handler->display->display_options['arguments']['package_nid_1']['validate_options']['types'] = array(
+  'project_release' => 'project_release',
+);
+$handler->display->display_options['arguments']['package_nid_1']['validate_options']['access'] = TRUE;

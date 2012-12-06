@@ -1,140 +1,63 @@
 <?php
 
-$view = new view;
+$view = new view();
 $view->name = 'project_package_remote_items';
 $view->description = 'Table of remote items (e.g. external libraries) included in a given packaged release.';
 $view->tag = 'Project package';
 $view->base_table = 'project_package_remote_item';
-$view->core = 6;
-$view->api_version = '2';
+$view->human_name = 'Project package - remote items';
+$view->core = 7;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-$handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('fields', array(
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'name' => 'name',
+  'url' => 'url',
+);
+$handler->display->display_options['style_options']['default'] = 'name';
+$handler->display->display_options['style_options']['info'] = array(
   'name' => array(
-    'label' => 'Name',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 0,
-    'exclude' => 0,
-    'id' => 'name',
-    'table' => 'project_package_remote_item',
-    'field' => 'name',
-    'relationship' => 'none',
+    'sortable' => 1,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
   ),
   'url' => array(
-    'label' => 'URL',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'absolute' => 0,
-      'link_class' => '',
-      'alt' => '',
-      'rel' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'target' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-      'strip_tags' => 0,
-    ),
-    'empty' => '',
-    'hide_empty' => 0,
-    'empty_zero' => 0,
-    'hide_alter_empty' => 0,
-    'display_as_link' => 0,
-    'exclude' => 0,
-    'id' => 'url',
-    'table' => 'project_package_remote_item',
-    'field' => 'url',
-    'relationship' => 'none',
+    'sortable' => 1,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
   ),
-));
-$handler->override_option('arguments', array(
-  'package_nid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => '',
-    'breadcrumb' => '',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'node',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'package_nid',
-    'table' => 'project_package_remote_item',
-    'field' => 'package_nid',
-    'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(),
-    'relationship' => 'none',
-    'default_options_div_prefix' => '',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'project_release' => 'project_release',
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-));
-$handler->override_option('cache', array(
-  'type' => 'none',
-));
-$handler->override_option('items_per_page', 0);
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => '',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'summary' => '',
-  'columns' => array(
-    'name' => 'name',
-    'url' => 'url',
-  ),
-  'info' => array(
-    'name' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-    'url' => array(
-      'sortable' => 1,
-      'separator' => '',
-    ),
-  ),
-  'default' => 'name',
-));
+);
+/* Field: Project package remote items: Remote item name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'project_package_remote_item';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Name';
+/* Field: Project package remote items: Remote item URL */
+$handler->display->display_options['fields']['url']['id'] = 'url';
+$handler->display->display_options['fields']['url']['table'] = 'project_package_remote_item';
+$handler->display->display_options['fields']['url']['field'] = 'url';
+$handler->display->display_options['fields']['url']['label'] = 'URL';
+$handler->display->display_options['fields']['url']['display_as_link'] = FALSE;
+/* Contextual filter: Project package remote items: Package node */
+$handler->display->display_options['arguments']['package_nid']['id'] = 'package_nid';
+$handler->display->display_options['arguments']['package_nid']['table'] = 'project_package_remote_item';
+$handler->display->display_options['arguments']['package_nid']['field'] = 'package_nid';
+$handler->display->display_options['arguments']['package_nid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['package_nid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['package_nid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['package_nid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['package_nid']['summary_options']['items_per_page'] = '25';
