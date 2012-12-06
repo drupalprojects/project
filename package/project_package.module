@@ -109,20 +109,14 @@ function project_package_check_update_status($item_nids) {
  *
  * @param integer $package_nid
  *   The release node ID of the package to record the remote item for.
- * @param aray $local_item_nids
+ * @param array $local_item_nids
  *   An array of node IDs for the local item(s).
- *
- * @return boolean
- *   TRUE if all items were successfully recorded, otherwise FALSE.
  */
 function project_package_record_local_items($package_nid, $local_item_nids) {
-  $success = TRUE;
+  db_query('DELETE FROM {project_package_local_release_item} WHERE package_nid = :package_nid', array(':package_nid' => $package_nid));
   foreach ($local_item_nids as $item_nid) {
-    if (!db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (:package, :item)", array(':package' => $package_nid, ':item' => (int) $item_nid))) {
-      $success = FALSE;
-    }
+    db_query("INSERT INTO {project_package_local_release_item} (package_nid, item_nid) VALUES (:package_nid, :item)", array(':package_nid' => $package_nid, ':item' => (int) $item_nid));
   }
-  return $success;
 }
 
 /**
