@@ -414,28 +414,9 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
 }
 
 /**
- * @defgroup project_release_fapi Form API hooks
- */
-
-/**
- * Implementation of hook_form_alter().
- * @ingroup project_release_fapi
- */
-function project_release_form_alter(&$form, &$form_state, $form_id) {
-  // todo D7, sandbox promotion
-  if ($form_id == 'project_promote_project_form') {
-    return project_release_alter_project_promote_form($form, $form_state);
-  }
-  if ($form_id == 'project_promote_project_confirm_form') {
-    return project_release_alter_project_promote_confirm_form($form, $form_state);
-  }
-}
-
-/**
  * Alters the project settings form.
  */
 function project_release_form_project_main_settings_form_alter(&$form, &$form_state) {
-  // todo D7, sandbox promotion
   $form['sandbox']['project_release_sandbox_allow_release'] = array(
     '#title' => t('Enable releases for sandboxed projects'),
     '#type' => 'checkbox',
@@ -447,8 +428,7 @@ function project_release_form_project_main_settings_form_alter(&$form, &$form_st
 /**
  * Alters the form for promoting a project from sandbox to a full project.
  */
-function project_release_alter_project_promote_form(&$form, &$form_state) {
-  // todo D7, sandbox promotion
+function project_release_form_project_promote_project_form_alter(&$form, &$form_state) {
   // Unset this in case the user cancels on the confirm form so we don't leak
   // this into the $_SESSION permanently. Also ensures we start clean.
   unset($_SESSION['project_promote_project_releases']);
@@ -459,7 +439,7 @@ function project_release_alter_project_promote_form(&$form, &$form_state) {
       '#title' => t('Enable releases'),
       '#return_value' => 1,
       '#weight' => 10,
-      '#default_value' => $node->project_release['releases'],
+      '#default_value' => $node->field_project_has_releases[$node->language][0]['value'],
       '#description' => t('Allow releases of this project with specific versions. This can be changed later.'),
     );
     $form['#submit'][] = 'project_release_project_promote_form_submit';
@@ -473,7 +453,6 @@ function project_release_alter_project_promote_form(&$form, &$form_state) {
  * SESSION so it can persist when building the confirm form.
  */
 function project_release_project_promote_form_submit($form, &$form_state) {
-  // todo D7, sandbox promotion
   if (isset($form_state['values']['releases'])) {
     $_SESSION['project_promote_project_releases'] = $form_state['values']['releases'];
   }
@@ -482,14 +461,13 @@ function project_release_project_promote_form_submit($form, &$form_state) {
 /**
  * Alters the confirm form for promoting sandbox into a full project.
  */
-function project_release_alter_project_promote_confirm_form(&$form, &$form_state) {
-  // todo D7, sandbox promotion
+function project_release_form_project_promote_project_confirm_form_alter(&$form, &$form_state) {
   if (isset($_SESSION['project_promote_project_releases'])) {
     $form['releases'] = array(
       '#type' => 'value',
       '#value' => $_SESSION['project_promote_project_releases'],
     );
-    // Note: we can't unset this value from the $_SEESSION here, or this form
+    // Note: we can't unset this value from the $_SESSION here, or this form
     // element won't be included when building the form during submission. So,
     // we'll unset once we actually submit the confirm form.
   }
@@ -500,7 +478,6 @@ function project_release_alter_project_promote_confirm_form(&$form, &$form_state
  * Submit handler for project promote confirm form.
  */
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
-  // todo D7, sandbox promotion
   $project = node_load($form_state['values']['nid']);
   $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
   node_save($project);
