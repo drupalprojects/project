@@ -424,3 +424,12 @@ function project_update_7005() {
   // Since we have manually injected data, we need to explicitly clear the field cache.
   field_cache_clear();
 }
+
+/**
+ * If present, make sure pathauto is enabled, and set default patterns for projects.
+ */
+function project_update_7006() {
+  if (module_enable(array('pathauto'))) {
+    _project_set_pathauto_defaults();
+  }
+}

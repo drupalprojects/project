@@ -91,6 +91,11 @@ function project_install_default_project_node_type() {
   if (!field_info_instance('node', 'field_project_machine_name', 'project')) {
     field_create_instance($machine_name_instance);
   }
+
+  // If pathato is enabled, set default patterns.
+  if (module_exists('pathauto')) {
+    _project_set_pathauto_defaults();
+  }
 }
 
 /**
