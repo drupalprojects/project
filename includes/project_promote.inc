@@ -47,7 +47,6 @@ function project_promote_project_form($form, $form_state, $project) {
       '#default_value' => isset($project->field_project_machine_name[LANGUAGE_NONE][0]['value']) ? $project->field_project_machine_name[LANGUAGE_NONE][0]['value'] : NULL,
       '#size' => 40,
       '#maxlength' => 50,
-      '#description' => (variable_get('project_enable_alias', TRUE)) ? t('This will be used to generate a /project/&lt;shortname&gt;/ URL for your project.') : '',
       '#required' => TRUE,
     );
   }

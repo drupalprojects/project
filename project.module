@@ -944,3 +944,54 @@ function _project_set_pathauto_defaults() {
     }
   }
 }
+
+/**
+ * Add a separate pathauto pattern for each type's sandbox projects.
+ */
+function project_form_pathauto_patterns_form_alter(&$form, &$form_state) {
+  $types = node_type_get_types();
+  foreach (project_project_node_types() as $type) {
+    $form['node']['pathauto_node_' . $type . '_pattern'] = array(
+      'pathauto_node_' . $type . '_pattern' => $form['node']['pathauto_node_' . $type . '_pattern'],
+      'pathauto_node_' . $type . '_pattern_sandbox' => array_merge(
+        $form['node']['pathauto_node_' . $type . '_pattern'],
+        array(
+          '#title' => t('Pattern for @name <em>sandbox</em> paths', array('@name' => $types[$type]->name)),
+          '#default_value' => variable_get('pathauto_node_' . $type . '_pattern_sandbox', ''),
+          '#parents' => array('pathauto_node_' . $type . '_pattern_sandbox'),
+        )
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_pathauto_alias_alter(). If available, use the project type's
+ * sandbox alias.
+ */
+function project_pathauto_alias_alter(&$alias, array &$context) {
+  if ($context['module'] === 'node' && project_node_type_is_project($context['type']) && ($context['op'] === 'insert' || $context['op'] === 'update')) {
+    $sandbox_pattern = variable_get('pathauto_node_' . $context['type'] . '_pattern_sandbox', '');
+    if (!empty($sandbox_pattern) && project_promote_project_is_sandbox($context['data']['node'])) {
+      $context['pattern'] = $sandbox_pattern;
+
+      // Replace any tokens in the pattern. Uses callback option to clean
+      // replacements. No sanitization.
+      $new_alias = token_replace($context['pattern'], $context['data'], array(
+        'sanitize' => FALSE,
+        'clear' => TRUE,
+        'callback' => 'pathauto_clean_token_values',
+        'language' => (object) array('language' => $context['language']),
+        'pathauto' => TRUE,
+      ));
+
+      // Check if the token replacement has not actually replaced any values.
+      // If that is the case, then stop because we should not generate an
+      // alias. See token_scan().
+      $pattern_tokens_removed = preg_replace('/\[[^\s\]:]*:[^\s\]]*\]/', '', $context['pattern']);
+      if ($new_alias !== $pattern_tokens_removed) {
+        $alias = pathauto_clean_alias($new_alias);
+      }
+    }
+  }
+}

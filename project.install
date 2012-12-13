@@ -429,7 +429,8 @@ function project_update_7005() {
  * If present, make sure pathauto is enabled, and set default patterns for projects.
  */
 function project_update_7006() {
-  if (module_enable(array('pathauto'))) {
+  if (variable_get('project_enable_alias', TRUE) && module_enable(array('pathauto'))) {
     _project_set_pathauto_defaults();
   }
+  variable_del('project_enable_alias');
 }
