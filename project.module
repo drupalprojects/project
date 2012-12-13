@@ -532,8 +532,6 @@ function project_node_access($node, $op, $account) {
 function project_node_delete($node) {
   if (project_node_is_project($node)) {
     db_query("DELETE FROM {project_maintainer} WHERE nid = :nid", array(':nid' => $node->nid));
-
-
   }
 }
 
