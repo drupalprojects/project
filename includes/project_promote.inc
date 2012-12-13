@@ -48,6 +48,8 @@ function project_promote_project_form($form, $form_state, $project) {
       '#size' => 40,
       '#maxlength' => 50,
       '#required' => TRUE,
+      '#element_validate' => array('project_validate_project_shortname'),
+      '#entity' => $project,
     );
   }
 
@@ -73,17 +75,6 @@ function project_promote_project_form($form, $form_state, $project) {
 function project_promote_project_form_validate($form, &$form_state) {
   if ($form_state['values']['confirm'] == 0) {
     form_set_error('confirm', t('Please check the confirmation checkbox before promoting this project'));
-  }
-
-  // Only validate the short name if it is relevant, and included in the
-  // original form.
-  if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
-    $project = node_load($form_state['values']['pid']);
-    $project->project['sandbox'] = 0;
-    $project->field_project_machine_name[LANGUAGE_NONE][0]['value'] = $form_state['values']['shortname'];
-    if ($error = project_validate_project_shortname($project)) {
-      form_set_error('shortname', $error);
-    }
   }
 }
 

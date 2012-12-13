@@ -833,22 +833,24 @@ function project_project_node_type_settings($form) {
 /**
  * Implements hook_form_alter().
  */
-function project_form_alter(&$form, &$form_state, $form_id) {
+function project_form_node_form_alter(&$form, &$form_state) {
   // On node forms, if we're adding or updating a project type, don't let the
   // user directly manipulate field_project_type but force them to go through
   // the promote UI instead.
-  if (!empty($form['#node_edit_form'])) {
-    $node = $form_state['build_info']['args'][0];
-    if (project_node_type_is_project($node->type)) {
-      if (!empty($form['field_project_type'])) {
-        $create_full = user_access('create full projects');
-        if (!empty($node->field_project_type) || !$create_full) {
-          $form['field_project_type']['#access'] = FALSE;
-          if (!$create_full) {
-            $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
-          }
+  $node = $form['#node'];
+  if (project_node_type_is_project($node->type)) {
+    if (!empty($form['field_project_type'])) {
+      $create_full = user_access('create full projects');
+      if (!empty($node->field_project_type) || !$create_full) {
+        $form['field_project_type']['#access'] = FALSE;
+        if (!$create_full) {
+          $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
         }
       }
+    }
+
+    if (!empty($form['field_project_machine_name'])) {
+      $form['field_project_machine_name'][$form['field_project_machine_name']['#language']][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
     }
   }
 }
@@ -861,29 +863,20 @@ function project_form_alter(&$form, &$form_state, $form_id) {
  * @return
  *   A string containing an error message, or FALSE if no errors were found.
  */
-function project_validate_project_shortname(&$node) {
-  if (empty($node->field_project_machine_name[LANGUAGE_NONE][0]['value'])) {
-    return t('A short project name is required.');
-  }
-  else {
-    // Make sure the machine name (shortname) only includes valid characters
-    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $node->field_project_machine_name[LANGUAGE_NONE][0]['value'])) {
-      return t('Please only use alphanumeric characters for the project short name.');
-    }
-
+function project_validate_project_shortname($element, &$form_state, $form) {
+  if (!empty($element['#value'])) {
     // Make sure machine name isn't already in use, or reserved.  Includes all
     // X from project/issues/X paths used in project_issues module
     $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
-    if (in_array(strtolower($node->field_project_machine_name[LANGUAGE_NONE][0]['value']), $reserved_names)) {
-      return t('This project short name is reserved.');
+    if (in_array(strtolower($element['#value']), $reserved_names)) {
+      form_error($element, t('This project short name is reserved.'));
     }
-    $existing_nid = project_get_nid_from_machinename($node->field_project_machine_name[LANGUAGE_NONE][0]['value']);
-    if (!empty($existing_nid) && $existing_nid != $node->nid) {
-      return t('This project short name is already in use.');
+
+    $existing_nid = project_get_nid_from_machinename($element['#value']);
+    if (!empty($existing_nid) && (!isset($element['#entity']->nid) || $existing_nid != $element['#entity']->nid)) {
+      form_error($element, t('This project short name is already in use.'));
     }
   }
-
-  return FALSE;
 }
 
 /**
