@@ -1216,6 +1216,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
  */
 function project_release_get_available_versions($project_nid, $api_tid = NULL) {
   // @todo Caching
+  $versions = array();
   $releases = project_release_query_releases($project_nid, $api_tid, NULL, FALSE, TRUE);
   $return = array();
   foreach ($releases as $release) {
