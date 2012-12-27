@@ -52,10 +52,6 @@ $handler->display->display_options['arguments']['field_release_project_target_id
 $handler->display->display_options['arguments']['field_release_project_target_id']['summary_options']['items_per_page'] = '25';
 $handler->display->display_options['arguments']['field_release_project_target_id']['specify_validation'] = TRUE;
 $handler->display->display_options['arguments']['field_release_project_target_id']['validate']['type'] = 'node';
-$handler->display->display_options['arguments']['field_release_project_target_id']['validate_options']['types'] = array(
-  'project' => 'project',
-);
-$handler->display->display_options['arguments']['field_release_project_target_id']['validate_options']['access'] = TRUE;
 /* Filter criterion: Content: Published */
 $handler->display->display_options['filters']['status']['id'] = 'status';
 $handler->display->display_options['filters']['status']['table'] = 'node';
