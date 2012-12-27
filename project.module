@@ -470,12 +470,30 @@ function project_node_insert($node) {
 }
 
 /**
- * Implements hook_node_insert().
+ * Implements hook_node_update().
  */
 function project_node_update($node) {
   if (project_node_is_project($node)) {
     $perms = array_fill_keys(array_keys(project_permission_load($node)), 1);
     project_maintainer_save($node->nid, $node->uid, $perms);
+  }
+}
+
+function project_field_storage_pre_insert($entity_type, $entity) {
+  if ($entity_type === 'node' && project_node_is_project($entity)) {
+    _project_pre_save($entity);
+  }
+}
+
+function project_field_storage_pre_update($entity_type, $entity) {
+  if ($entity_type === 'node' && project_node_is_project($entity)) {
+    _project_pre_save($entity);
+  }
+}
+
+function _project_pre_save($node) {
+  if (variable_get('project_sandbox_numeric_shortname', FALSE) && project_promote_project_is_sandbox($node) && empty($node->field_project_machine_name[$node->language])) {
+    $node->field_project_machine_name[$node->language][0]['value'] = $node->nid;
   }
 }
 
@@ -849,17 +867,21 @@ function project_form_node_form_alter(&$form, &$form_state) {
 
     if (!empty($form['field_project_machine_name'])) {
       $form['field_project_machine_name'][$form['field_project_machine_name']['#language']][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
+
+      if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
+        $form['field_project_machine_name']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array('project' => array('project_sandbox_numeric_shortname' => TRUE)),
+        );
+        $form['field_project_machine_name']['#attached']['js'][] = drupal_get_path('module', 'project') . '/project.js';
+        $form['field_project_machine_name'][$form['field_project_machine_name']['#language']][0]['value']['#after_build'][] = '_project_build_sandbox_machine_name';
+      }
     }
   }
 }
 
 /**
  * Validate the short name (machine name) of a project node.
- *
- * @param $node
- *   A project node with relevant fields pre-filled
- * @return
- *   A string containing an error message, or FALSE if no errors were found.
  */
 function project_validate_project_shortname($element, &$form_state, $form) {
   if (!empty($element['#value'])) {
@@ -875,6 +897,16 @@ function project_validate_project_shortname($element, &$form_state, $form) {
       form_error($element, t('This project short name is already in use.'));
     }
   }
+}
+
+/**
+ * Do not require machine name when we are going to generate a numeric one.
+ */
+function _project_build_sandbox_machine_name($element, $form_state) {
+  if ((isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][$form_state['node']->language] === 'sandbox') || project_promote_project_is_sandbox($form_state['node'])) {
+    $element['#required'] = FALSE;
+  }
+  return $element;
 }
 
 /**
