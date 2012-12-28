@@ -114,7 +114,7 @@ function project_release_packager_update_node($release_node, $release_files = ar
 
     // Load existing files.
     $existing_files = array();
-    if (!empty($node->field_release_files)) {
+    if (!empty($release_node->field_release_files)) {
       $existing_files = array_map('field_collection_field_get_entity', $release_node->field_release_files[$release_node->language]);
     }
     // Clear out files for repopulation.
