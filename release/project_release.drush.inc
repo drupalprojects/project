@@ -9,6 +9,9 @@
 
 function project_release_drush_command() {
   return array(
+    'release-package-run' => array(
+      'description' => 'Run queued release packaging.',
+    ),
     'release-package' => array(
       'description' => 'Package files for release nodes.',
       'arguments' => array(
@@ -25,8 +28,21 @@ function project_release_drush_help($section) {
     case 'meta:project_release:title':
       return dt('Project release commands');
 
+    case 'drush:release-package-run':
+      return dt('Run queued release packaging.');
+
     case 'drush:release-package':
       return dt('Package files for release nodes.');
+  }
+}
+
+function drush_project_release_release_package_run() {
+  $queue = DrupalQueue::get('project_release_package');
+  drush_log(dt('@number items in queue.', array('@number' => $queue->numberOfItems())), 'ok');
+
+  while ($item = $queue->claimItem()) {
+    drush_project_release_release_package($item->data['type'], $item->data['project']);
+    $queue->deleteItem($item);
   }
 }
 
@@ -134,7 +150,7 @@ function drush_project_release_release_package($type, $project_id) {
   }
 
   if ($num_built > 0 || $type === 'branch') {
-    watchdog('package_' . $type, "Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.", array('@project_short_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered));
+    drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array('@project_short_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered)), 'ok');
   }
 }
 

@@ -786,11 +786,19 @@ function project_release_node_update($node) {
   project_release_node_save($node);
 }
 
+/**
+ * Involved on node insert and update. Schedule updating supported versions and
+ * packaging.
+ */
 function project_release_node_save($node) {
   if (project_release_node_is_release($node)) {
     // Use a shutdown function so action is taken after the node is updated in
     // the DB.
     drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+
+    // Queue release packaging.
+    $queue = DrupalQueue::get('project_release_package');
+    $queue->createItem(array('project' => project_release_get_release_project_nid($node), 'type' => $node->field_release_build_type[$node->language][0]['value'] === 'dynamic' ? 'branch' : 'tag'));
   }
 }
 
