@@ -1410,7 +1410,7 @@ function project_release_update_7007() {
 
   // Now that the host -> collection references are in place, we can repair the
   // field_collection_item entities.
-  db_query("UPDATE field_collection_item, field_collection_item_revision SET field_collection_item.revision_id = field_collection_item_revision.revision_id WHERE field_collection_item.item_id = field_collection_item_revision.item_id AND field_collection_item.field_name = 'field_release_files'");
+  db_query("UPDATE {field_collection_item} fci, {field_collection_item_revision} fcir SET fci.revision_id = fcir.revision_id WHERE fci.item_id = fcir.item_id AND fci.field_name = 'field_release_files'");
 
   // Temporarily create a reverse index so we can join backwards through the forward index.
   db_add_index('field_data_field_release_files', 'tmp_rev_idx', array('field_release_files_value'));
