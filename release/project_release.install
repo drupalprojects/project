@@ -201,6 +201,7 @@ function project_release_update_last_removed() {
 function project_release_update_dependencies() {
   $dependencies['project_release'][7000] = array(
     'system' => 7052,
+    'project' => 7006,
   );
 
   return $dependencies;
