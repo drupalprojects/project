@@ -78,7 +78,7 @@ function drush_project_release_release_package($type, $project_id) {
   // Find release nodes.
   $query = new EntityFieldQuery();
   $result = $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'project_release')
+    ->entityCondition('bundle', project_release_release_node_types())
     ->fieldCondition('field_release_project', 'target_id', $project_node->nid)
     ->fieldCondition('field_release_build_type', 'value', $type === 'tag' ? 'static' : 'dynamic')
     ->execute();
