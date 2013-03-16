@@ -357,6 +357,13 @@ function project_main_settings_form() {
     '#description' => t('If checked, someone with the right permissions will be able to change the shortname of a project, which also changes the automatically generated URL of that project.'),
   );
 
+  $form['project_require_lowercase_machinename'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Require lowercase project short names'),
+    '#default_value' => variable_get('project_require_lowercase_machinename', FALSE),
+    '#description' => t('If checked, validation will force to use lowercase letter on the project shortname.'),
+  );
+
   $form['sandbox'] = array(
     '#type' => 'fieldset',
     '#title' => t('Sandbox settings'),
@@ -896,6 +903,9 @@ function project_validate_project_shortname($element, &$form_state, $form) {
     $existing_nid = project_get_nid_from_machinename($element['#value']);
     if (!empty($existing_nid) && (!isset($element['#entity']->nid) || $existing_nid != $element['#entity']->nid)) {
       form_error($element, t('This project short name is already in use.'));
+    }
+    if (variable_get('project_require_lowercase_machinename', FALSE) && $element['#value'] != drupal_strtolower($element['#value'])) {
+      form_error($element, t('Please use lowercase for the project short name.'));
     }
   }
 }
