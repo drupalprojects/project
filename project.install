@@ -436,3 +436,18 @@ function project_update_7006() {
   }
   variable_del('project_enable_alias');
 }
+
+/**
+ * Convert project shortname to lowercase.
+ */
+function project_update_7007() {
+  // @todo Maybe this only work on mysql, make sure LOWER/BINARY works on pg and sqlite?
+  if (variable_get('project_require_lowercase_machinename', FALSE)) {
+    db_update('field_data_field_project_machine_name')
+      ->fields(array('field_project_machine_name_value' => 'field_project_machine_name_value'))
+      ->expression('field_project_machine_name_value', 'LOWER(field_project_machine_name_value)')
+      ->condition('entity_type', 'node', '=')
+      ->where('(BINARY field_project_machine_name_value <> LOWER(field_project_machine_name_value))')
+      ->execute();
+  }
+}
