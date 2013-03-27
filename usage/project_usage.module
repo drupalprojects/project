@@ -165,11 +165,20 @@ function project_usage_project_page_link_alter(&$links, $node) {
  *   The total reported usage for all versions of the given project.
  */
 function project_usage_get_project_total_usage($nid) {
-  $active_tids = project_release_compatibility_list();
+  static $active_tids;
   static $total = array();
+
+  if (!isset($active_tids)) {
+    $term_query = new EntityFieldQuery();
+    $result = $term_query->entityCondition('entity_type', 'taxonomy_term')
+      ->fieldCondition('field_release_recommended', 'value', 1)
+      ->execute();
+    $active_tids = array_keys($result['taxonomy_term']);
+  }
+
   if (empty($total[$nid])) {
     $total[$nid] = 0;
-    foreach ($active_tids as $tid => $term_name) {
+    foreach ($active_tids as $tid) {
       $total[$nid] += project_usage_get_project_usage($nid, $tid);
     }
   }
