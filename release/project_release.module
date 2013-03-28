@@ -1500,23 +1500,25 @@ function project_release_release_node_types() {
 }
 
 /**
- * Implements hook_project_node_type_settings().
- *
- * For now, there are no release-specific settings, we only care about the
- * label for the project behavior setting itself.
+ * Implements hook_project_behavior_info().
  *
  * @return array
- *   Form elements to use for project-specific settings. The special key
- *   '#behavior_label' is used for the radio button label on the 'Project
- *   behavior' setting.
+ *   Info about the 'project_release' project behavior.
  */
-function project_release_project_node_type_settings($form) {
+function project_release_project_behavior_info() {
   return array(
-    '#behavior_label' => t('Used for project releases'),
+    'machine name' => 'project_release',
+    'label' => t('Used for project releases'),
+    'settings callback' => 'project_release_project_behavior_settings',
+  );
+}
+
+function project_release_project_behavior_settings($node_type) {
+  return array(
     'project_release_download_base' => array(
       '#type' => 'textfield',
       '#title' => t('Download link base URL'),
-      '#default_value' => variable_get('project_release_download_base_' . $form['#node_type']->type, ''),
+      '#default_value' => variable_get('project_release_download_base_' . $node_type, ''),
       '#size' => 50,
       '#maxlength' => 255,
       '#description' => t("By default, all download links to releases will use the standard download path for the site. However, if you wish to host the downloads at a different location, you can specify the base of the URL that should be used for download links. For example, if you stored releases in %files_path and you want to have download links pointing to %ftp_url, you would set this to %ftp_setting. Note that if you define this, the value should end with a slash ('/').", array('%files_path' => 'files/projects/foo.tar.gz', '%ftp_url' => 'ftp://ftp.example.com/files/projects/foo.tar.gz', '%ftp_setting' => 'ftp://ftp.example.com/')),
@@ -1524,7 +1526,7 @@ function project_release_project_node_type_settings($form) {
     'project_release_version_format' => array(
       '#type' => 'textfield',
       '#title' => t('Version format string'),
-      '#default_value' => variable_get('project_release_version_format_' . $form['#node_type']->type, ''),
+      '#default_value' => variable_get('project_release_version_format_' . $node_type, ''),
       '#size' => 50,
       '#maxlength' => 255,
       '#description' => PROJECT_RELEASE_VERSION_FORMAT_HELP,
