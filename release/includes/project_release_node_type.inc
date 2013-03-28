@@ -41,13 +41,19 @@ function _project_release_create_release_node_type() {
     'entity_types' => array(),
     'settings' => array(
       'target_type' => 'node',
-      'handler' => 'base',
-      'handler_submit' => 'Change handler',
+      'handler' => 'project_behavior',
       'handler_settings' => array(
-        'target_bundles' => array(
-          'project' => 'project',
+        'behavior' => 'project',
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
         ),
       ),
+      'handler_submit' => 'Change handler',
     ),
     'field_name' => 'field_release_project',
     'type' => 'entityreference',
@@ -66,17 +72,11 @@ function _project_release_create_release_node_type() {
     'entity_types' => array(),
     'settings' => array(
       'target_type' => 'node',
-      'handler' => 'base',
-      'handler_submit' => 'Change handler',
+      'handler' => 'project_behavior',
       'handler_settings' => array(
-        'target_bundles' => array(
-          'project' => 'project',
-        ),
+        'behavior' => 'project',
         'sort' => array(
           'type' => 'none',
-          'property' => 'nid',
-          'field' => 'body:value',
-          'direction' => 'ASC',
         ),
         'behaviors' => array(
           'views-select-list' => array(
@@ -84,6 +84,7 @@ function _project_release_create_release_node_type() {
           ),
         ),
       ),
+      'handler_submit' => 'Change handler',
       'user_register_form' => FALSE,
     ),
     'required' => 1,

@@ -10,6 +10,9 @@ function project_ctools_plugin_directory($module, $plugin) {
         return 'metrics';
     }
   }
+  if ($module == 'entityreference') {
+    return 'plugins/entityreference_' . $plugin;
+  }
 }
 
 /**
@@ -72,6 +75,20 @@ function project_project_node_types() {
     }
   }
   return $project_node_types;
+}
+
+/**
+ * Get the list of node types assigned to a behavior.
+ */
+function project_node_types_by_behavior($behavior) {
+  $behavior_node_types = array();
+  $node_types = node_type_get_types();
+  foreach ($node_types as $type) {
+    if (variable_get('project_behavior_' . $type->type, FALSE) == $behavior) {
+      $behavior_node_types[] = $type->type;
+    }
+  }
+  return $behavior_node_types;
 }
 
 /**
