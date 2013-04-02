@@ -303,7 +303,7 @@ function project_release_views_data() {
       ),
       'relationship' => array(
         'base' => 'term_data',
-        'field' => 'tid',
+        'field' => 'version_api_tid',
         // Again, dynamic labels here make exported views yucky.
         'label' => t('API compatibility term'),
       ),
