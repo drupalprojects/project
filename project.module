@@ -218,6 +218,13 @@ function project_menu() {
     'description' => t('Configure system-wide settings for the Project module.'),
   );
 
+  $items['project/add'] = array(
+    'title' => t('Create a project'),
+    'page callback' => 'project_add_landing_page',
+    'access callback' => 'project_user_can_create_project',
+    'description' => t('Add a new project node.'),
+  );
+
   return $items;
 }
 
@@ -479,6 +486,9 @@ function project_theme() {
     'project_maintainers_form' => array(
       'file' => 'includes/project_maintainers.inc',
       'render element' => 'element',
+    ),
+    'project_add_landing_page' => array(
+      'variables' => array('types' => NULL),
     ),
   );
 }
@@ -1065,4 +1075,68 @@ function project_pathauto_alias_alter(&$alias, array &$context) {
       }
     }
   }
+}
+
+/**
+ * Menu callback for 'project/add'.
+ */
+function project_add_landing_page() {
+  $project_node_types = project_project_node_types();
+  if (count($project_node_types) == 1) {
+    $type = array_shift($project_node_types);
+    $type_url_str = str_replace('_', '-', $type);
+    drupal_goto("node/add/$type_url_str");
+  }
+  return theme('project_add_landing_page', array('types' => $project_node_types));
+}
+
+/**
+ * Returns HTML for a list of available project node types for creation.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - 'types': An array of bundle machine names.
+ *
+ * @see theme_node_add_list()
+ */
+function theme_project_add_landing_page($variables) {
+  $project_types = $variables['types'];
+  $output = '';
+
+  if (count($project_types) > 1) {
+    $node_types = node_type_get_types();
+    $output = '<dl class="node-type-list">';
+    foreach ($project_types as $project_type) {
+      $type_url_str = str_replace('_', '-', $project_type);
+      $output .= '<dt>' . l($node_types[$project_type]->name, "node/add/$type_url_str") . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($node_types[$project_type]->description) . '</dd>';
+    }
+    $output .= '</dl>';
+  }
+  else {
+    if (user_access('administer content types')) {
+      $output = '<p>' . t('There are no content types configured to be projects. <a href="@configure-content-type">Configure</a> one of the available content types first.', array('@configure-content-type' => url('admin/structure/types'))) . '</p>';
+    }
+    else {
+      $output = '<p>' . t('There are no content types configured to be projects.') . '</p>';
+    }
+  }
+  return $output;
+}
+
+/**
+ * Determines if an account can create projects.
+ *
+ * @param $account
+ *   A user object. If not provided, the current user is used.
+ *
+ * @return boolean
+ *   User can or cannot create a project.
+ */
+function project_user_can_create_project($account = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  return user_access('create full projects', $account) || user_access('create sandbox projects', $account);
 }
