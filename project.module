@@ -1085,9 +1085,9 @@ function project_add_landing_page() {
   if (count($project_node_types) == 1) {
     $type = array_shift($project_node_types);
     $type_url_str = str_replace('_', '-', $type);
-    drupal_goto("node/add/$type_url_str");
+    return drupal_goto('node/add/' . $type_url_str);
   }
-  return theme('project_add_landing_page', array('types' => $project_node_types));
+  return theme('project_add_landing_page', array('types' => array_intersect_key(node_type_get_types(), array_flip($project_node_types))));
 }
 
 /**
@@ -1104,12 +1104,11 @@ function theme_project_add_landing_page($variables) {
   $output = '';
 
   if (count($project_types) > 1) {
-    $node_types = node_type_get_types();
     $output = '<dl class="node-type-list">';
     foreach ($project_types as $project_type) {
-      $type_url_str = str_replace('_', '-', $project_type);
-      $output .= '<dt>' . l($node_types[$project_type]->name, "node/add/$type_url_str") . '</dt>';
-      $output .= '<dd>' . filter_xss_admin($node_types[$project_type]->description) . '</dd>';
+      $type_url_str = str_replace('_', '-', $project_type->type);
+      $output .= '<dt>' . l($project_type->name, 'node/add/' . $type_url_str) . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($project_type->description) . '</dd>';
     }
     $output .= '</dl>';
   }
