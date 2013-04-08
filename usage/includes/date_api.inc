@@ -109,13 +109,16 @@ function project_usage_get_active_weeks($reset = FALSE) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Get the latest week with the latest project usage data.
+ *
+ * @return
+ *   The UNIX timestamp of the latest week with project usage data.
  */
 function project_usage_get_current_active_week() {
   static $current_week = 0;
   if (empty($current_week)) {
-    $current_week = array_shift(project_usage_get_active_weeks());
+    $weeks = project_usage_get_active_weeks();
+    $current_week = array_shift($weeks);
   }
   return $current_week;
 }

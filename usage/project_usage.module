@@ -73,7 +73,6 @@ function project_usage_theme() {
   return array(
     'project_usage_chart_by_release' => array(
       'variables' => array(
-        'title' => NULL,
         'header' => NULL,
         'rows' => NULL,
       ),

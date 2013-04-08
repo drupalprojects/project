@@ -20,15 +20,13 @@ function _project_usage_help($key) {
     $node = node_load($key);
   }
   else {
-    $node = project_project_retrieve($key);
+    $node = project_load($key);
   }
-  switch ($node->type) {
-    case 'project_project':
-      return '<p>' . t('This page provides information about the usage of the %project_title project, including summaries across all versions and details for each release. For each week beginning on the given date the figures show the number of sites that reported they are using a given version of the project. ', array('%project_title' => $node->title)) . '</p>';
-
-    case 'project_release':
-      return '<p>' . t('For each week beginning on a given date, the figures show the number of sites that reported they are using the %release_title release. ', array('%release_title' => $node->title)) . '</p>';
-
+  if (project_node_is_project($node)) {
+    return '<p>' . t('This page provides information about the usage of the %project_title project, including summaries across all versions and details for each release. For each week beginning on the given date the figures show the number of sites that reported they are using a given version of the project. ', array('%project_title' => $node->title)) . '</p>';
+  }
+  elseif (project_release_node_is_release($node)) {
+    return '<p>' . t('For each week beginning on a given date, the figures show the number of sites that reported they are using the %release_title release. ', array('%release_title' => $node->title)) . '</p>';
   }
 }
 
@@ -43,15 +41,15 @@ function _project_usage_help($key) {
  *   get an access denied page.
  */
 function project_usage_dispatch($key) {
-  // Load the node the user has requested.  We want to only use
-  // project_project_retrieve() if the $key parameter is not numeric because
-  // project_project_retrieve() will only return a project_project node, and
-  // we want to allow $node to also be a project_release node.
+  // Load the node the user has requested. We want to only use project_load()
+  // if the $key parameter is not numeric because project_load() will only
+  // return a project node, and we want to allow $node to also be a release
+  // node.
   if (is_numeric($key)) {
     $node = node_load($key);
   }
   else {
-    $node = project_project_retrieve($key);
+    $node = project_load($key);
   }
 
   if (!empty($node->nid)) {
@@ -106,27 +104,13 @@ function project_usage_overview() {
 
   $usage_week_nids = db_query('SELECT DISTINCT(nid) FROM {project_usage_week_project}')->fetchCol();
 
-  $query = new EntityFieldQuery();
-  $result = $query->entityCondition('entity_type', 'node')
-    ->propertyCondition('nid', $usage_week_nids, 'IN')
-    ->propertyCondition('status', NODE_PUBLISHED)
-    ->fieldCondition('field_project_machine_name')
-    ->execute();
-  $machine_names = array();
-  if (!empty($result['node'])) {
-    $entities = entity_load('node', array_keys($result['node']));
-    foreach($entities as $entity) {
-      $names = field_get_items('node', $entity, 'field_project_machine_name');
-      $machine_names[$entity->nid] = $names[0]['value'];
-    }
-  }
-
   $query = db_select('node', 'n')
     ->fields('n', array('nid', 'title'))
     ->condition('n.nid', $usage_week_nids, 'IN')
     ->condition('n.status', NODE_PUBLISHED)
     ->groupBy('n.nid')
-    ->groupBy('n.title');
+    ->groupBy('n.title')
+    ->addTag('node_access');
   $headers = array(
     t('#'),
     array(
@@ -156,24 +140,25 @@ function project_usage_overview() {
   // Check for a cached page. The cache id needs to take into account the sort
   // column and order.
   $sort = tablesort_init($headers);
-  $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'];
-  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
-  if (FALSE && $cached = cache_get($cid, 'cache_project_usage')) {
+  $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'] . ':' . pager_find_page();
+  if ($cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
   }
   else {
-    $query = $query
+    $result = $query
       ->extend('TableSort')
-      ->orderByHeader($headers);
+      ->orderByHeader($headers)
+      ->extend('PagerDefault')
+      ->limit(100)
+      ->execute();
 
-    $result = $query->execute();
-
-    $number = 1;
+    $number = pager_find_page() * 100 + 1;
     $rows = array();
     foreach ($result as $line) {
+      $machine_name = field_get_items('node', node_load($line->nid, NULL, TRUE), 'field_project_machine_name');
       $row = array(
         array('data' => $number++),
-        array('data' => l($line->title, 'project/usage/' . $machine_names[$line->nid])),
+        array('data' => l($line->title, 'project/usage/' . $machine_name[0]['value'])),
       );
       foreach ($weeks as $i => $week) {
         $row[] = array(
@@ -184,15 +169,21 @@ function project_usage_overview() {
       $rows[] = $row;
     }
   }
-  $output = theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-all-projects')));
 
   // Cache the completed page.
-  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
-  if (FALSE) {
-    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
-  }
+  cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
 
-  return $output;
+  return array(
+    'usage' => array(
+      '#theme' => 'table',
+      '#header' => $headers,
+      '#rows' => $rows,
+      '#attributes' => array('id' => 'project-usage-all-projects'),
+    ),
+    'pager' => array(
+      '#theme' => 'pager',
+    ),
+  );
 }
 
 /**
@@ -220,8 +211,7 @@ function project_usage_project_page($node) {
   // Grab an array of active week timestamps.
   $weeks = project_usage_get_active_weeks();
 
-  // TODO: this function probably changes in 7.x.
-  $releases = project_release_get_releases($node, FALSE);
+  $releases = project_release_query_releases($node->nid);
 
   // If there are no releases for this project, we can skip the rest
   // of this function.
@@ -243,9 +233,10 @@ function project_usage_project_page($node) {
   //   not including things like forum posts, hence the WHERE IN below.
 
   $query = db_select('node', 'n')
-    ->addField('n', 'nid')
+    ->fields('n', array('nid'))
     ->condition('n.nid', array_keys($releases), 'IN')
-    ->condition('n.status', 1);
+    ->condition('n.status', 1)
+    ->addTag('node_access');
 
   $release_header = array(array(
       'field' => 'n.title',
@@ -257,9 +248,8 @@ function project_usage_project_page($node) {
     // Note that "{$i}" in these query snippets are used to add a week integer
     // to the table and field aliases so we can uniquely identify each column
     // for sorting purposes.
-    $query
-      ->addField("p{$i}", 'count', "week{$i}")
-      ->leftJoin('project_usage_week_release', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
+    $query->addField('p' . $i, 'count', 'week' . $i);
+    $query->leftJoin('project_usage_week_release', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
 
     $release_header[] = array(
       'field' => "week{$i}",
@@ -278,16 +268,15 @@ function project_usage_project_page($node) {
     $project_rows = $cached->data['project_rows'];
   }
   else {
-    $query = $query
+    $result = $query
       ->extend('TableSort')
-      ->orderByHeader($release_header);
-
-    $result = $query->execute();
+      ->orderByHeader($release_header)
+      ->execute();
 
     $release_rows = array();
     foreach ($result as $line) {
       $sum = 0;
-      $row = array(array('data' => l($releases[$line->nid], 'project/usage/' . $line->nid)));
+      $row = array(array('data' => l($releases[$line->nid]->field_release_version[$releases[$line->nid]->language][0]['value'], 'project/usage/' . $line->nid)));
       foreach ($weeks as $i => $week) {
         $sum += $line->{"week{$i}"};
         $row[] = array(
@@ -321,7 +310,6 @@ function project_usage_project_page($node) {
     // but it ends up being a more expensive query and harder to read.
     $project_header = array(0 => array('data' => t('Week')));
     $blank_row = array(0 => array('data' => ''));
-    // TODO: Releases won't use taxonomy in 7.x, fix this section.
     $result = db_query("SELECT DISTINCT td.tid, td.name FROM {project_usage_week_project} p INNER JOIN {taxonomy_term_data} td ON p.tid = td.tid WHERE p.nid = :nid ORDER BY td.weight DESC, td.name", array(':nid' => $node->nid));
     foreach ($result as $row) {
       $project_header[$row->tid] = array(
@@ -353,14 +341,13 @@ function project_usage_project_page($node) {
 
     // ...then fill it in with our data.
     $result = db_query("SELECT timestamp, tid, count FROM {project_usage_week_project} WHERE nid = :nid", array(':nid' => $node->nid));
-    while ($result = $row) {
+    foreach ($result as $row) {
       $project_rows[$row->timestamp][$row->tid]['data'] = $row->count;
     }
 
     // ...and add the weekly totals across all API versions
     foreach ($project_rows as $timestamp => $row) {
       $total = 0;
-      // TODO: fix taxonomy reference here.
       foreach ($row as $tid => $data) {
         if (!empty($tid) && !empty($data['data'])) {
           $total += $data['data'];
@@ -371,18 +358,13 @@ function project_usage_project_page($node) {
     }
   }
 
-  $output = theme('project_usage_project_page', array('project' => $node, 'release_header' => $release_header, 'release_rows' => $release_rows, 'project_header' => $project_header, 'project_rows' => $project_rows));
-
   // Cache the completed page.
-  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
-  if (FALSE) {
-    $cache['release_rows'] = $release_rows;
-    $cache['project_header'] = $project_header;
-    $cache['project_rows'] = $project_rows;
-    cache_set($cid, $cache, 'cache_project_usage', project_usage_cache_time());
-  }
+  $cache['release_rows'] = $release_rows;
+  $cache['project_header'] = $project_header;
+  $cache['project_rows'] = $project_rows;
+  cache_set($cid, $cache, 'cache_project_usage', project_usage_cache_time());
 
-  return $output;
+  return theme('project_usage_project_page', array('project' => $node, 'release_header' => $release_header, 'release_rows' => $release_rows, 'project_header' => $project_header, 'project_rows' => $project_rows));
 }
 
 /**
@@ -404,8 +386,7 @@ function project_usage_release_page($node) {
 
   // Check for a cached page.
   $cid = "release:{$node->nid}";
-  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
-  if (FALSE && $cached = cache_get($cid, 'cache_project_usage')) {
+  if ($cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
   }
   else {
@@ -432,15 +413,11 @@ function project_usage_release_page($node) {
       'class' => array('project-usage-numbers'),
     ),
   );
-  $output = theme('project_usage_release_page', array('project' => $project, 'release' => $node, 'header' => $header, 'rows' => $rows));
 
   // Cache the completed page.
-  // TODO: replace FALSE with the 7.x equivalent of project_can_cache().
-  if (FALSE) {
-    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
-  }
+  cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
 
-  return $output;
+  return theme('project_usage_release_page', array('project' => $project, 'release' => $node, 'header' => $header, 'rows' => $rows));
 }
 
 /**
@@ -476,7 +453,7 @@ function theme_project_usage_project_page($variables) {
   }
 
   $output .= '<h3>' . t('Weekly project usage') . '</h3>';
-  $output .= theme('project_usage_chart_by_release', array('title' => t('Weekly @project usage by API version', array('@project' => $project->title)), 'header' => $project_header, 'rows' => $project_rows));
+  $output .= theme('project_usage_chart_by_release', array('header' => $project_header, 'rows' => $project_rows));
   $output .= theme('table', array('header' => $project_header, 'rows' => $project_rows, 'attributes' => array('id' => 'project-usage-project-api')));
   $output .= '<h3>' . t('Recent release usage') . '</h3>';
   $output .= theme('table', array('header' => $release_header, 'rows' => $release_rows, 'attributes' => array('id' => 'project-usage-project-releases')));
@@ -512,7 +489,7 @@ function theme_project_usage_release_page($variables) {
     return $output;
   }
 
-  $output .= theme('project_usage_chart_by_release', array('title' => t('Weekly @release usage', array('@release' => $release->title)), 'header' => $header, 'rows' => $rows));
+  $output .= theme('project_usage_chart_by_release', array('header' => $header, 'rows' => $rows));
   $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-release')));
   return $output;
 }
@@ -539,8 +516,7 @@ function theme_project_usage_header_links($variables) {
   $links[] = l(t('%project_name project page', array('%project_name' => $project->title)), 'node/' . $project->nid, array('html' => TRUE));
   if (!empty($release)) {
     $links[] = l(t('%release_name release page', array('%release_name' => $release->title)), 'node/' . $release->nid, array('html' => TRUE));
-    // TODO: Fix missing 'uri' param.
-    $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->project['uri'], array('html' => TRUE));
+    $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->field_project_machine_name[$project->language][0]['value'], array('html' => TRUE));
   }
   $links[] = l(t('Usage statistics for all projects'), 'project/usage');
   return theme('item_list', array('items' => $links));
@@ -554,9 +530,6 @@ function theme_project_usage_header_links($variables) {
  *
  * @param $variables
  *   An array of theme information, with the following keys:
- *
- *     title:
- *       The graph title. // TODO: This isn't currently being used.
  *     header:
  *       A table header for the weekly usage table.
  *     rows:
@@ -566,7 +539,6 @@ function theme_project_usage_header_links($variables) {
  *   insufficent data.
  */
 function theme_project_usage_chart_by_release($variables) {
-  $title = $variables['title'];
   $header = $variables['header'];
   $rows = $variables['rows'];
   // Make sure we have enough data to make a useful chart.
@@ -610,10 +582,9 @@ function theme_project_usage_chart_by_release($variables) {
     }
   }
 
-  $flot_graph = theme('flot_graph', array(
-    'options' => array('style' => 'width:100%; height:200px'),
+  return theme('flot_graph', array(
     'data' => array_values($series),
-    'element' => array(
+    'options' => array(
       'xaxis' => array(
         'mode' => 'time',
       ),
@@ -632,13 +603,6 @@ function theme_project_usage_chart_by_release($variables) {
       ),
     )
   ));
-
-  // Include the cached inline code in the output. Ugly, but there's no harm in
-  // assigning the JS variable twice. Will be imporved by #1515468
-  $scripts = drupal_add_js(JS_DEFAULT);
-  $flot_graph .= '<script>' . $scripts['inline'][count($scripts['inline']) - 1]['code'] . '</script>';
-
-  return $flot_graph;
 }
 
 /**

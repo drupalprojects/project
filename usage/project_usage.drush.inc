@@ -91,8 +91,7 @@ function drush_project_usage_tally_usage_stats() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Prune old data from site.
  */
 function project_usage_prune_site() {
   $time_4 = REQUEST_TIME;
@@ -439,10 +438,11 @@ function project_usage_load_metadata() {
   }
   $initialized = TRUE;
   $db = project_usage_mongo();
+
   // Load information about core.
   $c = $db->selectCollection("terms");
   $c->remove(array());
-  foreach (project_release_get_api_taxonomy() as $term) {
+  foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
     if (strlen($term->name) == 3) { // Quick ugly hack to skip drupal < 5.x
       $c->insert(array(
         'tid' => $term->tid,
@@ -451,24 +451,47 @@ function project_usage_load_metadata() {
     }
   }
 
+  // Load information about projects.
+  $c = $db->selectCollection("projects");
+  $c->remove(array());
+  $projdata = array();
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', project_project_node_types())
+    ->fieldCondition('field_project_has_releases', 'value', TRUE)
+    ->execute();
+  if (isset($result['node'])) {
+    foreach (array_chunk(array_keys($result['node']), 100) as $projects) {
+      foreach (node_load_multiple($projects, array(), TRUE) as $project) {
+        $c->insert(array(
+          'pid' => $project->nid,
+          'uri' => $project->field_project_machine_name[$project->language][0]['value'],
+        ));
+        $projdata[$project->nid] = $project->field_project_machine_name[$project->language][0]['value'];
+      }
+    }
+  }
 
-  // Load information about projects and release data.
+  // Load information about releases.
   $c = $db->selectCollection("releases");
   $c->remove(array());
-  // TODO: This query will need to be rewritten, as both {project_projects}
-  // and {project_release_nodes} won't exist in 7.x.
-  $result = db_query("SELECT LOWER(p.uri) AS uri, r.nid, r.pid, LOWER(r.version) AS version, r.version_api_tid AS tid FROM {project_projects} p INNER JOIN {project_release_nodes} r ON p.nid = r.pid", array(), array('fetch' => PDO::FETCH_ASSOC, ));
-  $projdata = array();
-  foreach ($result as $row) {
-    $c->insert($row);
-    $projdata[$row['pid']] = $row['uri'];
-  }
-  $c = $db->selectCollection("projects");
-  foreach ($projdata as $pid => $uri) {
-    $c->insert(array(
-      'pid' => $pid,
-      'uri' => $uri,
-    ));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', project_release_release_node_types())
+    ->execute();
+  if (isset($result['node'])) {
+    foreach (array_chunk(array_keys($result['node']), 100) as $releases) {
+      foreach (node_load_multiple($releases, array(), TRUE) as $release) {
+        $c->insert(array(
+          'uri' => $projdata[$release->field_release_project[$release->language][0]['target_id']],
+          'nid' => $release->nid,
+          'pid' => $release->field_release_project[$release->language][0]['target_id'],
+          'version' => $release->field_release_version[$release->language][0]['value'],
+          'tid' => isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language][0]['tid'] : 0,
+        ));
+      }
+    }
   }
 }
 
