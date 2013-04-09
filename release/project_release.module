@@ -512,6 +512,13 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
         }
         $element['value']['#description'] = t('Format: <code>@format</code>', array('@format' => $string));
         break;
+
+      case 'field_issue_version':
+        // Do not require field if there are no versions to select.
+        if (count(array_diff(array_keys($element['#options']), array('_none'))) === 0) {
+          $element['#required'] = FALSE;
+        }
+        break;
     }
   }
 }
