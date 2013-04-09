@@ -898,6 +898,11 @@ function _project_release_create_release_node_type() {
       'settings' => array(
         'size' => '50',
       ),
+      'display' => array(
+        'default' => array(
+          'type' => 'hidden',
+        ),
+      ),
     ),
   ));
 
