@@ -20,20 +20,7 @@
 /**
  * Required configuration: directory tree for the XML history files.
  */
-define('HISTORY_ROOT', '');
-
-/**
- * Required configuration: location of your Drupal installation for
- * bootstrapping and recording usage statistics.
- */
-define('DRUPAL_ROOT', '');
-
-/**
- * Required configuration: name of your site.
- *
- * Needed to find the right settings.php file to bootstrap Drupal with.
- */
-define('SITE_NAME', '');
+define('HISTORY_ROOT', 'PATH/TO/DRUPAL/files/release-history');
 
 
 /**
@@ -94,46 +81,6 @@ if (substr($file, 0, 5) != '<?xml') {
   echo '<?xml version="1.0" encoding="utf-8"?>' ."\n";
 }
 echo $file;
-
-// Record usage statistics.
-if (isset($_GET['site_key'])) {
-  if (!chdir(DRUPAL_ROOT)) {
-    exit(1);
-  }
-
-  // Setup variables for Drupal bootstrap
-  $script_name = $argv[0];
-  $_SERVER['HTTP_HOST'] = SITE_NAME;
-  $_SERVER['REQUEST_URI'] = '/' . $script_name;
-  $_SERVER['SCRIPT_NAME'] = '/' . $script_name;
-  $_SERVER['PHP_SELF'] = '/' . $script_name;
-  $_SERVER['SCRIPT_FILENAME'] = $_SERVER['PWD'] .'/'. $script_name;
-  $_SERVER['PATH_TRANSLATED'] = $_SERVER['SCRIPT_FILENAME'];
-
-  // Actually do the bootstrap.
-  include_once './includes/bootstrap.inc';
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
-
-  // We can't call module_exists without bootstrapping to a higher level so
-  // we'll settle for checking that the table exists.
-  if (db_table_exists('project_usage_raw')) {
-    $site_key = $_GET['site_key'];
-    $project_version = isset($_GET['version']) ? $_GET['version'] : '';
-    $ip_addr = ip_address();
-
-    // Compute a GMT timestamp for begining of the day. getdate() is
-    // affected by the server's timezone so we need to cancel it out.
-    $now = time();
-    $time_parts = getdate($now - date('Z', $now));
-    $timestamp = gmmktime(0, 0, 0, $time_parts['mon'], $time_parts['mday'], $time_parts['year']);
-
-    db_query("UPDATE {project_usage_raw} SET api_version = '%s', project_version = '%s', ip_addr = '%s' WHERE project_uri = '%s' AND timestamp = %d AND site_key = '%s'", $api_version, $project_version, $ip_addr, $project_name, $timestamp, $site_key);
-    if (!db_affected_rows()) {
-      db_query("INSERT INTO {project_usage_raw} (project_uri, timestamp, site_key, api_version, project_version, ip_addr) VALUES ('%s', %d, '%s', '%s', '%s', '%s')", $project_name, $timestamp, $site_key, $api_version, $project_version, $ip_addr);
-    }
-  }
-}
-
 
 /**
  * Copy of core's check_plain() function.
