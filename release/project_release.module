@@ -853,6 +853,10 @@ function project_release_node_view($node, $view_mode, $langcode) {
   elseif (project_release_node_is_release($node)) {
     $project = node_load(project_release_get_release_project_nid($node));
 
+    if ($view_mode === 'full') {
+      project_project_set_breadcrumb($project, TRUE, array(l(t('Releases'), 'node/' . $project->nid . '/release')));
+    }
+
     // Add "Release notes" header.
     if (isset($node->content['body'])) {
       $node->content['body']['#prefix'] = '<h3>' . t('Release notes') . '</h3>';
@@ -924,17 +928,6 @@ function project_release_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements hook_preprocess_page().
- */
-function project_release_preprocess_page(&$vars) {
-  if (!empty($vars['node']) && project_release_node_is_release($vars['node'])) {
-    $project = node_load(project_release_get_release_project_nid($vars['node']));
-    $breadcrumb[] = l(t('Releases'), 'node/' . $project->nid . '/release');
-    project_project_set_breadcrumb($project, TRUE, $breadcrumb);
-  }
-}
-
-/**
  * Implementation of hook_field_attach_view_alter().
  *
  * Changes file URI if custom download base is set.
@@ -982,6 +975,10 @@ function project_release_views_pre_render(&$view) {
         }
       }
     }
+  }
+
+  if ($view->name === 'project_release_by_project') {
+    project_project_set_breadcrumb(node_load($view->args[0]), TRUE);
   }
 }
 
