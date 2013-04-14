@@ -51,12 +51,12 @@ function project_promote_project_form($form, $form_state, $project) {
       '#element_validate' => array('project_validate_project_shortname'),
       '#entity' => $project,
     );
-  }
 
-  // Update help text if the user is not allowed to update the short name at a
-  // later time.
-  if (!variable_get('project_allow_machinename_update', TRUE) && isset($form['shortname'])) {
-    $form['shortname']['#description'] .= ' ' . t('You may not edit this value after the project has been promoted.');
+    // Update help text if the user is not allowed to update the short name at
+    // a later time.
+    if (!variable_get('project_allow_machinename_update', TRUE)) {
+      $form['shortname']['#description'] = t('You may not edit this value after the project has been promoted.');
+    }
   }
 
   $form['pid'] = array('#type' => 'value', '#value' => $project->nid);
