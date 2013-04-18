@@ -25,7 +25,9 @@ function _project_release_create_release_node_type() {
 
   $type = node_type_set_defaults($type);
   node_type_save($type);
-  node_add_body_field($type);
+  $instance = node_add_body_field($type, 'Release notes');
+  $instance['description'] = 'Enter a description of this release, such as a list of the major changes or updates.';
+  field_update_instance($instance);
 
   // Define node workflow and comment settings.
   variable_set('node_options_project_release', array('status', 'revision'));
