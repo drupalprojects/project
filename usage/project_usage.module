@@ -146,15 +146,6 @@ function project_usage_flush_caches() {
 }
 
 /**
- * Implements hook_project_page_link_alter().
- */
-function project_usage_project_page_link_alter(&$links, $node) {
-  if (user_access('view project usage') && $node->project_release['releases']) {
-    $links['resources']['links']['project_usage'] = l(t('View usage statistics'), 'project/usage/' . $node->project['uri']);
-  }
-}
-
-/**
  * Return the total usage data for a given project across all versions.
  *
  * @param $nid
