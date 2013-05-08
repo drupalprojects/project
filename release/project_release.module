@@ -1606,6 +1606,13 @@ function project_release_node_type_update($info) {
               'type' => 'list_default',
               'weight' => 1,
             ),
+            'nodechanges' => array(
+              'label' => 'inline',
+              'module' => 'list',
+              'settings' => array(),
+              'type' => 'list_default',
+              'weight' => 1,
+            ),
           ),
           'entity_type' => 'node',
           'field_name' => 'field_issue_version',
