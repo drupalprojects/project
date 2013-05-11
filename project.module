@@ -858,11 +858,15 @@ function project_form_node_type_form_alter(&$form) {
     if (!empty($behavior_info['settings callback'])) {
       $form_elements = $behavior_info['settings callback']($node_type);
       foreach (element_children($form_elements) as $key) {
-        $form_elements[$key]['#states'] = array(
-          'visible' => array(
-            ':input[name="project_behavior"]' => array('value' => $machine_name),
-          ),
+        // The form elements might define their own #states, so don't just
+        // clobber it, but merge in our visibility state carefully.
+        $visible = array(
+          ':input[name="project_behavior"]' => array('value' => $machine_name),
         );
+        if (!empty($form_elements[$key]['#states']['visible'])) {
+          $visible = array_merge($form_elements[$key]['#states']['visible'], $visible);
+        }
+        $form_elements[$key]['#states']['visible'] = $visible;
         $form['project'][$machine_name][$key] = $form_elements[$key];
       }
     }
