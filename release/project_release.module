@@ -47,6 +47,15 @@ function project_release_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/project_edit_releases.inc',
   );
+  // Autocomplete projects that have releases enabled.
+  $items['project/autocomplete/release/project/%'] = array(
+    'page callback' => 'project_release_autocomplete_project',
+    'page arguments' => array(4),
+    'access arguments' => array('access content'),
+    'file' => 'release_node_add.inc',
+    'file path' => drupal_get_path('module', 'project_release') . '/includes',
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
