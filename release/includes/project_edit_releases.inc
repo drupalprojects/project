@@ -24,8 +24,14 @@ function project_release_project_edit_form($form, $form_state, $node) {
   drupal_add_js(drupal_get_path('module', 'project_release') . '/project_release.js', array('preprocess' => FALSE));
 
   // Get all the data about major versions for this project.
+  $term_query = new EntityFieldQuery();
+  $recommended_api_terms = $term_query->entityCondition('entity_type', 'taxonomy_term')
+    ->fieldCondition('field_release_recommended', 'value', 1)
+    ->execute();
   $query = db_select('project_release_supported_versions', 'psrv');
+  $query->condition('psrv.nid', $node->nid);
   $query->innerJoin('taxonomy_term_data', 'ttd', 'ttd.tid = psrv.tid');
+  $query->condition('ttd.tid', array_keys($recommended_api_terms['taxonomy_term']));
   $query->fields('psrv', array('tid', 'major', 'snapshot', 'supported', 'recommended'));
   $query->fields('ttd', array('name'));
   $query->orderBy('ttd.weight');
