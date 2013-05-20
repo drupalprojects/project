@@ -831,7 +831,7 @@ function project_release_node_delete($node) {
  */
 function project_release_node_view($node, $view_mode, $langcode) {
   if (project_node_is_project($node)) {
-    if ($node->field_project_has_releases[$node->language][0]['value']) {
+    if (!empty($node->field_project_has_releases[LANGUAGE_NONE][0]['value'])) {
       // Add releases table and links.
       $node->content['project_release_downloads'] = array(
         '#prefix' => '<h3>' . t('Downloads') . '</h3>',
