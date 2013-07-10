@@ -536,7 +536,18 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
  * Implemenation of hook_form_FORM_ID_alter() for release node forms.
  */
 function project_release_form_node_form_alter(&$form, &$form_state) {
-  if (project_release_node_is_release($form_state['node'])) {
+  if (project_node_is_project($form_state['node'])) {
+    // If sandbox projects are configured to not allow releases, hide 'Has
+    // project releases' when sandbox project is selected.
+    if (!variable_get('project_release_sandbox_allow_release', TRUE)) {
+      $language = $form['field_project_has_releases']['#language'];
+      $form['field_project_has_releases'][$language]['#states']['unchecked'] =
+        $form['field_project_has_releases'][$language]['#states']['invisible'] = array(
+          ':input[name="field_project_type[' . $language . ']"]' => array('value' => 'sandbox'),
+        );
+    }
+  }
+  elseif (project_release_node_is_release($form_state['node'])) {
     // title is set programatically in project_release_node_validate().
     $form['title']['#access'] = FALSE;
   }
