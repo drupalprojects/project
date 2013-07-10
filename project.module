@@ -933,15 +933,15 @@ function project_form_node_form_alter(&$form, &$form_state) {
     }
 
     if (!empty($form['field_project_machine_name'])) {
-      $form['field_project_machine_name'][$form['field_project_machine_name']['#language']][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
+      $language = $form['field_project_machine_name']['#language'];
+      $form['field_project_machine_name'][$language][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
 
       if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
-        $form['field_project_machine_name']['#attached']['js'][] = array(
-          'type' => 'setting',
-          'data' => array('project' => array('project_sandbox_numeric_shortname' => TRUE)),
-        );
-        $form['field_project_machine_name']['#attached']['js'][] = drupal_get_path('module', 'project') . '/project.js';
-        $form['field_project_machine_name'][$form['field_project_machine_name']['#language']][0]['value']['#after_build'][] = '_project_build_sandbox_machine_name';
+        $form['field_project_machine_name'][$language][0]['value']['#states']['optional'] = 
+          $form['field_project_machine_name'][$language][0]['value']['#states']['invisible'] = array(
+            ':input[name="field_project_type[' . $language . ']"]' => array('value' => 'sandbox'),
+          );
+        $form['field_project_machine_name'][$language][0]['value']['#after_build'][] = '_project_build_sandbox_machine_name';
       }
     }
   }
