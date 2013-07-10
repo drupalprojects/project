@@ -163,6 +163,11 @@ $handler->display->display_options['relationships']['field_release_file_fid_1'][
 $handler->display->display_options['relationships']['field_release_file_fid_1']['field'] = 'field_release_file_fid';
 $handler->display->display_options['relationships']['field_release_file_fid_1']['relationship'] = 'field_release_files_value_1';
 $handler->display->display_options['relationships']['field_release_file_fid_1']['label'] = 'file from field_release_file 2';
+/* Relationship: Project release: Supported releases */
+$handler->display->display_options['relationships']['supported_releases_rel']['id'] = 'supported_releases_rel';
+$handler->display->display_options['relationships']['supported_releases_rel']['table'] = 'field_data_field_release_project';
+$handler->display->display_options['relationships']['supported_releases_rel']['field'] = 'supported_releases_rel';
+$handler->display->display_options['relationships']['supported_releases_rel']['required'] = TRUE;
 /* Field: Content: Path */
 $handler->display->display_options['fields']['path']['id'] = 'path';
 $handler->display->display_options['fields']['path']['table'] = 'node';
@@ -304,13 +309,12 @@ $handler->display->display_options['filters']['status']['field'] = 'status';
 $handler->display->display_options['filters']['status']['value'] = 1;
 $handler->display->display_options['filters']['status']['group'] = 1;
 $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-/* Filter criterion: Content: Type */
-$handler->display->display_options['filters']['type']['id'] = 'type';
-$handler->display->display_options['filters']['type']['table'] = 'node';
-$handler->display->display_options['filters']['type']['field'] = 'type';
-$handler->display->display_options['filters']['type']['value'] = array(
-  'project_release' => 'project_release',
-);
+/* Filter criterion: Project: Project system behavior */
+$handler->display->display_options['filters']['project_type']['id'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['table'] = 'node';
+$handler->display->display_options['filters']['project_type']['field'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['value'] = 'project_release';
+$handler->display->display_options['filters']['project_type']['group'] = 1;
 /* Filter criterion: Taxonomy term: Recommended (field_release_recommended) */
 $handler->display->display_options['filters']['field_release_recommended_value']['id'] = 'field_release_recommended_value';
 $handler->display->display_options['filters']['field_release_recommended_value']['table'] = 'field_data_field_release_recommended';
@@ -319,11 +323,13 @@ $handler->display->display_options['filters']['field_release_recommended_value']
 $handler->display->display_options['filters']['field_release_recommended_value']['value'] = array(
   1 => '1',
 );
+$handler->display->display_options['filters']['field_release_recommended_value']['group'] = 1;
 /* Filter criterion: Content: Update status (field_release_update_status) */
 $handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
 $handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
 $handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
 $handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '0';
+$handler->display->display_options['filters']['field_release_update_status_value']['group'] = 1;
 /* Filter criterion: Content: Release type (field_release_build_type) */
 $handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
 $handler->display->display_options['filters']['field_release_build_type_value']['table'] = 'field_data_field_release_build_type';
@@ -331,6 +337,7 @@ $handler->display->display_options['filters']['field_release_build_type_value'][
 $handler->display->display_options['filters']['field_release_build_type_value']['value'] = array(
   'static' => 'static',
 );
+$handler->display->display_options['filters']['field_release_build_type_value']['group'] = 1;
 
 /* Display: Recommended releases */
 $handler = $view->new_display('block', 'Recommended releases', 'recommended');
