@@ -545,6 +545,10 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
         $form['field_project_has_releases'][$language]['#states']['invisible'] = array(
           ':input[name="field_project_type[' . $language . ']"]' => array('value' => 'sandbox'),
         );
+      if (isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][$language] === 'sandbox') {
+        $form['field_project_has_releases'][$language]['#default_value'] = FALSE;
+        $form['field_project_has_releases']['#access'] = FALSE;
+      }
     }
   }
   elseif (project_release_node_is_release($form_state['node'])) {

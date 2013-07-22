@@ -928,6 +928,10 @@ function project_form_node_form_alter(&$form, &$form_state) {
         $form['field_project_type']['#access'] = FALSE;
         if (!$create_full) {
           $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
+          if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
+            $form_state['input']['field_project_type'][LANGUAGE_NONE] = 'sandbox';
+            $form['field_project_machine_name']['#access'] = FALSE;
+          }
         }
       }
     }
