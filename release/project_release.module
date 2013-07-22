@@ -523,9 +523,10 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
         break;
 
       case 'field_issue_version':
-        // Do not require field if there are no versions to select.
+        // Do not require and hide field if there are no versions to select.
         if (count(array_diff(array_keys($element['#options']), array('_none'))) === 0) {
           $element['#required'] = FALSE;
+          $element['#access'] = FALSE;
         }
         break;
     }
