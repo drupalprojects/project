@@ -948,6 +948,8 @@ function project_form_node_form_alter(&$form, &$form_state) {
         $form['field_project_machine_name'][$language][0]['value']['#after_build'][] = '_project_build_sandbox_machine_name';
       }
     }
+
+    project_project_set_breadcrumb($node);
   }
 }
 
