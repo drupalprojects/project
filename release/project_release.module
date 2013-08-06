@@ -69,6 +69,8 @@ function project_release_menu_alter(&$callbacks) {
 
     // Add project-specific node add callback.
     $callbacks['node/add/' . $type_url_str . '/%project'] = $callbacks['node/add/' . $type_url_str];
+    $callbacks['node/add/' . $type_url_str . '/%project']['access callback'] = 'project_user_access';
+    $callbacks['node/add/' . $type_url_str . '/%project']['access arguments'] = array(3, 'administer releases');
 
     // Replace node add page with project selection form.
     $callbacks['node/add/' . $type_url_str]['page callback'] = 'drupal_get_form';
@@ -87,6 +89,28 @@ function project_release_project_settings_form_access($node) {
   }
   else {
     return project_user_access($node, 'administer releases');
+  }
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function project_release_node_access($node, $op, $account) {
+  if (project_release_node_type_is_release(is_string($node) ? $node : $node->type)) {
+    switch ($op) {
+      case 'create':
+        // Check for administer releases access to any project.
+        return db_query_range('SELECT 1 FROM {project_release_project_maintainer} WHERE administer_releases = 1 AND uid = :uid', 0, 1, array(':uid' => $account->uid))->fetchField() ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+
+      case 'update':
+        // Check for 'administer releases' project access.
+        return project_user_access($node->field_release_project[$node->language][0]['target_id'], 'administer releases') ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+
+      case 'delete':
+        // No one should ever delete a release node, only unpublish it.
+        return NODE_ACCESS_DENY;
+    }
+    return NODE_ACCESS_IGNORE;
   }
 }
 
