@@ -553,7 +553,7 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
     }
   }
   elseif (project_release_node_is_release($form_state['node'])) {
-    // title is set programatically in project_release_node_validate().
+    // Title is set programatically in project_release_node_validate().
     $form['title']['#access'] = FALSE;
   }
 }
