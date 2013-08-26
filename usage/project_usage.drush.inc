@@ -361,6 +361,10 @@ function project_usage_process_batch(&$c, $buffer, &$st) {
   // between sites while talking to mongo. We can for the most part do things
   // a site at a time.
   foreach ($buffer as $site_key => $data) {
+    if (!drupal_validate_utf8($site_key)) {
+      drush_log(dt("Skipping corrupted site!"), 'warning');
+      continue;
+    }
     $lasthit = $data[count($data)-1];
     $changed = FALSE;
     $record = $c->findOne(array('site_key' => $site_key));
