@@ -136,7 +136,7 @@ function project_release_field_access($op, $field, $entity_type, $entity, $accou
  * sandbox, or if the project already has releases enabled.
  */
 function project_release_project_permission_info($project = NULL) {
-  if (variable_get('project_release_sandbox_allow_release', TRUE) || empty($project->project['sandbox']) || !empty($project->project_release['releases'])) {
+  if ($project->field_project_has_releases[LANGUAGE_NONE][0]['value']) {
     return array(
       'administer releases' => array(
         'title' => t('Administer releases'),
