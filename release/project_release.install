@@ -1722,3 +1722,14 @@ function project_release_update_7011() {
     }
   }
 }
+
+/**
+ * Update release body field name.
+ */
+function project_release_update_7012() {
+  foreach (project_release_release_node_types() as $node_type) {
+    $instance = field_read_instance('node', 'body', 'project_release');
+    $instance['label'] = 'Release notes';
+    field_update_instance($instance);
+  }
+}
