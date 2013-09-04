@@ -577,6 +577,12 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
     }
   }
   elseif (project_release_node_is_release($form_state['node'])) {
+    $project = node_load(project_release_get_release_project_nid($form_state['node']));
+    if (!$project->field_project_has_releases[$project->language][0]['value']) {
+      drupal_set_message(t('!project does not have project releases enabled.', array('!project' => l($project->title, 'node/' . $project->nid))), 'warning');
+      $form['#access'] = FALSE;
+    }
+
     // Title is set programatically in project_release_node_validate().
     $form['title']['#access'] = FALSE;
   }
