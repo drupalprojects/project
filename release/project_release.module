@@ -594,9 +594,9 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
 function project_release_node_validate(&$node, $form, &$form_state) {
   if (project_node_is_project($node)) {
     // If sandbox projects are configured to not allow releases, and this is a
-    // sandbox project, and has project releases is selected.
-    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox' && $node->field_project_has_releases[$node->language][0]['value']) {
-      form_set_error('field_project_has_releases', t('Sandbox projects may not have releases.'));
+    // sandbox project, force the 'has project releases' setting to unchecked.
+    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox') {
+      $node->field_project_has_releases[$node->language][0]['value'] = 0;
     }
   }
   elseif (project_release_node_is_release($node)) {
