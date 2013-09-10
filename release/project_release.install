@@ -34,6 +34,7 @@ function project_release_uninstall() {
   foreach (project_release_release_node_types() as $node_type) {
     $variables[] = 'project_release_download_base_' . $node_type;
     $variables[] = 'project_release_version_format_' . $node_type;
+    $variables[] = 'node_permissions_' . $node_type;
   }
   foreach ($variables as $variable) {
     variable_del($variable);
@@ -1732,4 +1733,11 @@ function project_release_update_7012() {
     $instance['label'] = 'Release notes';
     field_update_instance($instance);
   }
+}
+
+/**
+ * Access to releases is handled project-by-project. See project_node_access().
+ */
+function project_release_update_7013() {
+  variable_set('node_permissions_project_release', FALSE);
 }

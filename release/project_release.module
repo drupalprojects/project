@@ -97,6 +97,11 @@ function project_release_project_settings_form_access($node) {
  */
 function project_release_node_access($node, $op, $account) {
   if (project_release_node_type_is_release(is_string($node) ? $node : $node->type)) {
+    // Do not allow anonymous users to create, update, or delete.
+    if ($op !== 'view' && user_is_anonymous()) {
+      return NODE_ACCESS_DENY;
+    }
+
     switch ($op) {
       case 'create':
         // Check for administer releases access to any project.

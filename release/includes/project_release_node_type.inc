@@ -36,6 +36,9 @@ function _project_release_create_release_node_type() {
   // Set the project behavior setting for this node type say it's a release.
   variable_set('project_behavior_project_release', 'project_release');
 
+  // Access to releases is handled project-by-project. See project_node_access().
+  variable_set('node_permissions_project_release', FALSE);
+
   // Define default fields and field instances.
 
   // Project
