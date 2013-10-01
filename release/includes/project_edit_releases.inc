@@ -17,7 +17,7 @@ function project_release_project_edit_releases($node) {
 function project_release_project_edit_form($form, $form_state, $node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
   $form['help'] = array(
-    '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, the following tables allow you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
+    '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
   );
 
   // Since this form is used relatively infrequently, don't allow the js to be aggregated.
@@ -103,6 +103,20 @@ function project_release_project_edit_form($form, $form_state, $node) {
     '#type' => 'submit',
     '#value' => t('Save'),
     '#weight' => 45,
+  );
+
+  $types = project_release_release_node_types();
+  // todo this uses the first release node type. What to do if there are
+  // multiple?
+  $links['links'] = array(
+    'add_new_release' => array(
+      'title' => t('Add new release'), 'href' => 'node/add/' . str_replace('_', '-', reset($types)) . '/' . $node->nid,
+    ),
+  );
+
+  $form['create_link'] = array(
+    '#markup' => '<p>' . theme('links', $links) . '</p>',
+    '#weight' => 50,
   );
 
   return $form;
