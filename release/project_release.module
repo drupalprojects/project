@@ -635,7 +635,9 @@ function project_release_node_validate(&$node, $form, &$form_state) {
  */
 function project_release_get_release_api_tid($node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
-  return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
+  if (isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language])) {
+    return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
+  }
 }
 
 /**
