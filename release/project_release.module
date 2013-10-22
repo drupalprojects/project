@@ -570,13 +570,11 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
     // If sandbox projects are configured to not allow releases, hide 'Has
     // project releases' when sandbox project is selected.
     if (!variable_get('project_release_sandbox_allow_release', TRUE)) {
-      $language = $form['field_project_has_releases']['#language'];
-      $form['field_project_has_releases'][$language]['#states']['unchecked'] =
-        $form['field_project_has_releases'][$language]['#states']['invisible'] = array(
-          ':input[name="field_project_type[' . $language . ']"]' => array('value' => 'sandbox'),
-        );
-      if (isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][$language] === 'sandbox') {
-        $form['field_project_has_releases'][$language]['#default_value'] = FALSE;
+      $form['field_project_has_releases'][LANGUAGE_NONE]['#states']['unchecked'] = array(
+        ':input[name="field_project_type[und]"]' => array('value' => 'sandbox'),
+      );
+      if (isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][LANGUAGE_NONE] === 'sandbox') {
+        $form['field_project_has_releases'][LANGUAGE_NONE]['#default_value'] = FALSE;
         $form['field_project_has_releases']['#access'] = FALSE;
       }
     }
@@ -601,7 +599,10 @@ function project_release_node_validate(&$node, $form, &$form_state) {
     // If sandbox projects are configured to not allow releases, and this is a
     // sandbox project, force the 'has project releases' setting to unchecked.
     if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox') {
-      $node->field_project_has_releases[$node->language][0]['value'] = 0;
+      if (!empty($form_state['values']['field_project_has_releases'][LANGUAGE_NONE][0]['value'])) {
+        drupal_set_message(t('Sandbox projects may not have releases. "Has project releases" checkbox cleared.'), 'warning');
+        form_set_value($form['field_project_has_releases'], FALSE, $form_state);
+      }
     }
   }
   elseif (project_release_node_is_release($node)) {
