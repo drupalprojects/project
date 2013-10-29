@@ -435,6 +435,9 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
       }
     }
 
+    // Allow modification of update status.
+    drupal_alter('project_release_update_status', $update_status, $release);
+
     // If the status is different than what we have in the DB, update it.
     if (empty($release->field_release_update_status) || $update_status != $release->field_release_update_status[$release->language][0]['value']) {
       $release->field_release_update_status[$release->language][0]['value'] = $update_status;

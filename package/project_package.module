@@ -15,19 +15,14 @@ function project_package_views_api() {
   );
 }
 
-function project_package_node_insert($node) {
-  project_package_node_update($node);
-}
-
-function project_package_node_update($node) {
-  if (project_release_node_is_release($node)) {
-    // We can't rely on $node->project_package since nodeapi() doesn't have
-    // a fully loaded $node object. :(
-    project_package_node_load(array($node));
-    if (isset($node->project_package)) {
-      // Set the {prn}.update_status for a package based on its included items.
-      $max = db_query("SELECT MAX(prn.update_status) FROM {project_release_nodes} prn INNER JOIN {project_package_local_release_item} pp ON prn.nid = pp.item_nid WHERE pp.package_nid = :nid", array(':nid' => $node->nid))->fetchField();
-      db_query("UPDATE {project_release_nodes} SET update_status = :max WHERE nid = :nid", array(':max' => $max, ':nid' => $node->nid));
+/**
+ * Implement hook_project_release_update_status_alter().
+ */
+function project_package_project_release_update_status_alter(&$update_status, $release) {
+  if (isset($release->project_package)) {
+    // Set the update_status for a package based on its included items.
+    foreach (node_load_multiple(db_query("SELECT item_nid FROM {project_package_local_release_item} WHERE package_nid = :nid", array(':nid' => $release->nid))->fetchCol()) as $item) {
+      $update_status = max($update_status, $item->field_release_update_status[LANGUAGE_NONE][0]['value']);
     }
   }
 }
@@ -95,12 +90,14 @@ function project_package_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Fix the {prn}.update_status column whenever the status changes on items.
+ * Fix the update status whenever the status changes on items.
  */
 function project_package_check_update_status($item_nids) {
-  $affected_packages = db_query("SELECT package_nid FROM {project_package_local_release_item} WHERE item_nid IN (:nids) GROUP BY package_nid", array(':nids' => $item_nids))->fetchCol();
-  if (!empty($affected_packages)) {
-    db_query("UPDATE {project_release_nodes} SET update_status = :status WHERE nid IN (:packages)", array(':status' => PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE, ':packages' => $affected_packages));
+  foreach (node_load_multiple(db_query("SELECT package_nid FROM {project_package_local_release_item} WHERE item_nid IN (:nids) GROUP BY package_nid", array(':nids' => $item_nids))->fetchCol()) as $package) {
+    if ($package->field_release_update_status[LANGUAGE_NONE][0]['value'] !== PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE) {
+      $package->field_release_update_status[LANGUAGE_NONE][0]['value'] = PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE;
+      field_attach_update('node', $package);
+    }
   }
 }
 
