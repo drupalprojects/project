@@ -107,7 +107,6 @@ $handler->display->display_options['fields']['patch_count']['hide_empty'] = TRUE
 $handler->display->display_options['fields']['field_release_update_status']['id'] = 'field_release_update_status';
 $handler->display->display_options['fields']['field_release_update_status']['table'] = 'field_data_field_release_update_status';
 $handler->display->display_options['fields']['field_release_update_status']['field'] = 'field_release_update_status';
-$handler->display->display_options['fields']['field_release_update_status']['relationship'] = 'package_nid';
 $handler->display->display_options['fields']['field_release_update_status']['label'] = 'Status';
 $handler->display->display_options['fields']['field_release_update_status']['alter']['alter_text'] = TRUE;
 $handler->display->display_options['fields']['field_release_update_status']['alter']['text'] = '<div class="update-status">[field_release_update_status]</div>[patch_count]';
@@ -120,7 +119,6 @@ $handler->display->display_options['fields']['field_release_update_status']['set
 $handler->display->display_options['sorts']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
 $handler->display->display_options['sorts']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
 $handler->display->display_options['sorts']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
-$handler->display->display_options['sorts']['field_release_update_status_value']['relationship'] = 'package_nid';
 $handler->display->display_options['sorts']['field_release_update_status_value']['order'] = 'DESC';
 /* Sort criterion: Content: Title */
 $handler->display->display_options['sorts']['title']['id'] = 'title';
