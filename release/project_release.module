@@ -1718,11 +1718,9 @@ function _project_release_validate_format_string($element) {
  * API for populating the metadata about releases that are rebuilt.
  *
  * @param integer $nid
- *   The {project_release_nodes}.nid of the release to record a rebuild
- *   version string for.
+ *   The node ID of the release to record a rebuild version string for.
  * @param string $rebuild_version
  *   The rebuild version string to record for the given release.
- *
  */
 function project_release_record_rebuild_metadata($nid, $rebuild_version) {
   if (db_select('project_release_node_rebuild_metadata')->condition('nid', $nid)->countQuery()->execute()->fetchField()) {
