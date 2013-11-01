@@ -32,7 +32,7 @@ function project_release_init() {
 }
 
 /**
- * Implementation of hook_menu()
+ * Implementation of hook_menu().
  * @ingroup project_release_core
  */
 function project_release_menu() {
