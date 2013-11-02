@@ -420,7 +420,12 @@ function project_release_history_generate_project_xml($project) {
       $output .= " </release>\n";
 
       $releases_xml['all'] .= $output;
-      $releases_xml[$api_tid] .= $output;
+      if (isset($releases_xml[$api_tid])) {
+        $releases_xml[$api_tid] .= $output;
+      }
+      else {
+        $releases_xml[$api_tid] = $output;
+      }
     }
   }
 
@@ -434,6 +439,9 @@ function project_release_history_generate_project_xml($project) {
     }
     else {
       $api_term = taxonomy_term_load($api_tid);
+      if ($api_term === FALSE) {
+        continue;
+      }
       $api_version = check_plain($api_term->name);
     }
     $xml .= '<api_version>' . $api_version . "</api_version>\n";
