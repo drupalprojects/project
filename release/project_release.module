@@ -133,7 +133,7 @@ function project_release_field_access($op, $field, $entity_type, $entity, $accou
  * Implements hook_field_storage_pre_insert().
  */
 function project_release_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
-  if ($entity_type === 'node' && project_release_node_is_release($entity) && $entity->release_version_minor[LANGUAGE_NONE][0]['value'] === '') {
+  if ($entity_type === 'node' && project_release_node_is_release($entity) && isset($entity->release_version_minor) && $entity->release_version_minor[LANGUAGE_NONE][0]['value'] === '') {
     // Integer fields need to be really empty instead of an empty string; that
     // would raise an exception since '' is not an int. Likely is a core bug we
     // are working around.
