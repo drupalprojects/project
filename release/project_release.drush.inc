@@ -306,6 +306,16 @@ function drush_project_release_release_create_history($project_id = NULL) {
  */
 function project_release_history_generate_project_xml($project) {
   $vocabularies = taxonomy_vocabulary_get_names();
+  // Drupal.org-specific hack, see https://drupal.org/node/2126123. Drush
+  // expects taxonomy terms which no longer exist on Drupal.org.
+  $extra_terms = array(
+    'project_core' => "   <term><name>Projects</name><value>Drupal core</value></term>\n",
+    'project_distribution' => "   <term><name>Projects</name><value>Distributions</value></term>\n",
+    'project_module' => "   <term><name>Projects</name><value>Modules</value></term>\n",
+    'project_theme' => "   <term><name>Projects</name><value>Themes</value></term>\n",
+    'project_theme_engine' => "   <term><name>Projects</name><value>Theme engines</value></term>\n",
+    'project_translation' => "   <term><name>Projects</name><value>Translations</value></term>\n",
+  );
 
   drush_log(dt('Generating release history for @machine_name.', array('@machine_name' => $project->field_project_machine_name[$project->language][0]['value'])), 'ok');
 
@@ -409,13 +419,19 @@ function project_release_history_generate_project_xml($project) {
           }
         }
       }
+      $terms_output = '';
       if (!empty($tids)) {
-        $output .= "  <terms>\n";
         foreach (taxonomy_term_load_multiple($tids) as $term) {
-          $output .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
-          $output .= '<value>' . check_plain($term->name) . "</value></term>\n";
+          $terms_output .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
+          $terms_output .= '<value>' . check_plain($term->name) . "</value></term>\n";
         }
-        $output .= "  </terms>\n";
+      }
+      // Drupal.org-specific hack, see above.
+      if (isset($extra_terms[$project->type])) {
+        $terms_output .= $extra_terms[$project->type];
+      }
+      if ($terms_output !== '') {
+        $output .= "  <terms>\n" . $terms_output . "  </terms>\n";
       }
       $output .= " </release>\n";
 
@@ -498,6 +514,7 @@ function project_release_history_generate_project_xml($project) {
     else {
       $xml .= "<project_status>unpublished</project_status>\n";
     }
+    $xml .= '<type>' . check_plain($project->type) . "</type>\n";
 
     if (!empty($release_xml)) {
       $xml .= "<releases>\n" . $release_xml . "</releases>\n";
