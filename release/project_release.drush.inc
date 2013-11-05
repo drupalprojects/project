@@ -253,12 +253,15 @@ function drush_project_release_release_create_history($project_id = NULL) {
       $xml .= '  <short_name>' . check_plain($project->machine_name) . "</short_name>\n";
       $xml .= '  <link>' . url('node/' . $project->nid, array('absolute' => TRUE)) . "</link>\n";
       $xml .= '  <dc:creator>' . check_plain($project->username) . "</dc:creator>\n";
+      $xml .= '  <type>' . check_plain($project->type) . "</type>\n";
       $term_query = db_query('SELECT v.name AS vocab_name, v.vid, td.name AS term_name, td.tid FROM {taxonomy_index} ti INNER JOIN {taxonomy_term_data} td ON ti.tid = td.tid INNER JOIN {taxonomy_vocabulary} v ON td.vid = v.vid WHERE ti.nid = :nid', array(':nid' => $project->nid));
       $xml_terms = '';
       foreach ($term_query as $term) {
         $xml_terms .= '   <term><name>' . check_plain($term->vocab_name) . '</name>';
         $xml_terms .= '<value>' . check_plain($term->term_name) . "</value></term>\n";
       }
+      $xml_terms .= _project_release_compatibility_term($project);
+
       if (!empty($xml_terms)) {
         $xml .= "  <terms>\n" . $xml_terms . "  </terms>\n";
       }
@@ -306,16 +309,6 @@ function drush_project_release_release_create_history($project_id = NULL) {
  */
 function project_release_history_generate_project_xml($project) {
   $vocabularies = taxonomy_vocabulary_get_names();
-  // Drupal.org-specific hack, see https://drupal.org/node/2126123. Drush
-  // expects taxonomy terms which no longer exist on Drupal.org.
-  $extra_terms = array(
-    'project_core' => "   <term><name>Projects</name><value>Drupal core</value></term>\n",
-    'project_distribution' => "   <term><name>Projects</name><value>Distributions</value></term>\n",
-    'project_module' => "   <term><name>Projects</name><value>Modules</value></term>\n",
-    'project_theme' => "   <term><name>Projects</name><value>Themes</value></term>\n",
-    'project_theme_engine' => "   <term><name>Projects</name><value>Theme engines</value></term>\n",
-    'project_translation' => "   <term><name>Projects</name><value>Translations</value></term>\n",
-  );
 
   drush_log(dt('Generating release history for @machine_name.', array('@machine_name' => $project->field_project_machine_name[$project->language][0]['value'])), 'ok');
 
@@ -426,10 +419,6 @@ function project_release_history_generate_project_xml($project) {
           $terms_output .= '<value>' . check_plain($term->name) . "</value></term>\n";
         }
       }
-      // Drupal.org-specific hack, see above.
-      if (isset($extra_terms[$project->type])) {
-        $terms_output .= $extra_terms[$project->type];
-      }
       if ($terms_output !== '') {
         $output .= "  <terms>\n" . $terms_output . "  </terms>\n";
       }
@@ -449,6 +438,7 @@ function project_release_history_generate_project_xml($project) {
     $xml = '<title>' . check_plain($project->title) . "</title>\n";
     $xml .= '<short_name>' . check_plain($project->field_project_machine_name[$project->language][0]['value']) . "</short_name>\n";
     $xml .= '<dc:creator>' . check_plain($project->name) . "</dc:creator>\n";
+    $xml .= '<type>' . check_plain($project->type) . "</type>\n";
 
     if ($api_tid === 'all') {
       $api_version = 'all';
@@ -504,6 +494,7 @@ function project_release_history_generate_project_xml($project) {
       }
       if (!empty($tids)) {
         $xml .= "  <terms>\n";
+        $xml .= _project_release_compatibility_term($project);
         foreach (taxonomy_term_load_multiple($tids) as $term) {
           $xml .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
           $xml .= '<value>' . check_plain($term->name) . "</value></term>\n";
@@ -514,7 +505,6 @@ function project_release_history_generate_project_xml($project) {
     else {
       $xml .= "<project_status>unpublished</project_status>\n";
     }
-    $xml .= '<type>' . check_plain($project->type) . "</type>\n";
 
     if (!empty($release_xml)) {
       $xml .= "<releases>\n" . $release_xml . "</releases>\n";
@@ -522,6 +512,25 @@ function project_release_history_generate_project_xml($project) {
 
     project_release_history_write_xml($xml, $project, $api_version);
   }
+}
+
+/**
+ * Add backward compatibility project type term.
+ *
+ * Drupal.org-specific hack, see https://drupal.org/node/2126123. Drush
+ * expects taxonomy terms which no longer exist on Drupal.org.
+ */
+function _project_release_compatibility_term($project) {
+    $extra_terms = array(
+      'project_core' => "   <term><name>Projects</name><value>Drupal core</value></term>\n",
+      'project_distribution' => "   <term><name>Projects</name><value>Distributions</value></term>\n",
+      'project_module' => "   <term><name>Projects</name><value>Modules</value></term>\n",
+      'project_theme' => "   <term><name>Projects</name><value>Themes</value></term>\n",
+      'project_theme_engine' => "   <term><name>Projects</name><value>Theme engines</value></term>\n",
+      'project_translation' => "   <term><name>Projects</name><value>Translations</value></term>\n",
+    );
+
+    return isset($extra_terms[$project->type]) ? $extra_terms[$project->type] : '';
 }
 
 /**
