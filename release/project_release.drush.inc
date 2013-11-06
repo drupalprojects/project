@@ -245,7 +245,7 @@ function drush_project_release_release_create_history($project_id = NULL) {
 
   // If we're operating on all projects, generate the huge list, too.
   if (is_null($project_id)) {
-    $result = db_query('SELECT n.title, n.nid, n.status, mn.field_project_machine_name_value AS machine_name, u.name AS username FROM {node} n INNER JOIN {field_data_field_project_machine_name} mn ON n.nid = mn.entity_id INNER JOIN {users} u ON n.uid = u.uid');
+    $result = db_query('SELECT n.title, n.nid, n.status, n.type, mn.field_project_machine_name_value AS machine_name, u.name AS username FROM {node} n INNER JOIN {field_data_field_project_machine_name} mn ON n.nid = mn.entity_id INNER JOIN {users} u ON n.uid = u.uid');
     $xml = '';
     foreach ($result as $project) {
       $xml .= " <project>\n";
@@ -521,16 +521,16 @@ function project_release_history_generate_project_xml($project) {
  * expects taxonomy terms which no longer exist on Drupal.org.
  */
 function _project_release_compatibility_term($project) {
-    $extra_terms = array(
-      'project_core' => "   <term><name>Projects</name><value>Drupal core</value></term>\n",
-      'project_distribution' => "   <term><name>Projects</name><value>Distributions</value></term>\n",
-      'project_module' => "   <term><name>Projects</name><value>Modules</value></term>\n",
-      'project_theme' => "   <term><name>Projects</name><value>Themes</value></term>\n",
-      'project_theme_engine' => "   <term><name>Projects</name><value>Theme engines</value></term>\n",
-      'project_translation' => "   <term><name>Projects</name><value>Translations</value></term>\n",
-    );
+  $extra_terms = array(
+    'project_core' => "   <term><name>Projects</name><value>Drupal core</value></term>\n",
+    'project_distribution' => "   <term><name>Projects</name><value>Distributions</value></term>\n",
+    'project_module' => "   <term><name>Projects</name><value>Modules</value></term>\n",
+    'project_theme' => "   <term><name>Projects</name><value>Themes</value></term>\n",
+    'project_theme_engine' => "   <term><name>Projects</name><value>Theme engines</value></term>\n",
+    'project_translation' => "   <term><name>Projects</name><value>Translations</value></term>\n",
+  );
 
-    return isset($extra_terms[$project->type]) ? $extra_terms[$project->type] : '';
+  return isset($extra_terms[$project->type]) ? $extra_terms[$project->type] : '';
 }
 
 /**
