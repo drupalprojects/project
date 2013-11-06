@@ -917,21 +917,18 @@ function project_project_behavior_info() {
  * Implements hook_form_alter().
  */
 function project_form_node_form_alter(&$form, &$form_state) {
-  // On node forms, if we're adding or updating a project type, don't let the
-  // user directly manipulate field_project_type but force them to go through
-  // the promote UI instead.
   $node = $form['#node'];
   if (project_node_type_is_project($node->type)) {
+    // On node forms, if we're adding or updating a project, don't let the user
+    // directly manipulate field_project_type but force them to go through the
+    // promote UI instead.
     if (!empty($form['field_project_type'])) {
-      $create_full = user_access('create full projects');
-      if (!empty($node->field_project_type) || !$create_full) {
-        $form['field_project_type']['#access'] = FALSE;
-        if (!$create_full) {
-          $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
-          if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
-            $form_state['input']['field_project_type'][LANGUAGE_NONE] = 'sandbox';
-            $form['field_project_machine_name']['#access'] = FALSE;
-          }
+      $form['field_project_type']['#access'] = FALSE;
+      if (!isset($node->nid) && !user_access('create full projects')) {
+        $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
+        if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
+          $form_state['input']['field_project_type'][LANGUAGE_NONE] = 'sandbox';
+          $form['field_project_machine_name']['#access'] = FALSE;
         }
       }
     }
