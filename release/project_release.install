@@ -186,6 +186,10 @@ function project_release_schema() {
     'primary key' => array('nid'),
   );
 
+  $system_schema = system_schema();
+  $schema['cache_project_release_download_table'] = $system_schema['cache'];
+  $schema['cache_project_release_download_table']['description'] = 'Cache table for project release downloads.';
+
   return $schema;
 }
 
@@ -1740,4 +1744,12 @@ function project_release_update_7012() {
  */
 function project_release_update_7013() {
   variable_set('node_permissions_project_release', FALSE);
+}
+
+/**
+ * Create a cache table for project release downloads
+ */
+function project_release_update_7014() {
+  $system_schema = system_schema();
+  db_create_table('cache_project_release_download_table', array_merge($system_schema['cache'], array('description' => 'Cache table for project release downloads.')));
 }

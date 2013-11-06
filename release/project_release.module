@@ -464,6 +464,9 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
   if (!empty($insecure_nids) && module_exists('project_package')) {
     project_package_check_update_status($insecure_nids);
   }
+
+  // Regenerate the download table.
+  project_release_download_table($pid, TRUE);
 }
 
 /**
@@ -896,6 +899,23 @@ function project_release_node_delete($node) {
 }
 
 /**
+ * Get the download table for a project.
+ *
+ * @param $pid
+ *   Project node ID.
+ * @param $_clear
+ *   TRUE to force regenerating the cache.
+ */
+function project_release_download_table($pid, $_clear = FALSE) {
+  if ($_clear || !($cache = cache_get($pid, 'cache_project_release_download_table'))) {
+    $output = views_embed_view('project_release_download_table', 'recommended', $pid);
+    cache_set($pid, $output, 'cache_project_release_download_table');
+    return $output;
+  }
+  return $cache->data;
+}
+
+/**
  * Implements hook_node_view().
  */
 function project_release_node_view($node, $view_mode, $langcode) {
@@ -906,7 +926,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
         '#prefix' => '<h3>' . t('Downloads') . '</h3>',
         '#weight' => 10,
         'table' => array(
-          '#markup' => views_embed_view('project_release_download_table', 'recommended', $node->nid),
+          '#markup' => project_release_download_table($node->nid),
         ),
         'links' => array(
           '#theme' => 'links',
