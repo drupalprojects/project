@@ -907,7 +907,7 @@ function project_release_node_delete($node) {
  *   TRUE to force regenerating the cache.
  */
 function project_release_download_table($pid, $_clear = FALSE) {
-  if ($_clear || ($cache = cache_get($pid, 'cache_project_release_download_table') === FALSE)) {
+  if ($_clear || ($cache = cache_get($pid, 'cache_project_release_download_table')) === FALSE) {
     $output = views_embed_view('project_release_download_table', 'recommended', $pid);
     cache_set($pid, $output, 'cache_project_release_download_table');
     return $output;
