@@ -10,7 +10,7 @@
 function project_release_drush_command() {
   return array(
     'release-package-run' => array(
-      'description' => 'Run queued release packaging.',
+      'description' => 'Run queued release packaging. Creates packages AND writes release history XML files.',
     ),
     'release-package' => array(
       'description' => 'Package files for release nodes.',
@@ -33,15 +33,6 @@ function project_release_drush_help($section) {
   switch ($section) {
     case 'meta:project_release:title':
       return dt('Project release commands');
-
-    case 'drush:release-package-run':
-      return dt('Run queued release packaging.');
-
-    case 'drush:release-package':
-      return dt('Package files for release nodes.');
-
-    case 'drush:release-create-history':
-      return dt('Creates XML release history for projects for update status checking. Every project creates a separate file for the releases for each unique API compatibility term (e.g. for Drupal: 5.x, 6.x, etc).');
   }
 }
 
@@ -51,6 +42,7 @@ function drush_project_release_release_package_run() {
 
   while ($item = $queue->claimItem()) {
     drush_project_release_release_package($item->data['type'], $item->data['project']);
+    drush_project_release_release_create_history($item->data['project']);
     $queue->deleteItem($item);
   }
 }
