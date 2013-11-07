@@ -870,6 +870,9 @@ function project_release_node_insert($node) {
   project_release_node_save($node);
 }
 
+/**
+ * Implements hook_node_update().
+ */
 function project_release_node_update($node) {
   project_release_node_save($node);
 }
