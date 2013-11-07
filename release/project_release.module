@@ -552,9 +552,11 @@ function project_release_form_project_promote_project_confirm_form_alter(&$form,
  * Submit handler for project promote confirm form.
  */
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
-  $project = node_load($form_state['values']['nid']);
-  $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
-  node_save($project);
+  if (isset($form_state['values']['releases'])) {
+    $project = node_load($form_state['values']['nid']);
+    $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
+    node_save($project);
+  }
   unset($_SESSION['project_promote_project_releases']);
 }
 
