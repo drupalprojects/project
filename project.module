@@ -321,7 +321,7 @@ function project_project_get_breadcrumb($project = NULL, $include_project = FALS
   }
   // else {
   // TODO: We want a link to the root of the project browsing, but we're not
-  // yet providing views for that. 
+  // yet providing views for that.
 
   // TODO: If the site has multiple project node types, we want a breadcrumb
   // entry here pointing to the way to browse all projects of the same type.
@@ -938,7 +938,7 @@ function project_form_node_form_alter(&$form, &$form_state) {
       $form['field_project_machine_name'][$language][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
 
       if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
-        $form['field_project_machine_name'][$language][0]['value']['#states']['optional'] = 
+        $form['field_project_machine_name'][$language][0]['value']['#states']['optional'] =
           $form['field_project_machine_name'][$language][0]['value']['#states']['invisible'] = array(
             ':input[name="field_project_type[' . $language . ']"]' => array('value' => 'sandbox'),
           );
