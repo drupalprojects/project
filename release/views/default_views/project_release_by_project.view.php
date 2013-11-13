@@ -52,24 +52,22 @@ $handler->display->display_options['arguments']['field_release_project_target_id
 $handler->display->display_options['arguments']['field_release_project_target_id']['summary_options']['items_per_page'] = '25';
 $handler->display->display_options['arguments']['field_release_project_target_id']['specify_validation'] = TRUE;
 $handler->display->display_options['arguments']['field_release_project_target_id']['validate']['type'] = 'node';
-/* Filter criterion: Content: Published */
-$handler->display->display_options['filters']['status']['id'] = 'status';
-$handler->display->display_options['filters']['status']['table'] = 'node';
-$handler->display->display_options['filters']['status']['field'] = 'status';
-$handler->display->display_options['filters']['status']['value'] = 1;
-$handler->display->display_options['filters']['status']['group'] = 1;
-$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-/* Filter criterion: Content: Type */
-$handler->display->display_options['filters']['type']['id'] = 'type';
-$handler->display->display_options['filters']['type']['table'] = 'node';
-$handler->display->display_options['filters']['type']['field'] = 'type';
-$handler->display->display_options['filters']['type']['value'] = array(
-  'project_release' => 'project_release',
-);
+/* Filter criterion: Content: Published or admin */
+$handler->display->display_options['filters']['status_extra']['id'] = 'status_extra';
+$handler->display->display_options['filters']['status_extra']['table'] = 'node';
+$handler->display->display_options['filters']['status_extra']['field'] = 'status_extra';
+$handler->display->display_options['filters']['status_extra']['group'] = 1;
+/* Filter criterion: Project: Project system behavior */
+$handler->display->display_options['filters']['project_type']['id'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['table'] = 'node';
+$handler->display->display_options['filters']['project_type']['field'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['value'] = 'project_release';
+$handler->display->display_options['filters']['project_type']['group'] = 1;
 /* Filter criterion: Content: Core compatibility (taxonomy_vocabulary_6) */
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['id'] = 'taxonomy_vocabulary_6_tid';
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['table'] = 'field_data_taxonomy_vocabulary_6';
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['field'] = 'taxonomy_vocabulary_6_tid';
+$handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['group'] = 1;
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['exposed'] = TRUE;
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['operator_id'] = 'taxonomy_vocabulary_6_tid_op';
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['label'] = 'API version';
@@ -77,7 +75,7 @@ $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expo
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['identifier'] = 'api_version';
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['multiple'] = TRUE;
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expose']['remember_roles'] = array(
-  2 => '2',
+  2 => 0,
   3 => 0,
   1 => 0,
   34 => 0,
@@ -92,8 +90,9 @@ $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['expo
   28 => 0,
   26 => 0,
   4 => 0,
-  14 => 0,
   7 => 0,
+  14 => 0,
+  38 => 0,
 );
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['type'] = 'select';
 $handler->display->display_options['filters']['taxonomy_vocabulary_6_tid']['vocabulary'] = 'vocabulary_6';
