@@ -129,6 +129,9 @@ function project_release_packager_update_node($release_node, $release_files = ar
           // Update existing file.
           $existing = TRUE;
 
+          // Update the timestamp and any other bookkeeping.
+          file_save(file_load($file->field_release_file[$release_node->language][0]['fid']));
+          // Re-populate the release node.
           $release_node->field_release_files[$release_node->language][$delta]['entity'] = $file;
         }
       }
