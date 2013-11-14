@@ -1300,7 +1300,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
     // happen, but just in case you have multiple releases with the same delta
     // (e.g. "alpha-one", "alpha-two" etc), at least you'll get deterministic
     // results.
-    ->fieldOrderBy('field_release_version_ext_delta', 'value', 'DESC');
+    ->fieldOrderBy('field_release_version', 'value', 'ASC');
 
   if (isset($api_tid)) {
     $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
