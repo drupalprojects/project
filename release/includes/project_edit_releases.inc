@@ -216,7 +216,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
                 ->condition('tid', $tid)
                 ->condition('major', $major)
                 ->execute();
-              $updates[] = array($tid => $major);
+              $updates[] = array('api_tid' => $tid, 'major' => $major);
             }
           }
           else {
@@ -230,7 +230,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
                 'snapshot' => $major_values['snapshot'],
               ))
               ->execute();
-            $updates[] = array($tid => $major);
+            $updates[] = array('api_tid' => $tid, 'major' => $major);
           }
         }
       }
