@@ -328,7 +328,8 @@ $handler->display->display_options['filters']['field_release_recommended_value']
 $handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
 $handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
 $handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
-$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '0';
+$handler->display->display_options['filters']['field_release_update_status_value']['operator'] = '<=';
+$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '1';
 $handler->display->display_options['filters']['field_release_update_status_value']['group'] = 1;
 /* Filter criterion: Content: Release type (field_release_build_type) */
 $handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
@@ -344,6 +345,12 @@ $handler->display->display_options['filters']['recommended']['table'] = 'project
 $handler->display->display_options['filters']['recommended']['field'] = 'recommended';
 $handler->display->display_options['filters']['recommended']['relationship'] = 'supported_releases_rel';
 $handler->display->display_options['filters']['recommended']['value'] = '1';
+/* Filter criterion: Project release: Latest or recommended release */
+$handler->display->display_options['filters']['release_type']['id'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['table'] = 'project_release_supported_versions';
+$handler->display->display_options['filters']['release_type']['field'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['relationship'] = 'supported_releases_rel';
+$handler->display->display_options['filters']['release_type']['value'] = 'recommended';
 
 /* Display: Recommended releases */
 $handler = $view->new_display('block', 'Recommended releases', 'recommended');
@@ -390,7 +397,8 @@ $handler->display->display_options['filters']['field_release_recommended_value']
 $handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
 $handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
 $handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
-$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '0';
+$handler->display->display_options['filters']['field_release_update_status_value']['operator'] = '<=';
+$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '1';
 $handler->display->display_options['filters']['field_release_update_status_value']['group'] = 1;
 /* Filter criterion: Content: Release type (field_release_build_type) */
 $handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
@@ -406,6 +414,12 @@ $handler->display->display_options['filters']['recommended']['table'] = 'project
 $handler->display->display_options['filters']['recommended']['field'] = 'recommended';
 $handler->display->display_options['filters']['recommended']['relationship'] = 'supported_releases_rel';
 $handler->display->display_options['filters']['recommended']['value'] = '0';
+/* Filter criterion: Project release: Latest or recommended release */
+$handler->display->display_options['filters']['release_type']['id'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['table'] = 'project_release_supported_versions';
+$handler->display->display_options['filters']['release_type']['field'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['relationship'] = 'supported_releases_rel';
+$handler->display->display_options['filters']['release_type']['value'] = 'recommended';
 $handler->display->display_options['displays'] = array(
   'recommended' => 'recommended',
   'default' => 0,
