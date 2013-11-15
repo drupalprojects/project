@@ -120,6 +120,8 @@ function drush_project_release_release_package($type, $project_id) {
       continue;
     }
 
+    drush_log(dt('Packaging @title (nid @nid)', array('@title' => $release_node->title, '@nid' => $release_node->nid)));
+
     // Delete existing log messages.
     db_delete('project_release_package_errors')
       ->condition('nid', $release_node->nid)
