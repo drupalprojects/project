@@ -491,7 +491,8 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
  * @see project_release_compute_update_status()
  */
 function project_release_compute_update_status_multiple($pid, $updates) {
-  $last_key = end(array_keys($updates));
+  $keys = array_keys($updates);
+  $last_key = end($keys);
   foreach ($updates as $key => $update) {
     $regen = $key == $last_key ? TRUE : FALSE;
     project_release_compute_update_status($pid, $update['api_tid'], $update['major'], $regen);
