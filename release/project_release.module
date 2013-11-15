@@ -1011,7 +1011,13 @@ function project_release_node_view($node, $view_mode, $langcode) {
 
     $rebuild_version = db_query("SELECT rebuild_version FROM {project_release_node_rebuild_metadata} WHERE nid = :nid", array(':nid' => $node->nid))->fetchField();
     if (!empty($rebuild_version)) {
-      $node->content['field_release_files']['#suffix'] .= '<div class="rebuild-version">' . t('Last packaged version: @rebuild_version', array('@rebuild_version' => $rebuild_version)) . '</div>';
+      $suffix = '<div class="rebuild-version">' . t('Last packaged version: @rebuild_version', array('@rebuild_version' => $rebuild_version)) . '</div>';
+      if (empty($node->content['field_release_files']['#suffix'])) {
+        $node->content['field_release_files']['#suffix'] = $suffix;
+      }
+      else {
+        $node->content['field_release_files']['#suffix'] .= $suffix;
+      }
     }
 
     // VCS info.
