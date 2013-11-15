@@ -397,6 +397,9 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  *   The API compatibility term ID.
  * @param $major
  *   The major version of the new/modified/deleted release.
+ * @param $regen
+ *   Flag indicating whether to regenerate the project_release download table.
+ *   Defaults to TRUE.
  *
  * @return
  *   Void. This function directly updates field_release_update_status with the
@@ -406,7 +409,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  * @see project_release_query_releases_by_branch()
  * @see project_release_release_nodeapi()
  */
-function project_release_compute_update_status($pid, $api_tid, $major) {
+function project_release_compute_update_status($pid, $api_tid, $major, $regen = TRUE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
   $insecure_nids = array();
   foreach (project_release_query_releases_by_branch($pid, $api_tid, $major) as $release) {
@@ -466,7 +469,33 @@ function project_release_compute_update_status($pid, $api_tid, $major) {
   }
 
   // Regenerate the download table.
-  project_release_download_table($pid, TRUE);
+  if ($regen) {
+    project_release_download_table($pid, TRUE);
+  }
+}
+
+/**
+ * Compute the field_release_update_status values for multiple branches.
+ *
+ * This function is a wrapper for project_release_compute_update_status(),
+ * facilitating the update status computation for multiple branches via a
+ * single function call.
+ *
+ * @param $pid
+ *   The project id.
+ * @param $updates
+ *   An array of branches to be passed to project_release_compute_update_status
+ *   where each branch is itself an array with a single '$api_tid' => '$major'
+ *   element.
+ *
+ * @see project_release_compute_update_status()
+ */
+function project_release_compute_update_status_multiple($pid, $updates) {
+  $last_key = end(array_keys($updates));
+  foreach ($updates as $key => $update) {
+    $regen = $key == $last_key ? TRUE : FALSE;
+    project_release_compute_update_status($pid, $update['api_tid'], $update['major'], $regen);
+  }
 }
 
 /**

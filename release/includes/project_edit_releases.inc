@@ -197,6 +197,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
   $nid = $form_state['build_info']['args'][0]->nid;
 
   if (!empty($form_state['values']['api'])) {
+    $updates = array();
     foreach ($form_state['values']['api'] as $tid => $values) {
       if (!empty($values['major'])) {
         foreach ($values['major'] as $major => $major_values) {
@@ -215,6 +216,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
                 ->condition('tid', $tid)
                 ->condition('major', $major)
                 ->execute();
+              $updates[] = array($tid => $major);
             }
           }
           else {
@@ -228,6 +230,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
                 'snapshot' => $major_values['snapshot'],
               ))
               ->execute();
+            $updates[] = array($tid => $major);
           }
         }
       }
@@ -239,4 +242,12 @@ function project_release_project_edit_form_submit($form, &$form_state) {
     ->execute();
 
   drupal_set_message(t('Release settings have been saved.'));
+
+  // Since we've possibly adjusted the status/recommended releases, we need to
+  // recompute the update status for each set of releases and re-generate the
+  // download table.
+  if (!empty($updates)) {
+    drupal_register_shutdown_function('project_release_compute_update_status_multiple', $nid, $updates);
+  }
+
 }
