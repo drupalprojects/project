@@ -320,7 +320,7 @@ function project_release_history_generate_project_xml($project) {
       }
       foreach (array('major', 'minor', 'patch', 'extra') as $type) {
         $vers_type = 'version_' . $type;
-        if (isset($release->{'field_release_' . $vers_type}[$release->language][0]['value'])) {
+        if (!empty($release->{'field_release_' . $vers_type}[$release->language][0]['value'])) {
           $output .= "  <$vers_type>" . check_plain($release->{'field_release_' . $vers_type}[$release->language][0]['value']) . "</$vers_type>\n";
         }
       }
