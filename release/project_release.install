@@ -131,8 +131,9 @@ function project_release_schema() {
       'messages' => array(
         'description' => 'The text of any error messages created by the packaging scripts.',
         'type' => 'text',
+        'size' => 'medium',
         'not null' => FALSE,
-      )
+      ),
     ),
     'primary key' => array('nid'),
   );
@@ -1752,4 +1753,16 @@ function project_release_update_7013() {
 function project_release_update_7014() {
   $system_schema = system_schema();
   db_create_table('cache_project_release_download_table', array_merge($system_schema['cache'], array('description' => 'Cache table for project release downloads.')));
+}
+
+/**
+ * Increase size of {project_release_package_errors}.messages.
+ */
+function project_release_update_7015() {
+  db_change_field('project_release_package_errors', 'messages', 'messages', array(
+    'description' => 'The text of any error messages created by the packaging scripts.',
+    'type' => 'text',
+    'size' => 'medium',
+    'not null' => FALSE,
+  ));
 }
