@@ -1528,7 +1528,7 @@ function project_release_get_version_extra_weight_map() {
  */
 function project_release_views_default_views_alter(&$views) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', NULL));
-  if (!is_null($api_vocabulary) && isset($views['project_index'])) {
+  if (!empty($api_vocabulary) && isset($views['project_index'])) {
     // Add release API compatibility filter to project index view.
     $views['project_index']->set_display('default');
     $views['project_index']->display_handler->set_option('relationships', array(
