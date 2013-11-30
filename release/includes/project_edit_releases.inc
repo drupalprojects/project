@@ -16,9 +16,11 @@ function project_release_project_edit_releases($node) {
 
 function project_release_project_edit_form($form, $form_state, $node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
-  $form['help'] = array(
-    '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
-  );
+  if (!empty($api_vocabulary)) {
+    $form['help'] = array(
+      '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
+    );
+  }
 
   // Since this form is used relatively infrequently, don't allow the js to be aggregated.
   drupal_add_js(drupal_get_path('module', 'project_release') . '/project_release.js', array('preprocess' => FALSE));
