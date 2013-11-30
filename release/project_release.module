@@ -867,25 +867,43 @@ function project_release_parse_version($node) {
       // Map $match to named keys.
       array_combine($components, array_pad($match, count($components), ''))
     );
-    if (isset($version['extra'])) {
+    if (!empty($version['extra'])) {
       // Since we have extra defined, see what the weight should be, based on
       // our current mapping of version_extra prefixes to weights.
-      foreach (project_release_get_version_extra_weight_map() as $prefix => $weight) {
-        // If extra starts with $prefix.
-        if (strpos($version['extra'], $prefix) === 0) {
-          $version['ext_weight'] = $weight;
-          break;
-        }
-      }
-      // If version_extra contains any digits, save them. This is used to
-      // ensure that alpha10 is considered "newer" than alpha9.
-      if (preg_match('/(\d+)/', $version['extra'], $match)) {
-        $version['ext_delta'] = $match[1];
-      }
+      $extra_meta = project_release_parse_version_extra($version['extra']);
+      $version['ext_weight'] = $extra_meta['weight'];
+      $version['ext_delta'] = $extra_meta['delta'];
     }
     return $version;
   }
   return FALSE;
+}
+
+/**
+ * Parse an 'extra' element from the version and set the related values.
+ *
+ * @param string $version_extra
+ *   The 'extra' version element (e.g. 'alpha10')
+ *
+ * @return array
+ *   An associative array, keyed by 'weight' and 'delta'.
+ */
+function project_release_parse_version_extra($version_extra) {
+  $extra_meta = array();
+  // Find the weight based on the current weight map.
+  foreach (project_release_get_version_extra_weight_map() as $prefix => $weight) {
+    // If extra starts with $prefix.
+    if (strpos($version_extra, $prefix) === 0) {
+      $extra_meta['weight'] = $weight;
+      break;
+    }
+  }
+  // If version_extra contains any digits, save them. This is used to
+  // ensure that alpha10 is considered "newer" than alpha9.
+  if (preg_match('/(\d+)/', $version_extra, $match)) {
+    $extra_meta['delta'] = $match[1];
+  }
+  return $extra_meta;
 }
 
 function project_release_node_insert($node) {
