@@ -655,7 +655,7 @@ function project_release_node_validate(&$node, $form, &$form_state) {
 
     // Validate version.
     if (project_release_parse_version($node) === FALSE) {
-      form_error($form['field_release_version'], t('Version does match the required format.'));
+      form_error($form['field_release_version'], t('Version does not match the required format.'));
     }
 
     // Set release title.
