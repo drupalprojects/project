@@ -664,19 +664,21 @@ function project_release_node_validate(&$node, $form, &$form_state) {
 }
 
 /**
- * Get the term ID in the API vocabulary for a release node.
+ * Get the term ID (if any) in the API vocabulary for a release node.
  *
  * @param $node
  *   A release node object.
  *
  * @return
- *   A term ID.
+ *   A term ID or FALSE if none is set.
  */
 function project_release_get_release_api_tid($node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
-  if (isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language])) {
+  if (!empty($api_vocabulary)
+      && isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language])) {
     return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
   }
+  return FALSE;
 }
 
 /**
