@@ -753,7 +753,7 @@ function project_release_node_presave($node) {
  *   - A string, that literal string should appear in the version.
  *   - An associative array:
  *     - 'delimiter' => either '.', '-', or ''
- *     - 'label' => either 'api', 'major', 'patch', or 'extra'
+ *     - 'label' => either 'api', 'major', 'minor', 'patch', or 'extra'
  *     The version should contain the delimiter followed by the value to be
  *     assigned to the label.
  */
