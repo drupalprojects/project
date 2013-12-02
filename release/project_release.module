@@ -654,8 +654,10 @@ function project_release_node_validate(&$node, $form, &$form_state) {
     }
 
     // Validate version.
-    if (project_release_parse_version($node) === FALSE) {
-      form_error($form['field_release_version'], t('Version does not match the required format.'));
+    if (empty($node->project_release_preserve_version_elements)) {
+      if (project_release_parse_version($node) === FALSE) {
+        form_error($form['field_release_version'], t('Version does not match the required format.'));
+      }
     }
 
     // Set release title.
@@ -719,14 +721,23 @@ function project_release_node_presave($node) {
     }
 
     // Save version information.
-    foreach (project_release_parse_version($node) as $part => $value) {
-      if (($part === 'patch' || $part === 'minor') && !is_numeric($value)) {
-        // If the patch or minor fields are set to a non-numeric value, we just
-        // want to keep it as a NULL in the DB, instead of casting it to a 0.
-        $node->{'field_release_version_' . $part}[$node->language][0] = array();
-      }
-      else {
-        $node->{'field_release_version_' . $part}[$node->language][0]['value'] = $value;
+    if (empty($node->project_release_preserve_version_elements)) {
+      $version_elements = project_release_parse_version($node);
+    }
+    elseif (is_array($node->project_release_preserve_version_elements)) {
+      $version_elements = $node->project_release_preserve_version_elements;
+      unset($node->project_release_preserve_version_elements);
+    }
+    if (!empty($version_elements)) {
+      foreach ($version_elements as $part => $value) {
+        if (($part === 'patch' || $part === 'minor') && !is_numeric($value)) {
+          // If the patch or minor fields are set to a non-numeric value, we
+          // want to keep it as a NULL in the DB, instead of casting it to a 0.
+          $node->{'field_release_version_' . $part}[$node->language][0] = array();
+        }
+        else {
+          $node->{'field_release_version_' . $part}[$node->language][0]['value'] = $value;
+        }
       }
     }
 
