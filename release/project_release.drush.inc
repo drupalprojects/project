@@ -320,7 +320,12 @@ function project_release_history_generate_project_xml($project) {
       }
       foreach (array('major', 'minor', 'patch', 'extra') as $type) {
         $vers_type = 'version_' . $type;
-        if (!empty($release->{'field_release_' . $vers_type}[$release->language][0]['value'])) {
+        // 0 is a totally legitimate value for any of these version fields, so
+        // we need to test with isset() instead of !empty(). However, we do
+        // *not* want to include anything in the release history XML if the
+        // value is an empty string.
+        if (isset($release->{'field_release_' . $vers_type}[$release->language][0]['value'])
+            && $release->{'field_release_' . $vers_type}[$release->language][0]['value'] !== '') {
           $output .= "  <$vers_type>" . check_plain($release->{'field_release_' . $vers_type}[$release->language][0]['value']) . "</$vers_type>\n";
         }
       }
