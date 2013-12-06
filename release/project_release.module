@@ -1340,24 +1340,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', project_release_release_node_types())
     ->propertyCondition('status', 1)
-    ->fieldCondition('field_release_project', 'target_id', $project_nid)
-    // We always want the dev snapshots to show up either first or last.
-    ->fieldOrderBy('field_release_build_type', 'value', ($dev_first ? 'ASC' : 'DESC'))
-    // Sort by the obvious integer values along the branch (minor and patch).
-    ->fieldOrderBy('field_release_version_major', 'value', 'DESC')
-    ->fieldOrderBy('field_release_version_minor', 'value', 'DESC')
-    ->fieldOrderBy('field_release_version_patch', 'value', 'DESC')
-    // To reliably sort release with version_extra, use version_extra_weight.
-    ->fieldOrderBy('field_release_version_ext_weight', 'value', 'DESC')
-    // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2),
-    // sort by version_extra_delta.
-    ->fieldOrderBy('field_release_version_ext_delta', 'value', 'DESC')
-    // Within releases of the same version_extra_weight and
-    // version_extra_delta, sort alphabetically. This shouldn't normally
-    // happen, but just in case you have multiple releases with the same delta
-    // (e.g. "alpha-one", "alpha-two" etc), at least you'll get deterministic
-    // results.
-    ->fieldOrderBy('field_release_version', 'value', 'ASC');
+    ->fieldCondition('field_release_project', 'target_id', $project_nid);
 
   if (isset($api_tid)) {
     $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
@@ -1374,11 +1357,94 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
     $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
   }
 
+  // Since not all releases will have a field value for everything we might
+  // want to order by, and since EFQ can't sort on NULL values, we find all
+  // the nids that match our constraints, load the nodes, and then sort via
+  // PHP instead of trying to use fieldOrderBy().
+
   $result = $query->execute();
   if (empty($result)) {
     return array();
   }
-  return node_load_multiple(array_keys($result['node']));
+
+  $releases = node_load_multiple(array_keys($result['node']));
+  // Teach our sorting function how we want to handle $dev_first behavior.
+  _project_release_version_fields_compare(NULL, NULL, $dev_first);
+  uasort($releases, '_project_release_version_fields_compare');
+  return $releases;
+}
+
+/**
+ * Helper function for uasort()ing release nodes by version fields.
+ */
+function _project_release_version_fields_compare($a, $b, $dev_order = NULL) {
+  static $dev_first = FALSE;
+  if (isset($dev_order)) {
+    $dev_first = $dev_order;
+    return;
+  }
+
+  // We always want the dev snapshots to show up either first or last, so
+  // first try to compare field_release_build_type. However, we can only
+  // safely compare this field if both nodes have a value defined.
+  $field = 'field_release_build_type';
+  if (isset($a->{$field}[$a->language][0]['value'])
+      && isset($b->{$field}[$b->language][0]['value'])) {
+    if ($a->{$field}[$a->language][0]['value'] != $b->{$field}[$b->language][0]['value']) {
+      // TODO: We shouldn't hard-code these values like this.
+      if ($a->{$field}[$a->language][0]['value'] == 'dynamic') {
+        return $dev_first ? -1 : 1;
+      }
+      else {
+        return $dev_first ? 1 : -1;
+      }
+    }
+  }
+
+  // Now, compare all the numeric version fields. This array is keyed by field
+  // name, and the values are what we should return if $a has the field and $b
+  // does not.
+  $numeric_fields = array(
+    // Sort by the obvious integer values.
+    'field_release_version_major' => -1,
+    'field_release_version_minor' => -1,
+    'field_release_version_patch' => -1,
+    // To reliably sort release with version_extra, use version_extra_weight,
+    // but in this case, if $a has a value and $b doesn't, $b should be
+    // earlier in the sorted results.
+    'field_release_version_ext_weight' => 1,
+    // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2),
+    // sort by version_extra_delta.
+    'field_release_version_ext_delta' => -1,
+  );
+  foreach ($numeric_fields as $field => $only_a) {
+    if (isset($a->{$field}[$a->language][0]['value'])
+        && isset($b->{$field}[$b->language][0]['value'])) {
+      if ($a->{$field}[$a->language][0]['value'] !== $b->{$field}[$b->language][0]['value']) {
+        return ($a->{$field}[$a->language][0]['value'] > $b->{$field}[$b->language][0]['value']) ? -1 : 1;
+      }
+    }
+    // If $a has the value and $b doesn't, use $only_a
+    elseif (isset($a->{$field}[$a->language][0]['value'])) {
+      return $only_a;
+    }
+    // If $b has the value and $a doesn't, invert $only_a
+    elseif (isset($b->{$field}[$b->language][0]['value'])) {
+      return ($only_a * -1);
+    }
+  }
+
+  // Within releases of the same version_extra_weight and version_extra_delta,
+  // sort alphabetically. This shouldn't normally happen, but just in case you
+  // have multiple releases with the same delta (e.g. "alpha-one", "alpha-two"
+  // etc), at least you'll get deterministic results.
+  if (isset($a->field_release_version[$a->language][0]['value'])
+      && isset($b->field_release_version[$b->language][0]['value'])) {
+    return strcmp($a->{$field}[$a->language][0]['value'], $b->{$field}[$b->language][0]['value']);
+  }
+
+  // If we still don't know, they must be equal releases.
+  return 0;
 }
 
 /**
