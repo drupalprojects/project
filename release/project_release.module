@@ -1366,85 +1366,64 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
   if (empty($result)) {
     return array();
   }
-
   $releases = node_load_multiple(array_keys($result['node']));
-  // Teach our sorting function how we want to handle $dev_first behavior.
-  _project_release_version_fields_compare(NULL, NULL, $dev_first);
-  uasort($releases, '_project_release_version_fields_compare');
-  return $releases;
+  $nids = array_keys($releases);
+
+  $columns = _project_release_extract_multisort_columns($releases);
+
+  array_multisort(
+    $columns['field_release_build_type'], $dev_first ? SORT_ASC : SORT_DESC,
+    $columns['field_release_version_major'], SORT_DESC, SORT_NUMERIC,
+    $columns['field_release_version_minor'], SORT_DESC, SORT_NUMERIC,
+    $columns['field_release_version_patch'], SORT_DESC, SORT_NUMERIC,
+    $columns['field_release_version_ext_weight'], SORT_DESC, SORT_NUMERIC,
+    $columns['field_release_version_ext_delta'], SORT_DESC, SORT_NUMERIC,
+    $columns['field_release_version'], SORT_DESC, SORT_STRING,
+    $nids,
+    $releases);
+
+  return array_combine($nids, $releases);
 }
 
 /**
- * Helper function for uasort()ing release nodes by version fields.
+ * Helper function for array_multisort()ing release nodes by version fields.
  */
-function _project_release_version_fields_compare($a, $b, $dev_order = NULL) {
-  static $dev_first = FALSE;
-  if (isset($dev_order)) {
-    $dev_first = $dev_order;
-    return;
-  }
-
-  // We always want the dev snapshots to show up either first or last, so
-  // first try to compare field_release_build_type. However, we can only
-  // safely compare this field if both nodes have a value defined.
-  $field = 'field_release_build_type';
-  if (isset($a->{$field}[$a->language][0]['value'])
-      && isset($b->{$field}[$b->language][0]['value'])) {
-    if ($a->{$field}[$a->language][0]['value'] != $b->{$field}[$b->language][0]['value']) {
-      // TODO: We shouldn't hard-code these values like this.
-      if ($a->{$field}[$a->language][0]['value'] == 'dynamic') {
-        return $dev_first ? -1 : 1;
-      }
-      else {
-        return $dev_first ? 1 : -1;
-      }
-    }
-  }
-
-  // Now, compare all the numeric version fields. This array is keyed by field
-  // name, and the values are what we should return if $a has the field and $b
-  // does not.
-  $numeric_fields = array(
-    // Sort by the obvious integer values.
+function _project_release_extract_multisort_columns($releases) {
+  $result = array(
+    'field_release_build_type' => array(),
+    'field_release_version_major' => array(),
+    'field_release_version_minor' => array(),
+    'field_release_version_patch' => array(),
+    'field_release_version_ext_weight' => array(),
+    'field_release_version_ext_delta' => array(),
+    'field_release_version' => array(),
+  );
+  $field_defaults = array(
+    'field_release_build_type' => '',
     'field_release_version_major' => -1,
     'field_release_version_minor' => -1,
     'field_release_version_patch' => -1,
     // To reliably sort release with version_extra, use version_extra_weight,
-    // but in this case, if $a has a value and $b doesn't, $b should be
-    // earlier in the sorted results.
-    'field_release_version_ext_weight' => 1,
-    // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2),
-    // sort by version_extra_delta.
+    // but in this case, if one release has a value and another doesn't, the one
+    // without should be earlier in the sorted results.
+    'field_release_version_ext_weight' => 9999,
+    // Within releases of the same version_extra_weight (e.g. rc1 vs. rc2), sort
+    // by version_extra_delta.
     'field_release_version_ext_delta' => -1,
+    'field_release_version' => '',
   );
-  foreach ($numeric_fields as $field => $only_a) {
-    if (isset($a->{$field}[$a->language][0]['value'])
-        && isset($b->{$field}[$b->language][0]['value'])) {
-      if ($a->{$field}[$a->language][0]['value'] !== $b->{$field}[$b->language][0]['value']) {
-        return ($a->{$field}[$a->language][0]['value'] > $b->{$field}[$b->language][0]['value']) ? -1 : 1;
+
+  foreach ($releases as $release) {
+    foreach ($field_defaults as $field => $default) {
+      $value = $field_defaults[$field];
+      if (isset($release->{$field}[$release->language][0]['value'])) {
+        $value = $release->{$field}[$release->language][0]['value'];
       }
-    }
-    // If $a has the value and $b doesn't, use $only_a
-    elseif (isset($a->{$field}[$a->language][0]['value'])) {
-      return $only_a;
-    }
-    // If $b has the value and $a doesn't, invert $only_a
-    elseif (isset($b->{$field}[$b->language][0]['value'])) {
-      return ($only_a * -1);
+      $result[$field][] = $value;
     }
   }
 
-  // Within releases of the same version_extra_weight and version_extra_delta,
-  // sort alphabetically. This shouldn't normally happen, but just in case you
-  // have multiple releases with the same delta (e.g. "alpha-one", "alpha-two"
-  // etc), at least you'll get deterministic results.
-  if (isset($a->field_release_version[$a->language][0]['value'])
-      && isset($b->field_release_version[$b->language][0]['value'])) {
-    return strcmp($a->{$field}[$a->language][0]['value'], $b->{$field}[$b->language][0]['value']);
-  }
-
-  // If we still don't know, they must be equal releases.
-  return 0;
+  return $result;
 }
 
 /**
