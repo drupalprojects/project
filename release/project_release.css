@@ -17,6 +17,12 @@
 .view-display-id-development tr.even td.active {
   background-color: #fdd;
 }
+.view-display-id-security tr.odd,
+.view-display-id-security tr.odd td.active,
+.view-display-id-security tr.even,
+.view-display-id-security tr.even td.active {
+  background-color: #fdd;
+}
 
 .view-project-release-download-table table {
   width: 99%;

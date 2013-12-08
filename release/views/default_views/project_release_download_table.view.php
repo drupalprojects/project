@@ -356,6 +356,79 @@ $handler->display->display_options['filters']['release_type']['value'] = 'recomm
 $handler = $view->new_display('block', 'Recommended releases', 'recommended');
 $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
 
+/* Display: Releases missing security updates */
+$handler = $view->new_display('attachment', 'Releases missing security updates', 'security');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Text area */
+$handler->display->display_options['header']['area']['id'] = 'area';
+$handler->display->display_options['header']['area']['table'] = 'views';
+$handler->display->display_options['header']['area']['field'] = 'area';
+$handler->display->display_options['header']['area']['label'] = 'Title';
+$handler->display->display_options['header']['area']['content'] = '<h4>Releases missing security updates</h4>
+
+<div class="warning">There are security updates available for code included in these releases. Review release notes before downloading.</div>
+';
+$handler->display->display_options['header']['area']['format'] = '3';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Project: Project system behavior */
+$handler->display->display_options['filters']['project_type']['id'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['table'] = 'node';
+$handler->display->display_options['filters']['project_type']['field'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['value'] = 'project_release';
+$handler->display->display_options['filters']['project_type']['group'] = 1;
+/* Filter criterion: Taxonomy term: Recommended (field_release_recommended) */
+$handler->display->display_options['filters']['field_release_recommended_value']['id'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['table'] = 'field_data_field_release_recommended';
+$handler->display->display_options['filters']['field_release_recommended_value']['field'] = 'field_release_recommended_value';
+$handler->display->display_options['filters']['field_release_recommended_value']['relationship'] = 'term_node_tid';
+$handler->display->display_options['filters']['field_release_recommended_value']['value'] = array(
+  1 => '1',
+);
+$handler->display->display_options['filters']['field_release_recommended_value']['group'] = 1;
+/* Filter criterion: Content: Update status (field_release_update_status) */
+$handler->display->display_options['filters']['field_release_update_status_value']['id'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['table'] = 'field_data_field_release_update_status';
+$handler->display->display_options['filters']['field_release_update_status_value']['field'] = 'field_release_update_status_value';
+$handler->display->display_options['filters']['field_release_update_status_value']['operator'] = '>';
+$handler->display->display_options['filters']['field_release_update_status_value']['value']['value'] = '1';
+$handler->display->display_options['filters']['field_release_update_status_value']['group'] = 1;
+/* Filter criterion: Content: Release type (field_release_build_type) */
+$handler->display->display_options['filters']['field_release_build_type_value']['id'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['table'] = 'field_data_field_release_build_type';
+$handler->display->display_options['filters']['field_release_build_type_value']['field'] = 'field_release_build_type_value';
+$handler->display->display_options['filters']['field_release_build_type_value']['value'] = array(
+  'static' => 'static',
+);
+$handler->display->display_options['filters']['field_release_build_type_value']['group'] = 1;
+/* Filter criterion: Project release: Recommended branch */
+$handler->display->display_options['filters']['recommended']['id'] = 'recommended';
+$handler->display->display_options['filters']['recommended']['table'] = 'project_release_supported_versions';
+$handler->display->display_options['filters']['recommended']['field'] = 'recommended';
+$handler->display->display_options['filters']['recommended']['relationship'] = 'supported_releases_rel';
+$handler->display->display_options['filters']['recommended']['value'] = '1';
+/* Filter criterion: Project release: Latest or recommended release */
+$handler->display->display_options['filters']['release_type']['id'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['table'] = 'project_release_supported_versions';
+$handler->display->display_options['filters']['release_type']['field'] = 'release_type';
+$handler->display->display_options['filters']['release_type']['relationship'] = 'supported_releases_rel';
+$handler->display->display_options['filters']['release_type']['value'] = 'recommended';
+$handler->display->display_options['displays'] = array(
+  'recommended' => 'recommended',
+  'default' => 0,
+);
+$handler->display->display_options['attachment_position'] = 'after';
+
 /* Display: Other releases */
 $handler = $view->new_display('attachment', 'Other releases', 'other');
 $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
