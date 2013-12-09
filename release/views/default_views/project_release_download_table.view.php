@@ -411,12 +411,6 @@ $handler->display->display_options['filters']['field_release_build_type_value'][
   'static' => 'static',
 );
 $handler->display->display_options['filters']['field_release_build_type_value']['group'] = 1;
-/* Filter criterion: Project release: Recommended branch */
-$handler->display->display_options['filters']['recommended']['id'] = 'recommended';
-$handler->display->display_options['filters']['recommended']['table'] = 'project_release_supported_versions';
-$handler->display->display_options['filters']['recommended']['field'] = 'recommended';
-$handler->display->display_options['filters']['recommended']['relationship'] = 'supported_releases_rel';
-$handler->display->display_options['filters']['recommended']['value'] = '1';
 /* Filter criterion: Project release: Latest or recommended release */
 $handler->display->display_options['filters']['release_type']['id'] = 'release_type';
 $handler->display->display_options['filters']['release_type']['table'] = 'project_release_supported_versions';
