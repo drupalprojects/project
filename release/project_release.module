@@ -730,9 +730,9 @@ function project_release_node_presave($node) {
     }
     if (!empty($version_elements)) {
       foreach ($version_elements as $part => $value) {
-        if (($part === 'patch' || $part === 'minor') && !is_numeric($value)) {
-          // If the patch or minor fields are set to a non-numeric value, we
-          // want to keep it as a NULL in the DB, instead of casting it to a 0.
+        if (($part === 'patch' || $part === 'major' || $part === 'minor') && !is_numeric($value)) {
+          // If the patch, major, or minor fields are set to a non-numeric
+          // value, keep it as a NULL in the DB, instead of casting it to a 0.
           $node->{'field_release_version_' . $part}[$node->language][0] = array();
         }
         else {
