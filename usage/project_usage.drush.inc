@@ -462,7 +462,6 @@ function project_usage_load_metadata() {
   $query = new EntityFieldQuery();
   $result = $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', project_project_node_types())
-    ->fieldCondition('field_project_has_releases', 'value', TRUE)
     ->execute();
   if (isset($result['node'])) {
     foreach (array_chunk(array_keys($result['node']), 100) as $projects) {
