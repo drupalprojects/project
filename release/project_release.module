@@ -900,7 +900,10 @@ function project_release_parse_version($node) {
  *   An associative array, keyed by 'weight' and 'delta'.
  */
 function project_release_parse_version_extra($version_extra) {
-  $extra_meta = array();
+  $extra_meta = array(
+    'weight' => 0,
+    'delta' => 0,
+  );
   // Find the weight based on the current weight map.
   foreach (project_release_get_version_extra_weight_map() as $prefix => $weight) {
     // If extra starts with $prefix.
