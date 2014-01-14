@@ -722,7 +722,10 @@ function project_release_node_presave($node) {
 
     // Save version information.
     if (empty($node->project_release_preserve_version_elements)) {
-      $version_elements = project_release_parse_version($node);
+      // Only recalculate version components if changed.
+      if (!isset($node->original) || $node->field_release_version[LANGUAGE_NONE][0]['value'] !== $node->original->field_release_version[LANGUAGE_NONE][0]['value']) {
+        $version_elements = project_release_parse_version($node);
+      }
     }
     elseif (is_array($node->project_release_preserve_version_elements)) {
       $version_elements = $node->project_release_preserve_version_elements;
