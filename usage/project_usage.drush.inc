@@ -96,23 +96,23 @@ function drush_project_usage_tally_usage_stats() {
 function project_usage_prune_site() {
   $time_4 = REQUEST_TIME;
   $project_life = variable_get('project_usage_life_weekly_project', PROJECT_USAGE_YEAR);
-  $result = db_delete('project_usage_week_project')
+  $count = db_delete('project_usage_week_project')
     ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $project_life, '<')
     ->execute();
   $time_5 = REQUEST_TIME;
   $substitutions = array(
-    '!rows' => format_plural($result->rowCount(), '1 old weekly project row', '@count old weekly project rows'),
+    '!rows' => format_plural($count, '1 old weekly project row', '@count old weekly project rows'),
     '!delta' => format_interval($time_5 - $time_4),
   );
   drush_log(dt('Removed !rows (!delta).', $substitutions), 'ok');
 
   $release_life = variable_get('project_usage_life_weekly_release', 26 * PROJECT_USAGE_WEEK);
-  $result = db_delete('project_usage_week_release')
+  $count = db_delete('project_usage_week_release')
     ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $release_life, '<')
     ->execute();
   $time_6 = REQUEST_TIME;
   $substitutions = array(
-    '!rows' => format_plural($result->rowCount(), '1 old weekly release row', '@count old weekly release rows'),
+    '!rows' => format_plural($count, '1 old weekly release row', '@count old weekly release rows'),
     '!delta' => format_interval($time_6 - $time_5),
   );
   drush_log(dt('Removed !rows (!delta).', $substitutions), 'ok');
