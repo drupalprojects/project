@@ -141,18 +141,22 @@ function project_usage_overview() {
   // column and order.
   $sort = tablesort_init($headers);
   $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'] . ':' . pager_find_page();
+  $items_per_page = 100;
   if ($cached = cache_get($cid, 'cache_project_usage')) {
     $rows = $cached->data;
+    if ($total = cache_get('overview:total', 'cache_project_usage')) {
+      pager_default_initialize($total->data, $items_per_page);
+    }
   }
   else {
     $result = $query
       ->extend('TableSort')
       ->orderByHeader($headers)
       ->extend('PagerDefault')
-      ->limit(100)
+      ->limit($items_per_page)
       ->execute();
 
-    $number = pager_find_page() * 100 + 1;
+    $number = pager_find_page() * $items_per_page + 1;
     $rows = array();
     foreach ($result as $line) {
       $machine_name = field_get_items('node', node_load($line->nid, NULL, TRUE), 'field_project_machine_name');
@@ -168,10 +172,13 @@ function project_usage_overview() {
       }
       $rows[] = $row;
     }
-  }
 
-  // Cache the completed page.
-  cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
+    // Cache the completed page.
+    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
+    // Cache number of projects
+    global $pager_total_items;
+    cache_set('overview:total', reset($pager_total_items), 'cache_project_usage', project_usage_cache_time());
+  }
 
   return array(
     'usage' => array(
