@@ -16,11 +16,6 @@ function project_release_project_edit_releases($node) {
 
 function project_release_project_edit_form($form, $form_state, $node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
-  if (!empty($api_vocabulary)) {
-    $form['help'] = array(
-      '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
-    );
-  }
 
   // Since this form is used relatively infrequently, don't allow the js to be aggregated.
   drupal_add_js(drupal_get_path('module', 'project_release') . '/project_release.js', array('preprocess' => FALSE));
@@ -52,61 +47,71 @@ function project_release_project_edit_form($form, $form_state, $node) {
       '#recommended' => $object->recommended ? TRUE : FALSE,
     );
   }
-
-  // Build the form elements for supported and recommended major versions.
-  $form['api'] = array(
-    '#tree' => TRUE,
-    '#theme' => 'project_release_edit_table',
-  );
-  foreach ($data as $api_tid => $api_data) {
-    $form['api'][$api_tid] = array(
-      '#api_term_name' => $api_data['name'],
-      'major' => array(),
-    );
-    $recommended_version = -1;
-    $recommended_options = array(-1 => t('None'));
-    foreach ($api_data['majors'] as $major_version => $major_data) {
-      if ($major_data['#recommended'] == TRUE) {
-        $recommended_version = $major_version;
-      }
-
-      $recommended_options[$major_version] = $major_version;
-      $current_recommended = project_release_get_current_recommended($node->nid, $api_tid, $major_version);
-      $form['api'][$api_tid]['major'][$major_version] = array(
-        'current' => array(
-          '#markup' => (!empty($current_recommended)) ? check_plain($current_recommended->field_release_version[$current_recommended->language][0]['value']) : '',
-        ),
-        'supported' => array(
-          '#type' => 'checkbox',
-          '#title' => t('Supported'),
-          '#default_value' => $major_data['#supported'],
-          '#attributes' => array('class' => array('supported')),
-        ),
-        'snapshot' => array(
-          '#type' => 'checkbox',
-          '#title' => t('Show snapshot release'),
-          '#default_value' => $major_data['#snapshot'],
-          '#attributes' => array('class' => array('snapshot')),
-        ),
-      );
-    }
-    $form['api'][$api_tid]['recommended'] = array(
-      '#title' => t('Recommended major version'),
-      '#type' => 'select',
-      '#options' => $recommended_options,
-      '#default_value' => $recommended_version,
-      '#prefix' => '<div class="container-inline">',
-      '#suffix' => '</div>',
-      '#attributes' => array('class' => array('recommended')),
+  if (empty($data)) {
+    $form['help'] = array(
+      '#markup' => '<p>' . t('No release versions for this project exist.') . '</p>',
     );
   }
+  else {
+    if (!empty($api_vocabulary)) {
+      $form['help'] = array(
+        '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
+      );
+    }
+    // Build the form elements for supported and recommended major versions.
+    $form['api'] = array(
+      '#tree' => TRUE,
+      '#theme' => 'project_release_edit_table',
+    );
+    foreach ($data as $api_tid => $api_data) {
+      $form['api'][$api_tid] = array(
+        '#api_term_name' => $api_data['name'],
+        'major' => array(),
+      );
+      $recommended_version = -1;
+      $recommended_options = array(-1 => t('None'));
+      foreach ($api_data['majors'] as $major_version => $major_data) {
+        if ($major_data['#recommended'] == TRUE) {
+          $recommended_version = $major_version;
+        }
 
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#weight' => 45,
-  );
+        $recommended_options[$major_version] = $major_version;
+        $current_recommended = project_release_get_current_recommended($node->nid, $api_tid, $major_version);
+        $form['api'][$api_tid]['major'][$major_version] = array(
+          'current' => array(
+            '#markup' => (!empty($current_recommended)) ? check_plain($current_recommended->field_release_version[$current_recommended->language][0]['value']) : '',
+          ),
+          'supported' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Supported'),
+            '#default_value' => $major_data['#supported'],
+            '#attributes' => array('class' => array('supported')),
+          ),
+          'snapshot' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Show snapshot release'),
+            '#default_value' => $major_data['#snapshot'],
+            '#attributes' => array('class' => array('snapshot')),
+          ),
+        );
+      }
+      $form['api'][$api_tid]['recommended'] = array(
+        '#title' => t('Recommended major version'),
+        '#type' => 'select',
+        '#options' => $recommended_options,
+        '#default_value' => $recommended_version,
+        '#prefix' => '<div class="container-inline">',
+        '#suffix' => '</div>',
+        '#attributes' => array('class' => array('recommended')),
+      );
+    }
 
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+      '#weight' => 45,
+    );
+  }
   $types = project_release_release_node_types();
   // todo this uses the first release node type. What to do if there are
   // multiple?
