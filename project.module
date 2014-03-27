@@ -922,7 +922,7 @@ function project_form_node_form_alter(&$form, &$form_state) {
     // On node forms, if we're updating a project, don't let the user directly
     // manipulate field_project_type but force them to go through the promote
     // UI instead. Only display the project type field on initial creation.
-    if (!empty($form['field_project_type']) && (!empty($node->field_project_type) || !user_access('create full projects'))) {
+    if (!empty($form['field_project_type']) && (!empty($node->field_project_type[LANGUAGE_NONE][0]['value']) || !user_access('create full projects'))) {
       $form['field_project_type']['#access'] = FALSE;
       if (!isset($node->nid) && !user_access('create full projects')) {
         $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
