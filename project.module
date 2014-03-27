@@ -955,6 +955,13 @@ function project_form_node_form_alter(&$form, &$form_state) {
  */
 function project_validate_project_shortname($element, &$form_state, $form) {
   if (!empty($element['#value'])) {
+    // Make sure project name is valid.
+    if (!preg_match('/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $element['#value'])) {
+      form_error($element, t('@title must follow <a href="@url">PHP naming convention</a>.', array(
+        '@title' => $element['#title'],
+        '@url' => 'http://www.php.net/manual/en/functions.user-defined.php')));
+      return;
+    }
     // Make sure machine name isn't already in use, or reserved.  Includes all
     // X from project/issues/X paths used in project_issues module
     $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
