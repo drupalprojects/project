@@ -16,6 +16,24 @@ function project_package_views_api() {
 }
 
 /**
+ * Implementation of hook_preprocess_views_view_table()
+ *
+ * Add dynamic css classes to project package tables.
+ */
+function project_package_preprocess_views_view_table(&$variables) {
+  $view = $variables['view'];
+  if ($view->name == 'project_package_local_items') {
+    foreach ($view->result as $num => $result) {
+      if (isset($result->field_field_release_update_status [0]['raw']['value'])) {
+        // View of Content
+        $variables['row_classes'][$num][] = 'release-update-status-' . drupal_clean_css_identifier(drupal_strtolower($result->field_field_release_update_status[0]['raw']['value']));
+      }
+    }
+    $variables['classes_array'][] = 'project-release';
+  }
+}
+
+/**
  * Implement hook_project_release_update_status_alter().
  */
 function project_package_project_release_update_status_alter(&$update_status, $release) {

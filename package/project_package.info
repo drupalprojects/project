@@ -6,4 +6,6 @@ dependencies[] = project_release
 dependencies[] = views
 core = 7.x
 
+stylesheets[all][] = project_package.css
+
 files[] = views/handlers/project_package_handler_field_local_patch_count.inc

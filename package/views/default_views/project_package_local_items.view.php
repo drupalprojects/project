@@ -109,7 +109,7 @@ $handler->display->display_options['fields']['field_release_update_status']['tab
 $handler->display->display_options['fields']['field_release_update_status']['field'] = 'field_release_update_status';
 $handler->display->display_options['fields']['field_release_update_status']['label'] = 'Status';
 $handler->display->display_options['fields']['field_release_update_status']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['field_release_update_status']['alter']['text'] = '<div class="update-status">[field_release_update_status]</div>[patch_count]';
+$handler->display->display_options['fields']['field_release_update_status']['alter']['text'] = '<div class="update-status-[field_release_update_status-value]">[field_release_update_status]</div>[patch_count]';
 $handler->display->display_options['fields']['field_release_update_status']['type'] = 'project_release_update_status';
 $handler->display->display_options['fields']['field_release_update_status']['settings'] = array(
   'thousand_separator' => ' ',
