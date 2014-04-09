@@ -321,7 +321,7 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
 function project_usage_mongo() {
   static $db;
   if (!$db) {
-    $conn = new Mongo(); // @@@ Ask nnewton about enabling unix domain socket.
+    $conn = new Mongo(variable_get('project_usage_mongo_server', 'mongodb://localhost:27017')); // @@@ Ask nnewton about enabling unix domain socket.
     $db = $conn->selectDB("update-statistics");
     // @@@ Check for success?
   }
