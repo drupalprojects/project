@@ -351,7 +351,6 @@ function project_usage_lookup($type = 'terms') {
     $cursor = $c->find();
     foreach ($cursor as $row) {
       $data['projdata'][$row['uri']] = $row['pid'];
-      $data['rprojdata'][$row['pid']] = $row['uri'];
     }
 
     // Releases
@@ -360,7 +359,6 @@ function project_usage_lookup($type = 'terms') {
     foreach ($cursor as $r) {
       $row = (object) $r;
       $data['releasedata']["{$row->uri}:{$row->version}"] = array($row->pid, $row->nid, $row->tid);
-      $data['rreleasedata']["{$row->pid}:{$row->nid}"] = $row->version;
     }
   }
   return isset($data[$type]) ? $data[$type] : FALSE;
