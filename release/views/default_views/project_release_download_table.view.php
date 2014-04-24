@@ -224,6 +224,7 @@ $handler->display->display_options['fields']['extension']['alter']['alter_text']
 $handler->display->display_options['fields']['extension']['alter']['text'] = '[extension] <span class="filesize">([filesize])</span>';
 $handler->display->display_options['fields']['extension']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['extension']['alter']['path'] = '[uri]';
+$handler->display->display_options['fields']['extension']['extension_detect_tar'] = TRUE;
 /* Field: File: Extension */
 $handler->display->display_options['fields']['extension_1']['id'] = 'extension_1';
 $handler->display->display_options['fields']['extension_1']['table'] = 'file_managed';
@@ -235,6 +236,7 @@ $handler->display->display_options['fields']['extension_1']['alter']['text'] = '
 $handler->display->display_options['fields']['extension_1']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['extension_1']['alter']['path'] = '[uri_1]';
 $handler->display->display_options['fields']['extension_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['extension_1']['extension_detect_tar'] = TRUE;
 /* Field: File: Upload date */
 $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
 $handler->display->display_options['fields']['timestamp']['table'] = 'file_managed';
