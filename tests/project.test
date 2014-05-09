@@ -4,7 +4,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
   /**
    * Setup basic tasks for all project issue tests.
    */
-  function setUp($modules = array()) {
+  protected function setUp($modules = array()) {
     $modules = array_merge(array('project'), $modules);
     parent::setUp($modules);
   }

@@ -10,7 +10,7 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
   }
 
 
-  function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $perms = array('create project content', 'edit own project content', 'delete own project content', 'access user profiles');
