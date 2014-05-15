@@ -23,7 +23,7 @@ function project_release_init() {
   define('PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG', t('The version format string can only contain letters, numbers, and the characters . _ and - (in addition to the special characters used for identifying variables: % ! and #).'));
   define('PROJECT_RELEASE_VERSION_FORMAT_HELP', t("<p>Used to parse and validate version numbers. Available variables are <code>api</code>, <code>major</code>, <code>minor</code>, <code>patch</code>, and <code>extra</code>. Variable prefixes translate to delimiters:</p>
 <table>
-  <tr><th>Prefix</th><th>Delimeter</th></tr>
+  <tr><th>Prefix</th><th>Delimiter</th></tr>
   <tr><td><code>%</code></td><td><code>.</code></td></tr>
   <tr><td><code>#</code></td><td><code>-</code></td></tr>
   <tr><td><code>!</code></td><td><em>none</em></td></tr>
