@@ -105,3 +105,55 @@ $handler->display->display_options['arguments']['type']['summary']['format'] = '
 $handler->display->display_options['arguments']['type']['summary_options']['items_per_page'] = '25';
 $handler->display->display_options['arguments']['type']['specify_validation'] = TRUE;
 $handler->display->display_options['arguments']['type']['validate']['type'] = 'project_node_type';
+
+/* Display: Feeds */
+$handler = $view->new_display('feed', 'Feeds', 'feed_1');
+$handler->display->display_options['defaults']['access'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['style_plugin'] = 'rss';
+$handler->display->display_options['row_plugin'] = 'node_rss';
+$handler->display->display_options['row_options']['item_length'] = 'rss';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: Content: Post date */
+$handler->display->display_options['sorts']['created']['id'] = 'created';
+$handler->display->display_options['sorts']['created']['table'] = 'node';
+$handler->display->display_options['sorts']['created']['field'] = 'created';
+$handler->display->display_options['sorts']['created']['order'] = 'DESC';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: Project node type */
+$handler->display->display_options['arguments']['type']['id'] = 'type';
+$handler->display->display_options['arguments']['type']['table'] = 'node';
+$handler->display->display_options['arguments']['type']['field'] = 'type';
+$handler->display->display_options['arguments']['type']['ui_name'] = 'Project node type';
+$handler->display->display_options['arguments']['type']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['type']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['type']['title'] = '%1 %2 feed';
+$handler->display->display_options['arguments']['type']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['type']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['type']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['type']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['type']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['type']['validate']['type'] = 'project_node_type';
+$handler->display->display_options['arguments']['type']['limit'] = '0';
+/* Contextual filter: Content: Project type (field_project_type) */
+$handler->display->display_options['arguments']['field_project_type_value']['id'] = 'field_project_type_value';
+$handler->display->display_options['arguments']['field_project_type_value']['table'] = 'field_data_field_project_type';
+$handler->display->display_options['arguments']['field_project_type_value']['field'] = 'field_project_type_value';
+$handler->display->display_options['arguments']['field_project_type_value']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['field_project_type_value']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['field_project_type_value']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['field_project_type_value']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['field_project_type_value']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['field_project_type_value']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['field_project_type_value']['limit'] = '0';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['filters']['status']['group'] = '0';
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+$handler->display->display_options['path'] = 'project/%/feed/%';
