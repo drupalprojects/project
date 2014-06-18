@@ -228,7 +228,8 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
   $bcnt = 0;
   while ($line = fgets($handle)) {
     // 127.0.0.1 - - [02/Nov/2009:11:11:44 -0600] "GET http://updates.drupal.org/release-history/drupal/6.x?site_key=ffffffffffffffffffffffffffffffff&version=6.14 HTTP/1.0" 200 119 "-" "Drupal (+http://drupal.org/)"
-    if (preg_match('@\[([^\]]+)\] "?(?:GET|HEAD) ' . $updates_url . '([^/]+)/([^\?]+)\?([^ ]+) @', $line, $matches)) {
+    $regex = variable_get('project_usage_updates_regex', '@\[([^\]]+)\] "?(?:GET|HEAD) ' . $updates_url . '([^/]+)/([^\?]+)\?([^ ]+) @');
+    if (preg_match($regex, $line, $matches)) {
       // We are cheating on url parsing a bit for speed reasons. We have a lot
       // of log to get through as fast as possible. None of the "sane" entries will
       // have stuff like anchors in the url.
