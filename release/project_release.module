@@ -290,7 +290,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
         db_insert('project_release_supported_versions')
           ->fields(array(
             'nid' => $pid,
-            'tid' => $tid,
+            'tid' => (int) $tid,
             'major' => $major,
             'supported' => 1,
             'recommended' => 0,
@@ -312,7 +312,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
             'latest_security_release' => $latest_security_release,
           ))
           ->condition('nid', $pid)
-          ->condition('tid', $tid)
+          ->condition('tid', (int) $tid)
           ->condition('major', $major)
           ->execute();
       }
@@ -400,6 +400,10 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
 function project_release_compute_update_status($pid, $api_tid, $major, $regen = TRUE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
   $insecure_nids = array();
+  if ($api_tid === '') {
+    $api_tid = NULL;
+  }
+
   foreach (project_release_query_releases_by_branch($pid, $api_tid, $major) as $release) {
     // Clear out the status so we always start fresh with each release.
     unset($update_status);
@@ -1030,7 +1034,9 @@ function project_release_node_view($node, $view_mode, $langcode) {
       $files = array_map('field_collection_field_get_entity', $node->field_release_files[$node->language]);
       $max_file_timestamp = 0;
       foreach ($files as $file) {
-        $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[$node->language][0]['timestamp']);
+        if (array_key_exists('timestamp', $file->field_release_file[$node->language][0])) {
+          $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[$node->language][0]['timestamp']);
+        }
       }
       if ($max_file_timestamp > 0) {
         $node->content['field_release_files']['#suffix'] = '<div class="last-updated">' . t('Last updated: !changed', array('!changed' => format_date($max_file_timestamp))) . '</div>';
@@ -1315,6 +1321,9 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  * Deprecated, use project_release_query_releases().
  */
 function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
+  if ($api_tid === '') {
+    $api_tid = NULL;
+  }
   return project_release_query_releases($project_nid, $api_tid, $major, $access);
 }
 
