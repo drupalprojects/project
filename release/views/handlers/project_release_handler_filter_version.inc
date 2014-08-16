@@ -76,7 +76,7 @@ class project_release_handler_filter_version extends views_handler_filter_field_
       $this->value_options = array();
       if ($project) {
         // Add the enabled compatibility terms.
-        $data = taxonomy_get_tree(variable_get('project_release_api_vocabulary', ''), 0, 1, TRUE);
+        $data = taxonomy_get_tree(variable_get('project_release_api_vocabulary', 0), 0, 1, TRUE);
         foreach ($data as $term) {
           if (!empty($term->field_release_recommended[LANGUAGE_NONE][0]['value'])) {
             $this->value_options['__series:' . $term->tid] = t('- @series issues -', array('@series' => $term->name));

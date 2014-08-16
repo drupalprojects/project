@@ -1121,7 +1121,7 @@ function project_release_update_7000() {
   ));
 
   // Add a recommended toggle to the API taxonomy, if there is one.
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
   if ($api_vocabulary !== FALSE) {
     field_create_field(array(
       'translatable' => '0',
@@ -1649,7 +1649,7 @@ function project_release_update_7009() {
 
   if (!field_info_field('field_release_recommended')) {
     // Add a recommended toggle to the API taxonomy, if there is one.
-    $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+    $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
     if ($api_vocabulary !== FALSE) {
       field_create_field(array(
         'translatable' => '0',

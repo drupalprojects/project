@@ -676,7 +676,7 @@ function project_release_node_validate(&$node, $form, &$form_state) {
  *   A term ID or FALSE if none is set.
  */
 function project_release_get_release_api_tid($node) {
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
   if (!empty($api_vocabulary)
       && isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language])) {
     return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
@@ -1350,7 +1350,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
     ->fieldCondition('field_release_project', 'target_id', $project_nid);
 
   if (isset($api_tid)) {
-    $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+    $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
     $query->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $api_tid);
   }
 
@@ -1610,7 +1610,7 @@ function project_release_get_version_extra_weight_map() {
  * project.module.
  */
 function project_release_views_default_views_alter(&$views) {
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', NULL));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
   if (!empty($api_vocabulary) && isset($views['project_index'])) {
     // Add release API compatibility filter to project index view.
     $views['project_index']->set_display('default');

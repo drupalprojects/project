@@ -15,7 +15,7 @@ function project_release_project_edit_releases($node) {
 }
 
 function project_release_project_edit_form($form, $form_state, $node) {
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
 
   // Since this form is used relatively infrequently, don't allow the js to be aggregated.
   drupal_add_js(drupal_get_path('module', 'project_release') . '/project_release.js', array('preprocess' => FALSE));

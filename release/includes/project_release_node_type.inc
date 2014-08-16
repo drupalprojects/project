@@ -912,7 +912,7 @@ function _project_release_create_release_node_type() {
   ));
 
   // Add a recommended toggle to the API taxonomy, if there is one.
-  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', ''));
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
   if ($api_vocabulary !== FALSE) {
     field_create_field(array(
       'translatable' => '0',

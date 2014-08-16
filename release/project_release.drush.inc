@@ -206,7 +206,7 @@ function drush_project_release_release_create_history($project_id = NULL) {
   // with sane file permissions.
   umask(0022);
 
-  $api_vid = variable_get('project_release_api_vocabulary', '');
+  $api_vid = variable_get('project_release_api_vocabulary', 0);
 
   if (is_null($project_id)) {
     drush_log(dt('Generating XML release history files for all projects.'), 'ok');
@@ -590,7 +590,7 @@ function project_release_history_write_xml($xml, $project = NULL, $api_version =
  * Check status (recommended, latest, update status, etc) for releases.
  */
 function drush_project_release_release_check_status($project_id = NULL) {
-  $api_vid = variable_get('project_release_api_vocabulary', '');
+  $api_vid = variable_get('project_release_api_vocabulary', 0);
 
   if (is_null($project_id)) {
     drush_log(dt('Checking release status for all projects.'), 'ok');
