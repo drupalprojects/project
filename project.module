@@ -249,8 +249,8 @@ function project_menu_alter(&$callbacks) {
 function project_promote_project_access($node) {
   // This callback is only valid for projects that are sandboxes. Further,
   // restrict to users with either 'administer projects' or users that have
-  // access to edit the project and 'create full projects' permission.
-  return project_promote_project_is_sandbox($node) && (user_access('administer projects') || (project_user_access($node, 'edit project') && user_access('create full projects')));
+  // access to edit the project and a valid 'create full projects' permission.
+  return project_promote_project_is_sandbox($node) && (user_access('administer projects') || (project_user_access($node, 'edit project') && (user_access('create full projects') || user_access("create full {$node->type} projects"))));
 }
 
 /**
@@ -415,7 +415,7 @@ function project_main_settings_form() {
  * Implements hook_permission().
  */
 function project_permission() {
-  return array(
+  $permissions = array(
     'administer projects' => array(
       'title' => t('Administer projects'),
       'description' => t('Administer all projects.'),
@@ -426,7 +426,7 @@ function project_permission() {
       'description' => t('Create any type of projects as a sandbox. Users must also have the correct project-type create permission.'),
     ),
     'create full projects' => array(
-      'title' => t('Create full projects'),
+      'title' => t('Create full projects (any type)'),
       'description' => t('Create any type of project as a full project. Users must also have the correct project-type create permission.'),
     ),
     'delete any full project' => array(
@@ -446,6 +446,16 @@ function project_permission() {
       'description' => t('Delete sandbox projects that the user owns. Users must also have the correct project-type delete permission.'),
     ),
   );
+
+  $node_type_names = node_type_get_names();
+  foreach (project_project_node_types() as $type) {
+    $permissions["create full $type projects"] = array(
+      'title' => t('Create full %type projects', array('%type' => $node_type_names[$type])),
+      'description' => t('Create %type type of project as a full project. Users must also have the %type: Create new content permission.', array('%type' => $node_type_names[$type])),
+    );
+  }
+
+  return $permissions;
 }
 
 /**
@@ -547,7 +557,7 @@ function project_node_access($node, $op, $account) {
   if (project_node_type_is_project($type)) {
     switch ($op) {
       case 'create':
-        if (!user_access('create full projects')
+        if (!(user_access('create full projects') || user_access("create full $type projects"))
             && !user_access('create sandbox projects')) {
           return NODE_ACCESS_DENY;
         }
@@ -922,9 +932,9 @@ function project_form_node_form_alter(&$form, &$form_state) {
     // On node forms, if we're updating a project, don't let the user directly
     // manipulate field_project_type but force them to go through the promote
     // UI instead. Only display the project type field on initial creation.
-    if (!empty($form['field_project_type']) && (!empty($node->field_project_type[LANGUAGE_NONE][0]['value']) || !user_access('create full projects'))) {
+    if (!empty($form['field_project_type']) && (!empty($node->field_project_type[LANGUAGE_NONE][0]['value']) || !(user_access('create full projects') || user_access("create full {$node->type} projects")))) {
       $form['field_project_type']['#access'] = FALSE;
-      if (!isset($node->nid) && !user_access('create full projects')) {
+      if (!isset($node->nid) && !(user_access('create full projects') || user_access("create full {$node->type} projects"))) {
         $form['field_project_type'][LANGUAGE_NONE]['#default_value'] = array('sandbox');
         if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
           $form_state['input']['field_project_type'][LANGUAGE_NONE] = 'sandbox';
@@ -1152,5 +1162,18 @@ function project_user_can_create_project($account = NULL) {
   if (!isset($account)) {
     $account = $user;
   }
-  return user_access('create full projects', $account) || user_access('create sandbox projects', $account);
+  // See if the account has a simple global permission to create any project.
+  if (user_access('create full projects', $account) || user_access('create sandbox projects', $account)) {
+    return TRUE;
+  }
+  else {
+    // Check individual node type permissions.
+    foreach (project_project_node_types() as $type) {
+      if (user_access("create full {$type} projects", $account)) {
+        return TRUE;
+      }
+    }
+    // Otherwise the account did not have permission to create any projects.
+    return FALSE;
+  }
 }
