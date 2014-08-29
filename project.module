@@ -606,6 +606,24 @@ function project_node_delete($node) {
 }
 
 /**
+ * Implements hook_user_cancel().
+ */
+function project_user_cancel($edit, $account, $method) {
+  // Maintainership isn't content and should be deleted.
+  project_user_delete($account);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function project_user_delete($account) {
+  // Delete project maintainerships.
+  foreach (db_query('SELECT nid FROM {project_maintainer} WHERE uid = :uid', array('uid' => $account->uid))->fetchCol() as $nid) {
+    project_maintainer_remove($nid, $account->uid);
+  }
+}
+
+/**
  * See if the current user has the given permission on a given project.
  *
  * @param $project
