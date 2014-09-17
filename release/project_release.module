@@ -753,7 +753,6 @@ function project_release_node_presave($node) {
     foreach (array_map('field_collection_field_get_entity', $node->field_release_files[$node->language]) as $collection) {
       $file = file_load($collection->field_release_file[$node->language][0]['fid']);
       $collection->field_release_file_hash[$node->language][0]['value'] = md5_file($file->uri);
-      $collection->save(TRUE);
     }
   }
 }
