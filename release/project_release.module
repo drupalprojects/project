@@ -400,7 +400,8 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
 function project_release_compute_update_status($pid, $api_tid, $major, $regen = TRUE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
   $insecure_nids = array();
-  if ($api_tid === '') {
+  // $api_tid can also be false or the empty string
+  if ($api_tid == '') {
     $api_tid = NULL;
   }
 
@@ -1320,7 +1321,8 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  * Deprecated, use project_release_query_releases().
  */
 function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
-  if ($api_tid === '') {
+  // $api_tid can also be false or the empty string
+  if ($api_tid == '') {
     $api_tid = NULL;
   }
   return project_release_query_releases($project_nid, $api_tid, $major, $access);
