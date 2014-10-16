@@ -7,6 +7,89 @@
  */
 
 /**
+ * Implements hook_views_data().
+ *
+ * Provides views with access to the data model provided by the project module.
+ */
+function project_views_data() {
+  $data['project_maintainer']['table']['group'] = t('Project maintainers');
+  $data['project_maintainer']['table']['join'] = array(
+    // Directly links to node table.
+    'node' => array(
+      'left_field' => 'nid',
+      'field' => 'nid',
+    ),
+  );
+
+  $data['project_maintainer']['uid'] = array(
+    'title' => t('Maintainer uid'),
+    'help' => t('The user that maintains or co-maintains a project. If you need more fields than the uid add the content: author relationship'),
+    'relationship' => array(
+      'title' => t('Author'),
+      'help' => t('Relate content to the user who created it.'),
+      'handler' => 'views_handler_relationship',
+      'base' => 'users',
+      'field' => 'uid',
+      'label' => t('author'),
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_user_name',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+    'field' => array(
+      'handler' => 'views_handler_field_user',
+    ),
+  );
+
+  $data['project_maintainer']['update_project'] = array(
+    'title' => t('Update Projects'),
+    'help' => t('Can this user update(edit) the given project and modify its settings.'), // The help that appears on the UI.
+    // Information for displaying the node ID.
+    'field' => array(
+      'handler' => 'views_handler_field_boolean',
+      'click sortable' => TRUE,
+    ),
+    // Information for accepting a node ID as an argument.
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+    // Information for accepting a node ID as a filter.
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    // Information for sorting on a node ID.
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+  $data['project_maintainer']['administer_maintainers'] = array(
+    'title' => t('Update Projects'),
+    'help' => t('Can this user manipulate the maintainers for the given project.'), // The help that appears on the UI.
+    // Information for displaying the node ID.
+    'field' => array(
+      'handler' => 'views_handler_field_boolean',
+      'click sortable' => TRUE,
+    ),
+    // Information for accepting a node ID as an argument.
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+    // Information for accepting a node ID as a filter.
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    // Information for sorting on a node ID.
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  return $data;
+}
+
+/**
  * Implements hook_views_data_alter().
  */
 function project_views_data_alter(&$data) {
