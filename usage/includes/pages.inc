@@ -102,15 +102,6 @@ function project_usage_overview() {
   // - Cycle through them to build a map of entity_id -> machine_name
   // - Stuff the machine name into the project link when assembling the rows.
 
-  $usage_week_nids = db_query('SELECT DISTINCT(nid) FROM {project_usage_week_project}')->fetchCol();
-
-  $query = db_select('node', 'n')
-    ->fields('n', array('nid', 'title'))
-    ->condition('n.nid', $usage_week_nids, 'IN')
-    ->condition('n.status', NODE_PUBLISHED)
-    ->groupBy('n.nid')
-    ->groupBy('n.title')
-    ->addTag('node_access');
   $headers = array(
     t('#'),
     array(
@@ -118,66 +109,78 @@ function project_usage_overview() {
       'data' => t('Project'),
     ),
   );
+  $rows = array();
 
-  foreach ($weeks as $i => $week) {
-    // Note that "{$i}" in these query snippets are used to add a week integer
-    // to the table and field aliases so we can uniquely identify each column
-    // for sorting purposes.
-    $query->addExpression("SUM(DISTINCT p{$i}.count)", "week{$i}");
-    $query->leftJoin('project_usage_week_project', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
+  $usage_week_nids = db_query('SELECT DISTINCT(nid) FROM {project_usage_week_project}')->fetchCol();
+  if (!empty($usage_week_nids)) {
+    $query = db_select('node', 'n')
+      ->fields('n', array('nid', 'title'))
+      ->condition('n.nid', $usage_week_nids, 'IN')
+      ->condition('n.status', NODE_PUBLISHED)
+      ->groupBy('n.nid')
+      ->groupBy('n.title')
+      ->addTag('node_access');
 
-    $header = array(
-      'field' => "week{$i}",
-      'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT)),
-      'class' => array('project-usage-numbers'),
-    );
-    if ($i == 0) {
-      $header['sort'] = 'desc';
-    }
-    $headers[] = $header;
-  }
+    foreach ($weeks as $i => $week) {
+      // Note that "{$i}" in these query snippets are used to add a week integer
+      // to the table and field aliases so we can uniquely identify each column
+      // for sorting purposes.
+      $query->addExpression("SUM(DISTINCT p{$i}.count)", "week{$i}");
+      $query->leftJoin('project_usage_week_project', "p{$i}", "n.nid = p{$i}.nid AND p{$i}.timestamp = :timestamp{$i}", array(":timestamp{$i}" => $week));
 
-  // Check for a cached page. The cache id needs to take into account the sort
-  // column and order.
-  $sort = tablesort_init($headers);
-  $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'] . ':' . pager_find_page();
-  $items_per_page = 100;
-  if ($cached = cache_get($cid, 'cache_project_usage')) {
-    $rows = $cached->data;
-    if ($total = cache_get('overview:total', 'cache_project_usage')) {
-      pager_default_initialize($total->data, $items_per_page);
-    }
-  }
-  else {
-    $result = $query
-      ->extend('TableSort')
-      ->orderByHeader($headers)
-      ->extend('PagerDefault')
-      ->limit($items_per_page)
-      ->execute();
-
-    $number = pager_find_page() * $items_per_page + 1;
-    $rows = array();
-    foreach ($result as $line) {
-      $machine_name = field_get_items('node', node_load($line->nid, NULL, TRUE), 'field_project_machine_name');
-      $row = array(
-        array('data' => $number++),
-        array('data' => l($line->title, 'project/usage/' . $machine_name[0]['value'])),
+      $header = array(
+        'field' => "week{$i}",
+        'data' => format_date($week, 'custom', variable_get('project_usage_date_short', PROJECT_USAGE_DATE_SHORT)),
+        'class' => array('project-usage-numbers'),
       );
-      foreach ($weeks as $i => $week) {
-        $row[] = array(
-          'data' => number_format($line->{"week{$i}"}),
-          'class' => array('project-usage-numbers'),
-        );
+      if ($i == 0) {
+        $header['sort'] = 'desc';
       }
-      $rows[] = $row;
+      $headers[] = $header;
     }
 
-    // Cache the completed page.
-    cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
-    // Cache number of projects
-    global $pager_total_items;
-    cache_set('overview:total', reset($pager_total_items), 'cache_project_usage', project_usage_cache_time());
+    // Check for a cached page. The cache id needs to take into account the sort
+    // column and order.
+    $sort = tablesort_init($headers);
+    $cid = 'overview:' . $sort['sql'] . ':' . $sort['sort'] . ':' . pager_find_page();
+    $items_per_page = 100;
+    if ($cached = cache_get($cid, 'cache_project_usage')) {
+      $rows = $cached->data;
+      if ($total = cache_get('overview:total', 'cache_project_usage')) {
+        pager_default_initialize($total->data, $items_per_page);
+      }
+    }
+    else {
+      $result = $query
+        ->extend('TableSort')
+        ->orderByHeader($headers)
+        ->extend('PagerDefault')
+        ->limit($items_per_page)
+        ->execute();
+
+      $number = pager_find_page() * $items_per_page + 1;
+      $rows = array();
+      foreach ($result as $line) {
+        $machine_name = field_get_items('node', node_load($line->nid, NULL, TRUE), 'field_project_machine_name');
+        $row = array(
+          array('data' => $number++),
+          array('data' => l($line->title, 'project/usage/' . $machine_name[0]['value'])),
+        );
+        foreach ($weeks as $i => $week) {
+          $row[] = array(
+            'data' => number_format($line->{"week{$i}"}),
+            'class' => array('project-usage-numbers'),
+          );
+        }
+        $rows[] = $row;
+      }
+
+      // Cache the completed page.
+      cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
+      // Cache number of projects
+      global $pager_total_items;
+      cache_set('overview:total', reset($pager_total_items), 'cache_project_usage', project_usage_cache_time());
+    }
   }
 
   return array(
@@ -186,6 +189,7 @@ function project_usage_overview() {
       '#header' => $headers,
       '#rows' => $rows,
       '#attributes' => array('id' => 'project-usage-all-projects'),
+      '#empty' => t('No items available'),
     ),
     'pager' => array(
       '#theme' => 'pager',
