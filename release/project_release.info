@@ -12,6 +12,7 @@ dependencies[] = options
 dependencies[] = file
 dependencies[] = entityreference
 dependencies[] = field_collection
+dependencies[] = taxonomy
 
 stylesheets[all][] = project_release.css
 
