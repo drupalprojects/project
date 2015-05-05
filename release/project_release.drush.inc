@@ -580,7 +580,10 @@ function project_release_history_write_xml($xml, $project = NULL, $api_version =
   }
 
   // Write out file.
-  if (!file_unmanaged_save_data($full_xml, $project_dir . '/' . $filename, FILE_EXISTS_REPLACE)) {
+  if (file_unmanaged_save_data($full_xml, $project_dir . '/' . $filename, FILE_EXISTS_REPLACE)) {
+    module_invoke_all('project_release_history_xml_written', $project, $api_version);
+  }
+  else {
     $wrapper = file_stream_wrapper_get_instance_by_uri($project_dir . '/' . $filename);
     return drush_set_error('FILE_WRITE', dt('Can\'t write to @file.', array('@file' => $wrapper->realpath())));
   }
