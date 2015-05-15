@@ -31,8 +31,6 @@ $handler->display->display_options['style_options']['columns'] = array(
   'extension' => 'extension',
   'extension_1' => 'extension',
   'timestamp' => 'timestamp',
-  'view_node' => 'view_node',
-  'edit_node' => 'view_node',
 );
 $handler->display->display_options['style_options']['default'] = '-1';
 $handler->display->display_options['style_options']['info'] = array(
@@ -89,16 +87,6 @@ $handler->display->display_options['style_options']['info'] = array(
   'timestamp' => array(
     'sortable' => 0,
     'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'view_node' => array(
-    'align' => '',
-    'separator' => ' | ',
-    'empty_column' => 0,
-  ),
-  'edit_node' => array(
     'align' => '',
     'separator' => '',
     'empty_column' => 0,
@@ -245,21 +233,6 @@ $handler->display->display_options['fields']['timestamp']['relationship'] = 'fie
 $handler->display->display_options['fields']['timestamp']['label'] = 'Date';
 $handler->display->display_options['fields']['timestamp']['date_format'] = 'custom';
 $handler->display->display_options['fields']['timestamp']['custom_date_format'] = 'Y-M-d';
-/* Field: Content: Link */
-$handler->display->display_options['fields']['view_node']['id'] = 'view_node';
-$handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
-$handler->display->display_options['fields']['view_node']['field'] = 'view_node';
-$handler->display->display_options['fields']['view_node']['label'] = 'Links';
-$handler->display->display_options['fields']['view_node']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['view_node']['alter']['text'] = 'Notes';
-/* Field: Content: Edit link */
-$handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
-$handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
-$handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
-$handler->display->display_options['fields']['edit_node']['label'] = '';
-$handler->display->display_options['fields']['edit_node']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['edit_node']['alter']['text'] = 'Edit';
-$handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
 /* Sort criterion: Taxonomy term: Weight */
 $handler->display->display_options['sorts']['weight']['id'] = 'weight';
 $handler->display->display_options['sorts']['weight']['table'] = 'taxonomy_term_data';
