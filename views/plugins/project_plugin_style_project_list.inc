@@ -8,10 +8,6 @@ class project_plugin_style_project_list extends views_plugin_style {
    * Store the project type term being browsed for later usage.
    */
   function pre_render($result) {
-    if (isset($this->view->args[0])) {
-      $this->view->project->project_type = _project_views_get_project_type($this->view->args[0]);
-    }
-    
     // If the first sort criteria is the changed field (for sorting by date),
     // then we need to add some information to the results set
     // so that they can later be grouped by date in the theming functions.

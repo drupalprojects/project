@@ -104,52 +104,6 @@ function project_views_data_alter(&$data) {
     ),
   );
 
-  // @todo Throw most of the below out.
-
-  // @TODO:  Rewrite the help and title to be more descriptive?
-  $data['term_node']['term_node_tid_depth_project'] = array(
-    'group' => t('Taxonomy'),
-    'title' => t('Term ID (summary)'),
-    'help' => t('This argument produces a summary with the option to exclude top level terms.'),
-    'real field' => 'tid',
-    'argument' => array(
-      'handler' => 'project_handler_argument_term_node_tid_depth_project',
-      'name table' => 'term_data',
-      'name field' => 'name',
-      'empty name field' => t('Uncategorized'),
-      'numeric' => TRUE,
-    ),
-  );
-
-  // Add a Project type vocabulary filter that makes it possible to include
-  // only the top level terms or child terms in the project types vocabulary.
-  $data['term_data']['project_type'] = array(
-    'title' => t('Project type depth'),
-    'help' => t('Limit the results to project type terms that are either parents or children, or both.'),
-    'filter' => array(
-      'field' => 'vid',
-      'handler' => 'project_handler_filter_project_type_vid',
-    ),
-  );
-
-  // tid field (based on {term_node}.tid field in taxonomy.views.inc).
-  $data['term_node']['project_type_tid'] = array(
-    'group' => t('Project'),
-    'title' => t('Project type term'),
-    'real field' => 'tid',
-    'field' => array(
-      'title' => t('Project type terms'),
-      'help' => t('The project type terms associated with a node.'),
-      'handler' => 'project_handler_field_term_node_project_type_tid',
-    ),
-    'filter' => array(
-      'help' => t('Filter by the project type term.'),
-      'handler' => 'project_handler_filter_term_node_project_type_tid',
-      'hierarchy table' => 'term_hierarchy',
-      'numeric' => TRUE,
-    ),
-  );
-
   // Project sorting method filter.  This is a bit of a hack until Views
   // supports exposed sorting.
   $data['views']['project_sort_method'] = array(
@@ -174,27 +128,11 @@ function project_views_handlers() {
       'project_handler_filter_project_behavior' => array(
         'parent' => 'views_handler_filter',
       ),
-      // @todo Throw most of this out.
-      'project_handler_argument_project_nid' => array(
-        'parent' => 'views_handler_argument_node_nid',
-      ),
-      'project_handler_argument_term_node_tid_depth_project' => array(
-        'parent' => 'views_handler_argument_term_node_tid',
-      ),
-      'project_handler_field_term_node_project_type_tid' => array(
-        'parent' => 'views_handler_field_term_node_tid',
-      ),
       'project_handler_filter_project_sort_method' => array(
         'parent' => 'views_handler_filter',
       ),
       'project_handler_filter_project_status' => array(
         'parent' => 'views_handler_filter_boolean_operator',
-      ),
-      'project_handler_filter_project_type_vid' => array(
-        'parent' => 'views_handler_filter_in_operator',
-      ),
-      'project_handler_filter_term_node_project_type_tid' => array(
-        'parent' => 'views_handler_filter_term_node_tid',
       ),
     ),
   );
@@ -262,16 +200,6 @@ function project_views_plugins() {
       ),
     ),
     'argument validator' => array(
-      'project_term_top_level' => array(
-        'title' => t('Project type: Top level term'),
-        'handler' => 'project_plugin_argument_validate_project_term_top_level',
-        'path' => $path,
-      ),
-      'project_type_term' => array(
-        'title' => t('Project type term'),
-        'handler' => 'project_plugin_argument_validate_project_type_term',
-        'path' => $path,
-      ),
       'project_nid' => array(
         'title' => t('Project node'),
         'handler' => 'project_plugin_argument_validate_project_nid',
@@ -293,30 +221,3 @@ function project_views_plugins() {
     ),
   );
 }
-
-/**
- * Provides the term object for the project type used
- * as an argument.
- *
- * @param $argument
- *   This should be the value of the argument used to indicate
- *   what project type is being browsed.  This will usually be
- *   the first argument.  The value can be either the tid or the
- *   name of the term.
- *
- * @return
- *   The term object or NULL if none could be found.
- */
-function _project_views_get_project_type($argument = NULL) {
-  if (module_exists('taxonomy')) {
-    if (is_numeric($argument)) {
-      $term = taxonomy_get_term($argument);
-    }
-    else {
-      $project_vid = _project_get_vid();
-      $term = db_fetch_object(db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t INNER JOIN {term_hierarchy} th ON t.tid = th.tid WHERE t.vid = %d AND th.parent = %d AND t.name = '%s'", 't', 'tid'), $project_vid, 0, $argument));
-    }
-    return $term;
-  }
-}
-

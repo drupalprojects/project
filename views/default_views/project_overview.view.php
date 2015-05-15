@@ -5,314 +5,101 @@
  * A view for browsing projects on the site.
  */
 
-$view = new view;
+$view = new view();
 $view->name = 'project_overview';
 $view->description = 'A view for browsing projects (currently broken).';
 $view->tag = 'project';
-$view->view_php = '';
 $view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
-$view->disabled = TRUE;
+$view->human_name = '';
+$view->core = 0;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Defaults */
 $handler = $view->new_display('default', 'Defaults', 'default');
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'browse project listings';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['distinct'] = TRUE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['style_plugin'] = 'project_list';
+$handler->display->display_options['row_plugin'] = 'project_fields';
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['text']['id'] = 'area';
+$handler->display->display_options['empty']['text']['table'] = 'views';
+$handler->display->display_options['empty']['text']['field'] = 'area';
+$handler->display->display_options['empty']['text']['content'] = 'No results were found.';
+$handler->display->display_options['empty']['text']['format'] = '1';
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['label'] = '';
+/* Field: Content: Updated date */
+$handler->display->display_options['fields']['changed']['id'] = 'changed';
+$handler->display->display_options['fields']['changed']['table'] = 'node';
+$handler->display->display_options['fields']['changed']['field'] = 'changed';
+$handler->display->display_options['fields']['changed']['label'] = 'Last changed';
+$handler->display->display_options['fields']['changed']['date_format'] = 'time ago';
+$handler->display->display_options['fields']['changed']['custom_date_format'] = '2';
+/* Sort criterion: Content: Sticky */
+$handler->display->display_options['sorts']['sticky']['id'] = 'sticky';
+$handler->display->display_options['sorts']['sticky']['table'] = 'node';
+$handler->display->display_options['sorts']['sticky']['field'] = 'sticky';
+$handler->display->display_options['sorts']['sticky']['order'] = 'DESC';
+/* Sort criterion: Content: Title */
+$handler->display->display_options['sorts']['title']['id'] = 'title';
+$handler->display->display_options['sorts']['title']['table'] = 'node';
+$handler->display->display_options['sorts']['title']['field'] = 'title';
+/* Sort criterion: Content: Updated date */
+$handler->display->display_options['sorts']['changed']['id'] = 'changed';
+$handler->display->display_options['sorts']['changed']['table'] = 'node';
+$handler->display->display_options['sorts']['changed']['field'] = 'changed';
+$handler->display->display_options['sorts']['changed']['order'] = 'DESC';
+$handler->display->display_options['sorts']['changed']['granularity'] = 'day';
+/* Sort criterion: Content: Title */
+$handler->display->display_options['sorts']['title_1']['id'] = 'title_1';
+$handler->display->display_options['sorts']['title_1']['table'] = 'node';
+$handler->display->display_options['sorts']['title_1']['field'] = 'title';
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Project: Project system behavior */
+$handler->display->display_options['filters']['project_type']['id'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['table'] = 'node';
+$handler->display->display_options['filters']['project_type']['field'] = 'project_type';
+$handler->display->display_options['filters']['project_type']['value'] = 'project';
+$handler->display->display_options['filters']['project_type']['group'] = 1;
+/* Filter criterion: Search: Search Terms */
+$handler->display->display_options['filters']['keys']['id'] = 'keys';
+$handler->display->display_options['filters']['keys']['table'] = 'search_index';
+$handler->display->display_options['filters']['keys']['field'] = 'keys';
+$handler->display->display_options['filters']['keys']['group'] = 1;
+$handler->display->display_options['filters']['keys']['exposed'] = TRUE;
+$handler->display->display_options['filters']['keys']['expose']['operator_id'] = 'keys_op';
+$handler->display->display_options['filters']['keys']['expose']['label'] = 'Keywords:';
+$handler->display->display_options['filters']['keys']['expose']['operator'] = 'keys_op';
+$handler->display->display_options['filters']['keys']['expose']['identifier'] = 'keywords';
 
-$fields = array(
-  'title' => array(
-    'label' => '',
-    'link_to_node' => 1,
-    'exclude' => 0,
-    'id' => 'title',
-    'table' => 'node',
-    'field' => 'title',
-    'relationship' => 'none',
-  ),
-  'changed' => array(
-    'label' => 'Last changed',
-    'date_format' => 'time ago',
-    'custom_date_format' => '2',
-    'exclude' => 0,
-    'id' => 'changed',
-    'table' => 'node',
-    'field' => 'changed',
-    'relationship' => 'none',
-  ),
-  'teaser' => array(
-    'label' => '',
-    'exclude' => 0,
-    'id' => 'teaser',
-    'table' => 'node_revisions',
-    'field' => 'teaser',
-    'relationship' => 'none',
-  ),
-  'project_type_tid' => array(
-    'label' => '',
-    'type' => 'separator',
-    'separator' => '  ',
-    'empty' => '',
-    'link_to_taxonomy' => 1,
-    'limit' => 0,
-    'vids' => array(
-      '1' => 1,
-    ),
-    'exclude_top_level_terms' => 1,
-    'exclude' => 0,
-    'id' => 'project_type_tid',
-    'table' => 'term_node',
-    'field' => 'project_type_tid',
-    'relationship' => 'none',
-  ),
-);
-
-$sorts = array(
-  'sticky' => array(
-    'order' => 'DESC',
-    'id' => 'sticky',
-    'table' => 'node',
-    'field' => 'sticky',
-    'relationship' => 'none',
-  ),
-  'title' => array(
-    'order' => 'ASC',
-    'id' => 'title',
-    'table' => 'node',
-    'field' => 'title',
-    'relationship' => 'none',
-  ),
-  'changed' => array(
-    'order' => 'DESC',
-    'granularity' => 'day',
-    'id' => 'changed',
-    'table' => 'node',
-    'field' => 'changed',
-  ),
-  'title_1' => array(
-    'order' => 'ASC',
-    'id' => 'title_1',
-    'table' => 'node',
-    'field' => 'title',
-    'relationship' => 'none',
-  ),
-);
-
-$arguments = array(
-  'tid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => '%1',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'project_type_term',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'add_table' => 0,
-    'require_value' => 0,
-    'reduce_duplicates' => 1,
-    'set_breadcrumb' => 0,
-    'id' => 'tid',
-    'table' => 'term_node',
-    'field' => 'tid',
-    'relationship' => 'none',
-    'default_options_div_prefix' => '',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(),
-    'validate_argument_type' => 'tid',
-    'validate_argument_project_term_vocabulary' => array(
-      '1' => 1,
-    ),
-    'validate_argument_project_term_argument_type' => 'convert',
-    'validate_argument_project_term_argument_action_top_without' => 'pass',
-    'validate_argument_project_term_argument_action_top_with' => 'pass',
-    'validate_argument_project_term_argument_action_child' => 'pass',
-    'validate_argument_php' => '',
-    'override' => array(
-      'button' => 'Override',
-    ),
-  ),
-);
-
-$filters = array(
-  'type' => array(
-    'operator' => 'in',
-    'value' => array(
-      'project_project' => 'project_project',
-    ),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'type',
-    'table' => 'node',
-    'field' => 'type',
-    'relationship' => 'none',
-  ),
-  'status' => array(
-    'operator' => '=',
-    'value' => 1,
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-  ),
-  'keys' => array(
-    'operator' => 'optional',
-    'value' => '',
-    'group' => '0',
-    'exposed' => TRUE,
-    'expose' => array(
-      'use_operator' => 0,
-      'operator' => 'keys_op',
-      'identifier' => 'keywords',
-      'label' => 'Keywords:',
-      'optional' => 1,
-      'remember' => 0,
-    ),
-    'id' => 'keys',
-    'table' => 'search_index',
-    'field' => 'keys',
-    'override' => array(
-      'button' => 'Override',
-    ),
-    'relationship' => 'none',
-  ),
-  'project_type_tid' => array(
-    'operator' => 'or',
-    'value' => '',
-    'group' => '0',
-    'exposed' => TRUE,
-    'expose' => array(
-      'use_operator' => 0,
-      'operator' => 'project_type_tid_op',
-      'identifier' => 'type',
-      'label' => 'Category:',
-      'optional' => 1,
-      'single' => 1,
-      'remember' => 0,
-      'reduce' => 0,
-    ),
-    'type' => 'select',
-    'vid' => '1',
-    'associated_argument' => '0',
-    'remove_if_no_options' => 1,
-    'argument_position' => '0',
-    'id' => 'project_type_tid',
-    'table' => 'term_node',
-    'field' => 'project_type_tid',
-    'relationship' => 'none',
-    'reduce_duplicates' => 1,
-  ),
-  'project_sort_method' => array(
-    'value' => 'sticky',
-    'group' => '0',
-    'exposed' => TRUE,
-    'expose' => array(
-      'operator' => '',
-      'label' => 'Sort by:',
-      'identifier' => 'sort_by',
-      'optional' => 0,
-      'single' => 1,
-      'remember' => 0,
-    ),
-    'sort_methods' => array(
-      'changed' => array(
-        'enabled' => 1,
-        'weight' => '-23',
-        'display_name' => 'Date',
-      ),
-      'title_1' => array(
-        'enabled' => 0,
-        'weight' => '-25',
-        'display_name' => 'title_1',
-      ),
-      'sticky' => array(
-        'enabled' => 0,
-        'weight' => '-24',
-        'display_name' => 'sticky',
-      ),
-      'title' => array(
-        'enabled' => 1,
-        'weight' => '-22',
-        'display_name' => 'Name',
-      ),
-    ),
-    'id' => 'project_sort_method',
-    'table' => 'views',
-    'field' => 'project_sort_method',
-    'relationship' => 'none',
-  ),
-);
-
-$handler->override_option('fields', $fields);
-$handler->override_option('sorts', $sorts);
-$handler->override_option('arguments', $arguments);
-$handler->override_option('filters', $filters);
-$handler->override_option('access', array(
-  'type' => 'perm',
-  'role' => array(),
-  'perm' => 'browse project listings',
-));
-$handler->override_option('empty', 'No results were found.');
-$handler->override_option('empty_format', '1');
-$handler->override_option('items_per_page', 30);
-$handler->override_option('use_pager', '1');
-$handler->override_option('distinct', 1);
-$handler->override_option('style_plugin', 'project_list');
-$handler->override_option('row_plugin', 'project_fields');
-$handler->override_option('row_options', array(
-  'inline' => array(),
-  'separator' => '',
-));
+/* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page_1');
-$handler->override_option('path', 'project/%');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => 'Yuki',
-  'weight' => '0',
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'weight' => 0,
-));
+$handler->display->display_options['path'] = 'project/%';
+
+/* Display: Feed */
 $handler = $view->new_display('feed', 'Feed', 'feed_1');
-$handler->override_option('style_plugin', 'rss');
-$handler->override_option('style_options', array(
-  'mission_description' => FALSE,
-  'description' => '',
-));
-$handler->override_option('row_plugin', 'node_rss');
-$handler->override_option('row_options', array(
-  'item_length' => 'default',
-));
-$handler->override_option('path', 'project/%/feed');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'weight' => 0,
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'weight' => 0,
-));
-$handler->override_option('displays', array(
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['style_plugin'] = 'rss';
+$handler->display->display_options['row_plugin'] = 'node_rss';
+$handler->display->display_options['path'] = 'project/%/feed';
+$handler->display->display_options['displays'] = array(
   'default' => 'default',
   'page_1' => 'page_1',
-));
-$handler->override_option('sitename_title', FALSE);
+);
 

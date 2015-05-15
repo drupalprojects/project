@@ -52,18 +52,5 @@ class project_plugin_row_project_node_view extends views_plugin_row {
       );
     }
   }
-  
-  /**
-   * Determine what project type is being viewed and store it
-   * for use later on in the rendering process.
-   *
-   * @param $result
-   *   The full array of results from the query.
-   */
-  function pre_render($result) {
-    if (!isset($this->view->project->project_type) && isset($this->view->args[0])) {
-      $this->view->project->project_type = _project_views_get_project_type($this->view->args[0]);
-    }
-  }
 }
 
