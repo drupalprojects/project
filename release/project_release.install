@@ -244,7 +244,7 @@ function project_release_update_7000() {
 
   // Define node workflow and comment settings.
   variable_set('node_options_project_release', array('status', 'revision'));
-  if (module_enabled('comment')) {
+  if (module_exists('comment')) {
     variable_set('comment_project_release', COMMENT_NODE_CLOSED);
   }
 

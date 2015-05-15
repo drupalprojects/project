@@ -31,7 +31,7 @@ function _project_release_create_release_node_type() {
 
   // Define node workflow and comment settings.
   variable_set('node_options_project_release', array('status', 'revision'));
-  if (module_enabled('comment')) {
+  if (module_exists('comment')) {
     variable_set('comment_project_release', COMMENT_NODE_CLOSED);
   }
   // Set the project behavior setting for this node type say it's a release.

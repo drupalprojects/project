@@ -58,7 +58,7 @@ function project_install_default_project_node_type() {
 
   // Define node workflow and comment settings.
   variable_set('node_options_project', array('status', 'revision'));
-  if (module_enabled('comment')) {
+  if (module_exists('comment')) {
     variable_set('comment_project', COMMENT_NODE_CLOSED);
   }
 
