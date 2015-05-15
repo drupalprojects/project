@@ -244,7 +244,9 @@ function project_release_update_7000() {
 
   // Define node workflow and comment settings.
   variable_set('node_options_project_release', array('status', 'revision'));
-  variable_set('comment_project_release', COMMENT_NODE_CLOSED);
+  if (module_enabled('comment')) {
+    variable_set('comment_project_release', COMMENT_NODE_CLOSED);
+  }
 
   // Set the project behavior setting for this node type say it's a release.
   variable_set('project_behavior_project_release', 'project_release');
