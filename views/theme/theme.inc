@@ -181,7 +181,7 @@ function template_preprocess_project_views_view_row_project_fields(&$vars) {
       }
 
       $object->handler = $view->field[$id];
-      $object->class = views_css_safe($id);
+      $object->class = drupal_clean_css_identifier($id);
       $object->label = check_plain($view->field[$id]->label());
       $vars['fields'][$id] = $object;
     }
