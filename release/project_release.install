@@ -187,7 +187,7 @@ function project_release_schema() {
     'primary key' => array('nid'),
   );
 
-  $system_schema = system_schema();
+  $system_schema = drupal_get_schema_unprocessed('system');
   $schema['cache_project_release_download_table'] = $system_schema['cache'];
   $schema['cache_project_release_download_table']['description'] = 'Cache table for project release downloads.';
 
