@@ -1370,7 +1370,10 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
 
   // Only enforce node access if the caller specifically requested that
   // behavior.
-  if (!$access) {
+  if ($access) {
+    $query->addTag('node_access');
+  }
+  else {
     $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
   }
 
@@ -1536,6 +1539,10 @@ function project_release_is_security_update($node) {
 function project_release_exists($project_nid, $version) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
+    // Note: theoretically, this could be an information disclosure if a given
+    // user has permission to create new releases but not to see all the
+    // existing ones. However, we have no choice since we have to ensure
+    // uniqueness for each (project/version) pair.
     ->entityCondition('bundle', 'project_release')
     ->fieldCondition('field_release_project', 'target_id', $project_nid)
     ->fieldCondition('field_release_version', 'value', $version);

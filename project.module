@@ -482,6 +482,11 @@ function project_node_validate($node, $form, &$form_state) {
     return;
   }
   // Ensure title is unique across all projects.
+  // Note: technically, it's theoretically an information disclosure to tell a
+  // user that a given project name is in use if they don't have access to
+  // view that issue. However, we don't have an alternative here, since we
+  // have to ensure uniqueness. Hopefully the project name itself isn't too
+  // much of a problem to disclose in this edge case.
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')

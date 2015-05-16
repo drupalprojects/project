@@ -50,6 +50,11 @@ class project_plugin_argument_validate_project_nid extends views_plugin_argument
     $query
       // Projects are currently restricted to nodes!
       ->entityCondition('entity_type', 'node')
+      // Yes, we really do want to enforce node_access here. If a given user
+      // doesn't have permission to view a project, and they try to access a
+      // view that uses that project as an argument, we want the argument
+      // validator to fail and say they're using an invalid project.
+      ->addTag('node_access')
       // If there is a field_project_type, this is a project.
       // This part is what we care about.
       ->fieldCondition('field_project_type', 'value', NULL, 'IS NOT NULL');
