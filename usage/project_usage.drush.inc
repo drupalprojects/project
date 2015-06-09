@@ -255,7 +255,7 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
             $buffer = array();
           }
           $c = $db->selectCollection("$week");
-          $c->ensureIndex('site_key', TRUE);
+          $c->ensureIndex('site_key', array('unique' => TRUE));
         }
       }
 
