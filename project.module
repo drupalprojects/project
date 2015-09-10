@@ -31,6 +31,16 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter(), altering
+ * apachesolr_search_field_bias_form().
+ */
+function project_form_apachesolr_search_bias_form_alter(&$form) {
+  if (isset($form['field_bias']['ss_field_project_machine_name'])) {
+    $form['field_bias']['ss_field_project_machine_name']['#access'] = TRUE;
+  }
+}
+
+/**
  * Determine whether or not a node is a project.
  *
  * @param $node
