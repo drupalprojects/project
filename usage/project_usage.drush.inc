@@ -15,6 +15,7 @@
  * Default updates URL.
  */
 define('USAGE_STATS_UPDATES_URL', 'http://updates.drupal.org/release-history/');
+define('USAGE_STATS_COUNTS_PATH', '/var/log/updatestats/counts');
 
 /**
  * Implements hook_drush_help().
@@ -85,6 +86,9 @@ function project_usage_drush_command() {
       ),
       'arguments' => array(
         'weektimestamp' => 'Process which weeks worth of data?',
+      ),
+      'options' => array(
+        'count-file-path' => 'The path on the server of the count files.',
       ),
   );
 
@@ -819,12 +823,14 @@ function project_usage_retrieve_metadata() {
 
   static $data = array();
 
+  $data = cache_get('project_metadata')->data;
+
   if (empty($data)) {
 
 
     // Load core api versions
     foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-      if (strlen($term->name) == 3) { // Quick ugly hack to skip drupal < 5.x
+      if (strlen($term->name) == 3 && $term->name !== '5.x') { // Quick ugly hack to skip drupal < 6.x
         $coreterms[$term->name] = $term->tid;
       }
     }
@@ -838,11 +844,20 @@ function project_usage_retrieve_metadata() {
       ->fieldCondition('field_project_type', 'value', 'full', '=')
       ->fieldCondition('field_project_has_releases', 'value', '1', '=')
       ->execute();
+    foreach (project_project_node_types() as $bundle){
+      $fields = field_info_instances('node', $bundle);
+      $machine_name_id[$bundle] =  $fields['field_project_machine_name']['field_id'];
+    }
     if (isset($result['node'])) {
-      foreach (array_chunk(array_keys($result['node']), 100) as $projects) {
-        foreach (node_load_multiple($projects, array(), TRUE) as $project) {
-          $project_name = $project->field_project_machine_name[$project->language][0]['value'];
-          $projdata[$project->nid] = $project_name;
+
+      foreach (array_chunk($result['node'], 100) as $projects) {
+        foreach ($projects as $project) {
+          field_attach_load('node', array($project->nid => $project), FIELD_LOAD_CURRENT, array('field_id' => $machine_name_id[$project->type]));
+          // Language 'und' is very d.o. specific. loading the language takes time for 19000 nodes.
+          $project_name = $project->field_project_machine_name['und'][0]['value'];
+          $projnames[$project->nid] = $project_name;
+
+          $projnids[$project_name] = $project->nid;
         }
       }
     }
@@ -859,7 +874,7 @@ function project_usage_retrieve_metadata() {
     if (isset($result['node'])) {
       foreach (array_chunk(array_keys($result['node']), 100) as $releases) {
         foreach (node_load_multiple($releases, array(), TRUE) as $release) {
-          $project_name = $projdata[$release->field_release_project[$release->language][0]['target_id']];
+          $project_name = $projnames[$release->field_release_project[$release->language][0]['target_id']];
           $releasedata[$project_name]['projectname'] = $project_name;
           $releasedata[$project_name]['project_nid'] = $release->field_release_project[$release->language][0]['target_id'];
           $releasedata[$project_name][$release->field_release_version[$release->language][0]['value']]['release_nid'] = $release->nid;
@@ -867,10 +882,13 @@ function project_usage_retrieve_metadata() {
         }
       }
     }
+
     $data['terms'] = $coreterms;
-    $data['projects'] = $projdata;
+    $data['projects'] = $projnids;
     $data['releases'] = $releasedata;
+    cache_set('project_metadata', $data);
   }
+
   return $data;
 }
 
@@ -879,138 +897,120 @@ function project_usage_retrieve_metadata() {
 /**
  * Run the counts for projects and releases, and update the database.
  */
-function drush_project_usage_import_usage_stats() {
-
-  $metadata = project_usage_load_metadata2();
-
-
-  $projdata = project_usage_lookup('projdata');
-  $releasedata = project_usage_lookup('releasedata');
-  $terms = project_usage_lookup('terms');
-
-  $db = project_usage_mongo();
-
-  drush_log(dt("Tallying projects."));
-
-  $weeks = project_usage_get_weeks_since(project_usage_weekly_timestamp(NULL, -PROJECT_USAGE_SHOW_WEEKS));
-
-  // Skip the current week.
-  array_pop($weeks);
-
-  foreach ($weeks as $week) {
-    $tally = array();
-    $ptally = array();
-    $release_proj = array();
-    foreach ($terms as $tid => $name) {
-      $tally[$tid] = array();
-      $ptally[$tid] = array();
-    }
-    $c = $db->selectCollection("$week");
-    $cursor = $c->find();
-    foreach ($cursor as $record) {
-      foreach ($record['modules'] as $project => $data) {
-        if ($data['core'] != $record['core']) {
-          // Site changed core in the middle of the week, and this entry is for
-          // the "old" site, disregard it.
-          continue;
-        }
-        if (!isset($tally[$record['core']][$data['release']])) {
-          $tally[$record['core']][$data['release']] = 0;
-        }
-        if (!isset($ptally[$record['core']][$project])) {
-          $ptally[$record['core']][$project] = 0;
-        }
-        $tally[$record['core']][$data['release']]++;
-        $ptally[$record['core']][$project]++;
-        $release_proj[$data['release']] = $project;
-      }
-    }
-
-    foreach ($ptally as $tid => $projects) {
-      drush_log(dt("Begin updating @week tallies on database for @name", array('@week' => $week, '@name' => $terms[$tid])));
-      if (!empty($projects)) {
-        db_delete('project_usage_week_project')
-          ->condition('tid', $tid)
-          ->condition('timestamp', $week)
-          ->execute();
-        $qcount = 0;
-        $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
-        foreach ($projects as $project => $count) {
-          $qcount++;
-          $query->values(array(
-            'nid' => $project,
-            'timestamp' => $week,
-            'tid' => $tid,
-            'count' => $count,
-          ));
-
-          if ($qcount > 1000) {
-            $query->execute();
-            $qcount = 0;
-            $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
-          }
-        }
-        if ($qcount) {
-          $query->execute();
-        }
-      }
-    }
-
-    $updateweek = FALSE;
-    foreach ($tally as $tid => $releases) {
-      if (!empty($releases)) {
-        $updateweek = TRUE;
-      }
-    }
-    if ($updateweek) {
-      // If we have release data for this week, then clear out the week in the database
-      // to avoid duplicate key errors.
-
-      // Do the update in a transaction to prevent glitches if someone requests stats while we're writing.
-      db_query("START TRANSACTION");
-
-      db_delete('project_usage_week_release')
-        ->condition('timestamp', $week)
-        ->execute();
-    }
-
-    foreach ($tally as $tid => $releases) {
-      if (!empty($releases)) {
-        $qcount = 0;
-        $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
-        foreach ($releases as $release => $count) {
-          $qcount++;
-          $query->values(array(
-            'nid' => $release,
-            'timestamp' => $week,
-            'count' => $count,
-          ));
-
-          if ($qcount > 1000) {
-            $query->execute();
-            $qcount = 0;
-            $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
-          }
-        }
-        if ($qcount) {
-          $query->execute();
-        }
-      }
-    }
-
-    if ($updateweek) {
-      db_query('COMMIT');
-    }
-
-    if (empty($ptally[$week])) {
-      drush_log(dt("Skipping @week tallies -- no data for time period.", array('@week' => $week)));
-    }
-    drush_log(dt("End updating @week tallies on database.", array('@week' => $week)));
+function drush_project_usage_import_usage_stats($week) {
+  $count_file_path = drush_get_option('count-file-path');
+  if (!$count_file_path) {
+    $count_file_path = USAGE_STATS_COUNTS_PATH;
   }
-}
 
-# Load nids
-# open file and load into big array
-# loop through projects and add count data
-# loop through releases and add count data
-# insert data into the db.
+  $metadata = project_usage_retrieve_metadata();
+
+  drush_log(dt("Importing Project stats."));
+
+  $project_apicounts_fh = _project_usage_open_file($count_file_path . "/" . $week . '.projectapicounts');
+
+  db_query("START TRANSACTION");
+
+  // Clear out existing data.
+  db_delete('project_usage_week_project')
+    ->condition('timestamp', $week)
+    ->execute();
+  // Load in new counts
+  $qcount = 0;
+  $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
+
+  while ($line = fgets($project_apicounts_fh)) {
+    $nid = 0 ;
+    $term = 0;
+    // Split up $line into its components
+    list($count, $pdata) = explode(' ', trim($line), 2);
+    list($project_machine_name,$maj_api) = explode('|', $pdata,2);
+    drush_log(dt("Begin updating @week tallies on database", array('@week' => $week)));
+
+    $nid = $metadata['projects'][$project_machine_name];
+    $term = $metadata['terms'][$maj_api];
+    if (!empty($nid) && !empty($term)) {
+      $qcount++;
+      $query->values(array(
+        'nid' => $nid,
+        'timestamp' => $week,
+        'tid' => $term,
+        'count' => $count,
+      ));
+    } else {
+      // This is a project that we dont support, or we dont know its major version.
+    }
+
+    if ($qcount > 1000) {
+      $query->execute();
+      $qcount = 0;
+      $query = db_insert('project_usage_week_project')->fields(array(
+        'nid',
+        'timestamp',
+        'tid',
+        'count'
+      ));
+    }
+
+  }
+  if ($qcount) {
+    $query->execute();
+  }
+  db_query('COMMIT');
+  fclose($project_apicounts_fh);
+
+  // Project release counts.
+  drush_log(dt("Importing Release stats."));
+
+  $project_releasecounts_fh = _project_usage_open_file($count_file_path . "/" . $week . '.releasecounts');
+
+  db_query("START TRANSACTION");
+  // Clear out existing data.
+  db_delete('project_usage_week_release')
+    ->condition('timestamp', $week)
+    ->execute();
+  // Load in new counts
+  $qcount = 0;
+  $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+  while ($line = fgets($project_releasecounts_fh)) {
+    $nid = 0 ;
+    $term = 0;
+    // Split up $line into its components
+    list($count, $pdata) = explode(' ', trim($line), 2);
+    list($project_machine_name,$rel_ver,$maj_api) = explode('|', $pdata,3);
+    drush_log(dt("Begin updating @week tallies on database", array('@week' => $week)));
+
+    $term = $metadata['terms'][$maj_api];
+    $nid = $metadata['releases'][$project_machine_name][$rel_ver]['release_nid'];
+    // Skip stupid
+    if (substr($rel_ver,0,3) !== $maj_api){
+      continue;
+    }
+    if (!empty($nid) && !empty($term)) {
+      $qcount++;
+
+      $query->values(array(
+        'nid' => $nid,
+        'timestamp' => $week,
+        'count' => $count,
+      ));
+    } else {
+      // This is a project that we dont support, or we dont know its major version.
+    }
+
+    if ($qcount > 1000) {
+      $query->execute();
+      $qcount = 0;
+      $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+    }
+
+  }
+  if ($qcount) {
+    $query->execute();
+  }
+  db_query('COMMIT');
+  fclose($project_releasecounts_fh);
+
+  drush_log(dt("End updating @week tallies on database.", array('@week' => $week)));
+
+}
