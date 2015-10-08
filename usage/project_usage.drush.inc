@@ -31,6 +31,8 @@ function project_usage_drush_help($section) {
       return dt('Process a specific log file as a varnish log.');
     case 'project_usage:tally-usage-stats':
       return dt('Tally processed update statistics data and prune outdated data.');
+    case 'project_usage:import-usage-stats':
+      return dt('Import pre-aggregated usage stats.');
   }
 }
 
@@ -74,6 +76,16 @@ function project_usage_drush_command() {
     'examples' => array(
       'drush tally-usage-stats' => 'Tally processed update statistics data and prune outdated data.',
     ),
+  );
+    $items['import-usage-stats'] = array(
+      'description' => 'Import pre-aggregated usage stats.',
+      'drupal dependencies' => array('project_usage'),
+      'examples' => array(
+        'drush import-usage-stats' => 'Import pre-aggregated usage stats.',
+      ),
+      'arguments' => array(
+        'weektimestamp' => 'Process which weeks worth of data?',
+      ),
   );
 
   return $items;
