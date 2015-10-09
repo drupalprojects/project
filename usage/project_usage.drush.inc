@@ -830,7 +830,7 @@ function project_usage_retrieve_metadata() {
 
     // Load core api versions
     foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-      if (strlen($term->name) == 3 && $term->name !== '5.x') { // Quick ugly hack to skip drupal < 6.x
+      if (strlen($term->name) == 3) { // Quick ugly hack to skip drupal < 5.x
         $coreterms[$term->name] = $term->tid;
       }
     }
@@ -898,18 +898,20 @@ function project_usage_retrieve_metadata() {
  * Run the counts for projects and releases, and update the database.
  */
 function drush_project_usage_import_usage_stats($week) {
+  module_load_include('inc', 'project_usage', 'includes/date_api');
+
   $count_file_path = drush_get_option('count-file-path');
   if (!$count_file_path) {
     $count_file_path = USAGE_STATS_COUNTS_PATH;
   }
 
+  ini_set('memory_limit', '-1');
   $metadata = project_usage_retrieve_metadata();
 
   drush_log(dt("Importing Project stats."));
 
   $project_apicounts_fh = _project_usage_open_file($count_file_path . "/" . $week . '.projectapicounts');
 
-  db_query("START TRANSACTION");
 
   // Clear out existing data.
   db_delete('project_usage_week_project')
@@ -956,7 +958,6 @@ function drush_project_usage_import_usage_stats($week) {
   if ($qcount) {
     $query->execute();
   }
-  db_query('COMMIT');
   fclose($project_apicounts_fh);
 
   // Project release counts.
@@ -964,7 +965,6 @@ function drush_project_usage_import_usage_stats($week) {
 
   $project_releasecounts_fh = _project_usage_open_file($count_file_path . "/" . $week . '.releasecounts');
 
-  db_query("START TRANSACTION");
   // Clear out existing data.
   db_delete('project_usage_week_release')
     ->condition('timestamp', $week)
@@ -978,14 +978,14 @@ function drush_project_usage_import_usage_stats($week) {
     // Split up $line into its components
     list($count, $pdata) = explode(' ', trim($line), 2);
     list($project_machine_name,$rel_ver,$maj_api) = explode('|', $pdata,3);
-    drush_log(dt("Begin updating @week tallies on database", array('@week' => $week)));
 
-    $term = $metadata['terms'][$maj_api];
-    $nid = $metadata['releases'][$project_machine_name][$rel_ver]['release_nid'];
-    // Skip stupid
-    if (substr($rel_ver,0,3) !== $maj_api){
+    // Skip projects that are not ours.
+    if (substr($rel_ver,0,2) !== substr($maj_api,0,2) || empty($metadata['releases'][$project_machine_name])){
       continue;
     }
+    $term = $metadata['terms'][$maj_api];
+    $nid = $metadata['releases'][$project_machine_name][$rel_ver]['release_nid'];
+
     if (!empty($nid) && !empty($term)) {
       $qcount++;
 
@@ -1008,9 +1008,9 @@ function drush_project_usage_import_usage_stats($week) {
   if ($qcount) {
     $query->execute();
   }
-  db_query('COMMIT');
   fclose($project_releasecounts_fh);
 
   drush_log(dt("End updating @week tallies on database.", array('@week' => $week)));
+  project_usage_get_active_weeks(TRUE);
 
 }
