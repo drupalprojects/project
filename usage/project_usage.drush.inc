@@ -823,8 +823,6 @@ function project_usage_retrieve_metadata() {
 
   static $data = array();
 
-  $data = cache_get('project_metadata')->data;
-
   if (empty($data)) {
 
 
@@ -886,7 +884,6 @@ function project_usage_retrieve_metadata() {
     $data['terms'] = $coreterms;
     $data['projects'] = $projnids;
     $data['releases'] = $releasedata;
-    cache_set('project_metadata', $data);
   }
 
   return $data;
