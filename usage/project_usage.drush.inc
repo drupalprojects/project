@@ -78,18 +78,19 @@ function project_usage_drush_command() {
       'drush tally-usage-stats' => 'Tally processed update statistics data and prune outdated data.',
     ),
   );
-    $items['import-usage-stats'] = array(
-      'description' => 'Import pre-aggregated usage stats.',
-      'drupal dependencies' => array('project_usage'),
-      'examples' => array(
-        'drush import-usage-stats' => 'Import pre-aggregated usage stats.',
-      ),
-      'arguments' => array(
-        'weektimestamp' => 'Process which weeks worth of data?',
-      ),
-      'options' => array(
-        'count-file-path' => 'The path on the server of the count files.',
-      ),
+
+  $items['import-usage-stats'] = array(
+    'description' => 'Import pre-aggregated usage stats.',
+    'drupal dependencies' => array('project_usage'),
+    'examples' => array(
+      'drush import-usage-stats' => 'Import pre-aggregated usage stats.',
+    ),
+    'arguments' => array(
+      'weektimestamp' => 'Process which weeks worth of data?',
+    ),
+    'options' => array(
+      'count-file-path' => 'The path on the server of the count files.',
+    ),
   );
 
   return $items;
