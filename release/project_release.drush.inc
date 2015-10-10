@@ -236,8 +236,10 @@ function drush_project_release_release_create_history($project_id = NULL) {
         entity_get_controller('field_collection_item')->resetCache();
         drupal_static_reset('field_language');
         drupal_lookup_path('wipe');
-        foreach (versioncontrol_get_backends() as $backend) {
-          $backend->getController('repo')->resetCache();
+        if (module_exists('versioncontrol')) {
+          foreach (versioncontrol_get_backends() as $backend) {
+            $backend->getController('repo')->resetCache();
+          }
         }
       }
     }
