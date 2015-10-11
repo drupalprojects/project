@@ -1746,6 +1746,7 @@ function project_release_project_behavior_settings($node_type) {
       '#size' => 50,
       '#maxlength' => 255,
       '#description' => t("By default, all download links to releases will use the standard download path for the site. However, if you wish to host the downloads at a different location, you can specify the base of the URL that should be used for download links. For example, if you stored releases in %files_path and you want to have download links pointing to %ftp_url, you would set this to %ftp_setting. Note that if you define this, the value should end with a slash ('/').", array('%files_path' => 'files/projects/foo.tar.gz', '%ftp_url' => 'ftp://ftp.example.com/files/projects/foo.tar.gz', '%ftp_setting' => 'ftp://ftp.example.com/')),
+      '#element_validate' => array('_project_release_validate_download_link_base'),
     ),
     'project_release_version_format' => array(
       '#type' => 'textfield',
@@ -1862,6 +1863,21 @@ function project_release_node_type_update($info) {
     // @todo Check if anything changed and skip updating?
     field_update_field($field);
     // No need to update the instances for field_issue_version.
+  }
+}
+
+/**
+ * Validates a download link base for supported stream wrappers. Calls
+ * form_error() on error, else returns.
+ *
+ * @param $element
+ *   The form element for the download link base.
+ */
+function _project_release_validate_download_link_base($element) {
+  $uri = $element['#value'];
+  $scheme = file_uri_scheme($uri);
+  if (!empty($uri) && $scheme != 'http' && $scheme != 'https' && !file_stream_wrapper_get_instance_by_uri($uri)) {
+    form_error($element, t('The base url "@url" has a protocol "@schema" that is not supported on this system. You need to register a stream wrapper for @schema on this system.', array('@url' => $uri, '@schema' => $scheme . '://')));
   }
 }
 

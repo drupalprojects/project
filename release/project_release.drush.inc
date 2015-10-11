@@ -352,7 +352,7 @@ function project_release_history_generate_project_xml($project) {
         $output .= '  <release_link>' . url('node/' . $release->nid, array('absolute' => TRUE)) . "</release_link>\n";
         if (!empty($files[0])) {
           $download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$release->language][0]);
-          $output .= '  <download_link>' . $download_link['#file']->uri . "</download_link>\n";
+          $output .= '  <download_link>' . file_create_url($download_link['#file']->uri) . "</download_link>\n";
         }
       }
       else {
@@ -370,7 +370,7 @@ function project_release_history_generate_project_xml($project) {
         $output .= "   <file>\n";
         if ($release->status) {
           $download_link = field_view_value('field_collection_item', $file, 'field_release_file', $file->field_release_file[$release->language][0]);
-          $output .= '    <url>' . $download_link['#file']->uri . "</url>\n";
+          $output .= '    <url>' . file_create_url($download_link['#file']->uri) . "</url>\n";
         }
         $file_parts = explode('.', $file->field_release_file[$release->language][0]['filename']);
         $archive_type = array_pop($file_parts);
