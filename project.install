@@ -327,6 +327,7 @@ function project_update_7005() {
       field_create_field($field);
     }
 
+    module_load_include('module', 'project', 'project');
     foreach (project_project_node_types() as $type) {
       $instance = array(
         'label' => ucfirst($field_name),
