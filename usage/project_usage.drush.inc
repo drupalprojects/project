@@ -824,7 +824,7 @@ function drush_project_usage_import_usage_stats($week) {
   $qcount = 0;
   $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
 
-  // TODO loop from the array from earlier.
+  // Update the project major API counts based on the aggregated counts from the releases
   foreach ($project_api_counts as $project_machine_name => $maj_apis) {
     foreach ($maj_apis as $maj_api => $count) {
       $nid = 0;
