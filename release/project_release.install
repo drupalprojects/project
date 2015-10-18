@@ -1771,3 +1771,38 @@ function project_release_update_7015() {
     'not null' => FALSE,
   ));
 }
+
+/**
+ * Fix schema inconsistencies.
+ */
+function project_release_update_7016() {
+  $schema['project_release_supported_versions'] = array(
+    'fields' => array(
+      'recommended_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the recommended release node for this API tid and major version (the latest release without any "extra" version info such as "alpha1").',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'latest_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the latest release node for this API tid and major version (even if it has "extra" version info such as "alpha1").',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'latest_security_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the latest release node marked as a "security update" for this API tid and major version.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+  );
+
+  db_change_field('project_release_supported_versions', 'recommended_release', 'recommended_release', $schema['project_release_supported_versions']['fields']['recommended_release']);
+  db_change_field('project_release_supported_versions', 'latest_release', 'latest_release', $schema['project_release_supported_versions']['fields']['latest_release']);
+  db_change_field('project_release_supported_versions', 'latest_security_release', 'latest_security_release', $schema['project_release_supported_versions']['fields']['latest_security_release']);
+}
