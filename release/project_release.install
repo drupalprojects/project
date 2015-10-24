@@ -503,7 +503,7 @@ function project_release_update_6002() {
   // Loop through each file.
   while ($file = db_fetch_object($files)) {
     // Make sure file is still there.
-    if (file_exists($file->file_path)) {
+    if (file_exists(file_create_path($file->file_path))) {
       $filename = basename($file->file_path);
       $filesize = filesize(file_create_path($file->file_path));
       $filemime = file_get_mimetype($filename);
