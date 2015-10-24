@@ -253,3 +253,14 @@ function project_update_6003() {
 
   return $ret;
 }
+
+/**
+ * Drop {project_projects}.cvs leftover.
+ */
+function project_update_6004() {
+  $ret = array();
+
+  db_drop_field($ret, 'project_projects', 'cvs');
+
+  return $ret;
+}
