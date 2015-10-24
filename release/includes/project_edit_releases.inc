@@ -263,7 +263,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
   if (!db_affected_rows()) {
     // It's possible there's no record in {project_release_projects} if this
     // particular project was created before project_issue.module was enabled.
-    db_query("INSERT INTO {project_release_projects} (nid, releases, version_format) VALUES (%d, %d, '%s')", $nid, $form_values['releases'], $form_values['version_format']);
+    @db_query("INSERT INTO {project_release_projects} (nid, releases, version_format) VALUES (%d, %d, '%s')", $nid, $form_values['releases'], $form_values['version_format']);
   }
 
   if (!empty($form_state['values']['api'])) {

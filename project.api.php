@@ -71,7 +71,7 @@ function hook_project_maintainer_save($nid, $uid, $permissions) {
   db_query("UPDATE {example_project_maintainer} SET some_project_permission = %d WHERE nid = %d AND uid = %d", !empty($permissions['some project permission']), $nid, $uid);
   if (!db_affected_rows()) {
     // If we didn't have a record to update, add this as a new maintainer.
-    db_query("INSERT INTO {example_project_maintainer} (nid, uid, some_project_permission) VALUES (%d, %d, %d)", $nid, $uid, !empty($permissions['some project permission']));
+    @db_query("INSERT INTO {example_project_maintainer} (nid, uid, some_project_permission) VALUES (%d, %d, %d)", $nid, $uid, !empty($permissions['some project permission']));
   }
 }
 

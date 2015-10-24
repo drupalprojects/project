@@ -129,7 +129,7 @@ if (isset($_GET['site_key'])) {
 
     db_query("UPDATE {project_usage_raw} SET api_version = '%s', project_version = '%s', ip_addr = '%s' WHERE project_uri = '%s' AND timestamp = %d AND site_key = '%s'", $api_version, $project_version, $ip_addr, $project_name, $timestamp, $site_key);
     if (!db_affected_rows()) {
-      db_query("INSERT INTO {project_usage_raw} (project_uri, timestamp, site_key, api_version, project_version, ip_addr) VALUES ('%s', %d, '%s', '%s', '%s', '%s')", $project_name, $timestamp, $site_key, $api_version, $project_version, $ip_addr);
+      @db_query("INSERT INTO {project_usage_raw} (project_uri, timestamp, site_key, api_version, project_version, ip_addr) VALUES ('%s', %d, '%s', '%s', '%s', '%s')", $project_name, $timestamp, $site_key, $api_version, $project_version, $ip_addr);
     }
   }
 }

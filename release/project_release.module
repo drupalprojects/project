@@ -177,7 +177,7 @@ function project_release_project_maintainer_save($nid, $uid, $permissions = arra
   db_query("UPDATE {project_release_project_maintainer} SET administer_releases = %d WHERE nid = %d AND uid = %d", !empty($permissions['administer releases']), $nid, $uid);
   if (!db_affected_rows()) {
     // If we didn't have a record to update, add this as a new maintainer.
-    db_query("INSERT INTO {project_release_project_maintainer} (nid, uid, administer_releases) VALUES (%d, %d, %d)", $nid, $uid, !empty($permissions['administer releases']));
+    @db_query("INSERT INTO {project_release_project_maintainer} (nid, uid, administer_releases) VALUES (%d, %d, %d)", $nid, $uid, !empty($permissions['administer releases']));
   }
 }
 
