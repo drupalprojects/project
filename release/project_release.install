@@ -446,6 +446,8 @@ function _project_release_check_security_updates(&$ret) {
  *   Reference to an array for hook_update_N() return values.
  */
 function _project_release_update_version_extra_weights(&$ret) {
+  module_load_include('module', 'project_release', 'project_release');
+
   $weights = project_release_get_version_extra_weight_map();
   foreach ($weights as $prefix => $weight) {
     if ($prefix == 'NULL') {
@@ -550,6 +552,7 @@ function project_release_update_6004() {
 
   // Number of rows to convert per batch.
   $limit = 20;
+  module_load_include('module', 'project_release', 'project_release');
   while ($limit-- && $item = db_fetch_array(db_query_range("SELECT * FROM {project_release_supported_versions} WHERE latest_release IS NULL", 0, 1))) {
     // We have a branch we haven't processed yet (latest_release is still
     // NULL), so we invoke project_release_check_supported_versions() to
@@ -596,6 +599,7 @@ function project_release_update_6005() {
   db_add_field($ret, 'project_release_nodes', 'version_api_tid', $spec);
 
   // Populate the new column from {term_node}.
+  module_load_include('module', 'project_release', 'project_release');
   $api_vid = _project_release_get_api_vid();
   $ret[] = update_sql("UPDATE {project_release_nodes} SET version_api_tid = (SELECT tn.tid FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid INNER JOIN {term_data} td ON tn.tid = td.tid WHERE n.nid = {project_release_nodes}.nid AND td.vid = $api_vid)");
 
@@ -675,6 +679,7 @@ function project_release_update_6008() {
 
   // Number of rows to convert per batch.
   $limit = 20;
+  module_load_include('module', 'project_release', 'project_release');
   while ($limit-- && $item = db_fetch_array(db_query_range("SELECT * FROM {project_release_supported_versions} WHERE latest_security_release IS NULL", 0, 1))) {
     // We have a branch we haven't processed yet (latest_security_release is
     // still NULL), so we invoke project_release_check_supported_versions() to
@@ -736,6 +741,7 @@ function project_release_update_6009() {
 
   // Number of rows to convert per batch.
   $limit = 20;
+  module_load_include('module', 'project_release', 'project_release');
   while ($limit-- && $item = db_fetch_array(db_query_range("SELECT nid, pid, version_major, version_api_tid, version_extra FROM {project_release_nodes} WHERE version_extra_delta = -1", 0, 1))) {
     // Due to the new sorting method, the "recommended" and "latest" releases
     // will change on any releases affected by http://drupal.org/node/649254.
@@ -891,6 +897,8 @@ function project_release_update_6014() {
   // Now, if project_package is enabled, find all the packages that touch
   // rebuilding releases and recompute their status.
   if (module_exists('project_package')) {
+    module_load_include('module', 'project_package', 'project_package');
+
     $result = db_query("SELECT prn_p.nid, prn_p.version, pp.uri FROM {project_release_nodes} prn_p INNER JOIN {project_package_local_release_item} pplri ON prn_p.nid = pplri.package_nid INNER JOIN {project_release_nodes} prn_i ON pplri.item_nid = prn_i.nid INNER JOIN {project_projects} pp ON prn_p.pid = pp.nid WHERE prn_i.rebuild = 1 GROUP BY prn_p.nid");
     while ($package = db_fetch_object($result)) {
       project_package_set_update_status($package->nid);
