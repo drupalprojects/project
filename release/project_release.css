@@ -39,9 +39,6 @@
 .view-project-release-download-table td.views-field-timestamp {
   width: 15%;
 }
-.view-project-release-download-table td.views-field-view-node {
-  width: 15%;
-}
 
 /* Release files table */
 .view-project-release-files td.views-field-field-release-file-hash {
