@@ -24,9 +24,6 @@
   background-color: #fdd;
 }
 
-.view-project-release-download-table table {
-  width: 99%;
-}
 .view-project-release-download-table td.views-field-field-release-version {
   width: 20%;
 }
