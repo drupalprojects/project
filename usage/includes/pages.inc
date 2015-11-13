@@ -284,7 +284,7 @@ function project_usage_project_page($node) {
     $release_rows = array();
     foreach ($result as $line) {
       $sum = 0;
-      $row = array(array('data' => l($releases[$line->nid]->field_release_version[$releases[$line->nid]->language][0]['value'], 'project/usage/' . $line->nid)));
+      $row = array(array('data' => l($releases[$line->nid]->field_release_version[LANGUAGE_NONE][0]['value'], 'project/usage/' . $line->nid)));
       foreach ($weeks as $i => $week) {
         $sum += $line->{"week{$i}"};
         $row[] = array(
@@ -520,7 +520,7 @@ function theme_project_usage_header_links($variables) {
   $links[] = l(t('%project_name project page', array('%project_name' => $project->title)), 'node/' . $project->nid, array('html' => TRUE));
   if (!empty($release)) {
     $links[] = l(t('%release_name release page', array('%release_name' => $release->title)), 'node/' . $release->nid, array('html' => TRUE));
-    $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->field_project_machine_name[$project->language][0]['value'], array('html' => TRUE));
+    $links[] = l(t('All %project_name usage statistics', array('%project_name' => $project->title)), 'project/usage/' . $project->field_project_machine_name[LANGUAGE_NONE][0]['value'], array('html' => TRUE));
   }
   $links[] = l(t('Usage statistics for all projects'), 'project/usage');
   return theme('item_list', array('items' => $links));

@@ -84,7 +84,7 @@ function project_release_menu_alter(&$callbacks) {
  * Access callback for node/%project_node/edit/releases subtab.
  */
 function project_release_project_settings_form_access($node) {
-  if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox' && !$node->field_project_has_releases[$node->language][0]['value']) {
+  if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[LANGUAGE_NONE][0]['value'] === 'sandbox' && !$node->field_project_has_releases[LANGUAGE_NONE][0]['value']) {
     return FALSE;
   }
   else {
@@ -109,7 +109,7 @@ function project_release_node_access($node, $op, $account) {
 
       case 'update':
         // Check for 'administer releases' project access.
-        return project_user_access($node->field_release_project[$node->language][0]['target_id'], 'administer releases') ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+        return project_user_access($node->field_release_project[LANGUAGE_NONE][0]['target_id'], 'administer releases') ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
 
       case 'delete':
         // No one should ever delete a release node, only unpublish it.
@@ -413,7 +413,7 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
       // If this is the latest release, it's current.
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
     }
-    if (empty($recommended_release) && empty($release->field_release_version_extra[$release->language][0]['value'])) {
+    if (empty($recommended_release) && empty($release->field_release_version_extra[LANGUAGE_NONE][0]['value'])) {
       $recommended_release = $release->nid;
       // If this is the recommended release, it's current.
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
@@ -422,7 +422,7 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
       $latest_security_release = $release->nid;
     }
     // Releases which rebuild are always current.
-    if ($release->field_release_build_type[$release->language][0]['value'] === 'dynamic') {
+    if ($release->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic') {
       $update_status = PROJECT_RELEASE_UPDATE_STATUS_CURRENT;
     }
 
@@ -447,8 +447,8 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
     drupal_alter('project_release_update_status', $update_status, $release);
 
     // If the status is different than what we have in the DB, update it.
-    if (empty($release->field_release_update_status) || $update_status != $release->field_release_update_status[$release->language][0]['value']) {
-      $release->field_release_update_status[$release->language][0]['value'] = $update_status;
+    if (empty($release->field_release_update_status) || $update_status != $release->field_release_update_status[LANGUAGE_NONE][0]['value']) {
+      $release->field_release_update_status[LANGUAGE_NONE][0]['value'] = $update_status;
       node_save($release);
 
       if ($update_status === PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE) {
@@ -518,7 +518,7 @@ function project_release_form_project_promote_project_form_alter(&$form, &$form_
       '#title' => t('Enable releases'),
       '#return_value' => 1,
       '#weight' => 10,
-      '#default_value' => $node->field_project_has_releases[$node->language][0]['value'],
+      '#default_value' => $node->field_project_has_releases[LANGUAGE_NONE][0]['value'],
       '#description' => t('Allow releases of this project with specific versions. This can be changed later.'),
     );
     $form['#submit'][] = 'project_release_project_promote_form_submit';
@@ -559,7 +559,7 @@ function project_release_form_project_promote_project_confirm_form_alter(&$form,
 function project_release_project_promote_confirm_form_submit($form, &$form_state) {
   if (isset($form_state['values']['releases'])) {
     $project = node_load($form_state['values']['nid']);
-    $project->field_project_has_releases[$project->language][0]['value'] = $form_state['values']['releases'];
+    $project->field_project_has_releases[LANGUAGE_NONE][0]['value'] = $form_state['values']['releases'];
     node_save($project);
   }
   unset($_SESSION['project_promote_project_releases']);
@@ -624,7 +624,7 @@ function project_release_form_node_form_alter(&$form, &$form_state) {
   }
   elseif (project_release_node_is_release($form_state['node'])) {
     $project = node_load(project_release_get_release_project_nid($form_state['node']));
-    if (!$project->field_project_has_releases[$project->language][0]['value']) {
+    if (!$project->field_project_has_releases[LANGUAGE_NONE][0]['value']) {
       drupal_set_message(t('!project does not have project releases enabled.', array('!project' => l($project->title, 'node/' . $project->nid))), 'warning');
       $form['#access'] = FALSE;
     }
@@ -641,7 +641,7 @@ function project_release_node_validate(&$node, $form, &$form_state) {
   if (project_node_is_project($node)) {
     // If sandbox projects are configured to not allow releases, and this is a
     // sandbox project, force the 'has project releases' setting to unchecked.
-    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[$node->language][0]['value'] === 'sandbox') {
+    if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[LANGUAGE_NONE][0]['value'] === 'sandbox') {
       if (!empty($form_state['values']['field_project_has_releases'][LANGUAGE_NONE][0]['value'])) {
         drupal_set_message(t('Sandbox projects may not have releases. "Has project releases" checkbox cleared.'), 'warning');
         unset($form_state['input']['field_project_has_releases']);
@@ -653,7 +653,7 @@ function project_release_node_validate(&$node, $form, &$form_state) {
     $project = node_load(project_release_get_release_project_nid($node));
 
     // Make sure version is unique per-project.
-    $version = $node->field_release_version[$node->language][0]['value'];
+    $version = $node->field_release_version[LANGUAGE_NONE][0]['value'];
     $existing_nid = project_release_exists($project->nid, $version);
     if ($existing_nid !== FALSE && $existing_nid != $node->nid) {
       form_error($form['field_release_version'], t('Version %version already exists for %project.', array('%version' => $version, '%project' => $project->title)));
@@ -667,7 +667,7 @@ function project_release_node_validate(&$node, $form, &$form_state) {
     }
 
     // Set release title.
-    form_set_value($form['title'], $project->field_project_machine_name[$project->language][0]['value'] . ' ' . $form_state['values']['field_release_version'][$form_state['node']->language][0]['value'], $form_state);
+    form_set_value($form['title'], $project->field_project_machine_name[LANGUAGE_NONE][0]['value'] . ' ' . $form_state['values']['field_release_version'][LANGUAGE_NONE][0]['value'], $form_state);
   }
 }
 
@@ -683,8 +683,8 @@ function project_release_node_validate(&$node, $form, &$form_state) {
 function project_release_get_release_api_tid($node) {
   $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
   if (!empty($api_vocabulary)
-      && isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language])) {
-    return $node->{'taxonomy_' . $api_vocabulary->machine_name}[$node->language][0]['tid'];
+      && isset($node->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE])) {
+    return $node->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE][0]['tid'];
   }
   return FALSE;
 }
@@ -711,7 +711,7 @@ function project_release_get_release_project_nid($node) {
     $node = node_load($node->nid);
   }
 
-  return $node->field_release_project[$node->language][0]['target_id'];
+  return $node->field_release_project[LANGUAGE_NONE][0]['target_id'];
 }
 
 /**
@@ -723,7 +723,7 @@ function project_release_node_presave($node) {
     if (empty($node->nid)) {
       // set project using the menu-loaded node.
       $project = menu_get_object('project', 3);
-      $node->field_release_project[$node->language][0]['target_id'] = $project->nid;
+      $node->field_release_project[LANGUAGE_NONE][0]['target_id'] = $project->nid;
     }
 
     // Save version information.
@@ -742,18 +742,18 @@ function project_release_node_presave($node) {
         if (($part === 'patch' || $part === 'major' || $part === 'minor') && !is_numeric($value)) {
           // If the patch, major, or minor fields are set to a non-numeric
           // value, keep it as a NULL in the DB, instead of casting it to a 0.
-          $node->{'field_release_version_' . $part}[$node->language][0] = array();
+          $node->{'field_release_version_' . $part}[LANGUAGE_NONE][0] = array();
         }
         else {
-          $node->{'field_release_version_' . $part}[$node->language][0]['value'] = $value;
+          $node->{'field_release_version_' . $part}[LANGUAGE_NONE][0]['value'] = $value;
         }
       }
     }
 
     // Save file information.
-    foreach (array_map('field_collection_field_get_entity', $node->field_release_files[$node->language]) as $collection) {
-      $file = file_load($collection->field_release_file[$node->language][0]['fid']);
-      $collection->field_release_file_hash[$node->language][0]['value'] = md5_file($file->uri);
+    foreach (array_map('field_collection_field_get_entity', $node->field_release_files[LANGUAGE_NONE]) as $collection) {
+      $file = file_load($collection->field_release_file[LANGUAGE_NONE][0]['fid']);
+      $collection->field_release_file_hash[LANGUAGE_NONE][0]['value'] = md5_file($file->uri);
     }
   }
 }
@@ -784,7 +784,7 @@ function project_release_get_version_format($release) {
     $format_string = variable_get('project_release_version_format_' . $release->type, '');
   }
   else {
-    $format_string = $project->field_release_version_format[$project->language][0]['value'];
+    $format_string = $project->field_release_version_format[LANGUAGE_NONE][0]['value'];
   }
 
   // Parse format string.
@@ -872,7 +872,7 @@ function project_release_parse_version($node) {
   }
   $regexp .= '$/';
 
-  if (preg_match($regexp, $node->field_release_version[$node->language][0]['value'], $match)) {
+  if (preg_match($regexp, $node->field_release_version[LANGUAGE_NONE][0]['value'], $match)) {
     $version = array_merge(
       // Provide default values so something is always saved.
       array(
@@ -947,11 +947,11 @@ function project_release_node_save($node) {
   if (project_release_node_is_release($node)) {
     // Use a shutdown function so action is taken after the node is updated in
     // the DB.
-    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value']);
+    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[LANGUAGE_NONE][0]['value']);
 
     // Queue release packaging.
     $queue = DrupalQueue::get('project_release_package');
-    $queue->createItem(array('project' => project_release_get_release_project_nid($node), 'type' => $node->field_release_build_type[$node->language][0]['value'] === 'dynamic' ? 'branch' : 'tag'));
+    $queue->createItem(array('project' => project_release_get_release_project_nid($node), 'type' => $node->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic' ? 'branch' : 'tag'));
   }
 }
 
@@ -959,7 +959,7 @@ function project_release_node_delete($node) {
   if (project_release_node_is_release($node)) {
     // Use a shutdown function so action is taken after the node is deleted
     // from the DB.
-    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[$node->language][0]['value'], TRUE);
+    drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[LANGUAGE_NONE][0]['value'], TRUE);
   }
 }
 
@@ -1031,11 +1031,11 @@ function project_release_node_view($node, $view_mode, $langcode) {
 
     // Last updated release file.
     if (!empty($node->field_release_files)) {
-      $files = array_map('field_collection_field_get_entity', $node->field_release_files[$node->language]);
+      $files = array_map('field_collection_field_get_entity', $node->field_release_files[LANGUAGE_NONE]);
       $max_file_timestamp = 0;
       foreach ($files as $file) {
-        if (array_key_exists('timestamp', $file->field_release_file[$node->language][0])) {
-          $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[$node->language][0]['timestamp']);
+        if (array_key_exists('timestamp', $file->field_release_file[LANGUAGE_NONE][0])) {
+          $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[LANGUAGE_NONE][0]['timestamp']);
         }
       }
       if ($max_file_timestamp > 0) {
@@ -1056,7 +1056,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
 
     // VCS info.
     if (!empty($node->content['field_release_vcs_label'])) {
-      if ($node->field_release_build_type[$node->language][0]['value'] === 'dynamic') {
+      if ($node->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic') {
         $node->content['field_release_vcs_label']['#title'] = t('Nightly development snapshot from branch');
       }
       else {
@@ -1085,12 +1085,12 @@ function project_release_node_view($node, $view_mode, $langcode) {
     // If the release node has a file, include an enclosure attribute for it.
     if ($view_mode === 'rss' && isset($files)) {
       // RSS will only take the first file.
-      $url = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$node->language][0], array('type' => 'file_url_plain'));
+      $url = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[LANGUAGE_NONE][0], array('type' => 'file_url_plain'));
       $node->rss_elements[] = array(
         'key' => 'enclosure',
         'attributes' => array(
           'url' => drupal_render($url),
-          'length' => $files[0]->field_release_file[$node->language][0]['filesize'],
+          'length' => $files[0]->field_release_file[LANGUAGE_NONE][0]['filesize'],
           'type' => 'application/octet-stream',
         ),
       );
@@ -1108,7 +1108,7 @@ function project_release_field_attach_view_alter(&$output, $context) {
     $download_base = variable_get('project_release_download_base_' . $context['entity']->hostEntityBundle(), '');
     if (!empty($download_base)) {
       foreach (element_children($output['field_release_file']) as $key) {
-        $uri = project_release_add_download_base($context['entity']->field_release_file[$context['entity']->hostEntity()->language][$key]['uri'], $download_base);
+        $uri = project_release_add_download_base($context['entity']->field_release_file[LANGUAGE_NONE][$key]['uri'], $download_base);
         // Override output with our URL.
         if (isset($output['field_release_file'][$key]['#file'])) {
           $output['field_release_file'][$key]['#file']->uri = $uri;
@@ -1289,7 +1289,7 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
     if (empty($latest_release)) {
       $latest_release = $release->nid;
     }
-    if (empty($recommended_release) && empty($release->field_release_version_extra[$release->language][0]['value'])) {
+    if (empty($recommended_release) && empty($release->field_release_version_extra[LANGUAGE_NONE][0]['value'])) {
       $recommended_release = $release->nid;
     }
     if (empty($latest_security_release) && project_release_is_security_update($release)) {
@@ -1436,8 +1436,8 @@ function _project_release_extract_multisort_columns($releases) {
   foreach ($releases as $release) {
     foreach ($field_defaults as $field => $default) {
       $value = $field_defaults[$field];
-      if (isset($release->{$field}[$release->language][0]['value'])) {
-        $value = $release->{$field}[$release->language][0]['value'];
+      if (isset($release->{$field}[LANGUAGE_NONE][0]['value'])) {
+        $value = $release->{$field}[LANGUAGE_NONE][0]['value'];
       }
       $result[$field][] = $value;
     }
@@ -1515,7 +1515,7 @@ function project_release_is_security_update($node) {
   if (empty($node->{'taxonomy_' . $term->vocabulary_machine_name})) {
     return FALSE;
   }
-  foreach ($node->{'taxonomy_' . $term->vocabulary_machine_name}[$node->language] as $value) {
+  foreach ($node->{'taxonomy_' . $term->vocabulary_machine_name}[LANGUAGE_NONE] as $value) {
     if ($value['tid'] == $term->tid) {
       return TRUE;
     }

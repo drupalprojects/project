@@ -115,24 +115,24 @@ function project_release_packager_update_node($release_node, $release_files = ar
     // Load existing files.
     $existing_files = array();
     if (!empty($release_node->field_release_files)) {
-      $existing_files = array_map('field_collection_field_get_entity', $release_node->field_release_files[$release_node->language]);
+      $existing_files = array_map('field_collection_field_get_entity', $release_node->field_release_files[LANGUAGE_NONE]);
     }
     // Clear out files for repopulation.
-    $release_node->field_release_files[$release_node->language] = array();
+    $release_node->field_release_files[LANGUAGE_NONE] = array();
 
     // Sort by weight and use array_keys() to get 0, 1, 2 .. ordering.
     asort($release_files);
     foreach (array_keys($release_files) as $delta => $uri) {
       $existing = FALSE;
       foreach ($existing_files as $file) {
-        if ($file->field_release_file[$release_node->language][0]['uri'] === $uri) {
+        if ($file->field_release_file[LANGUAGE_NONE][0]['uri'] === $uri) {
           // Update existing file.
           $existing = TRUE;
 
           // Update the timestamp and any other bookkeeping.
-          file_save(file_load($file->field_release_file[$release_node->language][0]['fid']));
+          file_save(file_load($file->field_release_file[LANGUAGE_NONE][0]['fid']));
           // Re-populate the release node.
-          $release_node->field_release_files[$release_node->language][$delta]['entity'] = $file;
+          $release_node->field_release_files[LANGUAGE_NONE][$delta]['entity'] = $file;
         }
       }
 
@@ -147,8 +147,8 @@ function project_release_packager_update_node($release_node, $release_files = ar
         $file->status = FILE_STATUS_PERMANENT;
         file_save($file);
 
-        $release_node->field_release_files[$release_node->language][$delta]['entity'] = entity_create('field_collection_item', array('field_name' => 'field_release_files'));
-        $release_node->field_release_files[$release_node->language][$delta]['entity']->field_release_file[$release_node->language][0] = array(
+        $release_node->field_release_files[LANGUAGE_NONE][$delta]['entity'] = entity_create('field_collection_item', array('field_name' => 'field_release_files'));
+        $release_node->field_release_files[LANGUAGE_NONE][$delta]['entity']->field_release_file[LANGUAGE_NONE][0] = array(
           'fid' => $file->fid,
           'display' => 1,
           'description' => '',

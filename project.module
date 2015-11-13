@@ -559,8 +559,8 @@ function project_field_storage_pre_update($entity_type, $entity) {
 }
 
 function _project_pre_save($node) {
-  if (variable_get('project_sandbox_numeric_shortname', FALSE) && project_promote_project_is_sandbox($node) && empty($node->field_project_machine_name[$node->language])) {
-    $node->field_project_machine_name[$node->language][0]['value'] = $node->nid;
+  if (variable_get('project_sandbox_numeric_shortname', FALSE) && project_promote_project_is_sandbox($node) && empty($node->field_project_machine_name[LANGUAGE_NONE])) {
+    $node->field_project_machine_name[LANGUAGE_NONE][0]['value'] = $node->nid;
   }
 }
 
@@ -977,7 +977,7 @@ function project_form_node_form_alter(&$form, &$form_state) {
     }
 
     if (!empty($form['field_project_machine_name'])) {
-      $language = $form['field_project_machine_name']['#language'];
+      $language = LANGUAGE_NONE;
       $form['field_project_machine_name'][$language][0]['value']['#element_validate'][] = 'project_validate_project_shortname';
 
       if (variable_get('project_sandbox_numeric_shortname', FALSE)) {
@@ -1019,7 +1019,7 @@ function project_validate_project_shortname($element, &$form_state, $form) {
  * Do not require machine name when we are going to generate a numeric one.
  */
 function _project_build_sandbox_machine_name($element, $form_state) {
-  if ((isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][$form_state['node']->language] === 'sandbox') || project_promote_project_is_sandbox($form_state['node'])) {
+  if ((isset($form_state['input']['field_project_type']) && $form_state['input']['field_project_type'][LANGUAGE_NONE] === 'sandbox') || project_promote_project_is_sandbox($form_state['node'])) {
     $element['#required'] = FALSE;
   }
   return $element;

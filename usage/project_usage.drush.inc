@@ -477,9 +477,9 @@ function project_usage_load_metadata() {
       foreach (node_load_multiple($projects, array(), TRUE) as $project) {
         $c->insert(array(
           'pid' => $project->nid,
-          'uri' => $project->field_project_machine_name[$project->language][0]['value'],
+          'uri' => $project->field_project_machine_name[LANGUAGE_NONE][0]['value'],
         ));
-        $projdata[$project->nid] = $project->field_project_machine_name[$project->language][0]['value'];
+        $projdata[$project->nid] = $project->field_project_machine_name[LANGUAGE_NONE][0]['value'];
       }
     }
   }
@@ -496,11 +496,11 @@ function project_usage_load_metadata() {
     foreach (array_chunk(array_keys($result['node']), 100) as $releases) {
       foreach (node_load_multiple($releases, array(), TRUE) as $release) {
         $row = array(
-          'uri' => $temp_projdata[$release->field_release_project[$release->language][0]['target_id']],
+          'uri' => $temp_projdata[$release->field_release_project[LANGUAGE_NONE][0]['target_id']],
           'nid' => $release->nid,
-          'pid' => $release->field_release_project[$release->language][0]['target_id'],
-          'version' => $release->field_release_version[$release->language][0]['value'],
-          'tid' => isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language][0]['tid'] : 0,
+          'pid' => $release->field_release_project[LANGUAGE_NONE][0]['target_id'],
+          'version' => $release->field_release_version[LANGUAGE_NONE][0]['value'],
+          'tid' => isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE][0]['tid'] : 0,
         );
         $data['releasedata']["{$row->uri}:{$row->version}"] = array($row->pid, $row->nid, $row->tid);
         if ($use_mongo) {
@@ -724,11 +724,11 @@ function project_usage_retrieve_metadata() {
     if (isset($result['node'])) {
       foreach (array_chunk(array_keys($result['node']), 100) as $releases) {
         foreach (node_load_multiple($releases, array(), TRUE) as $release) {
-          $project_name = $projnames[$release->field_release_project[$release->language][0]['target_id']];
+          $project_name = $projnames[$release->field_release_project[LANGUAGE_NONE][0]['target_id']];
           $releasedata[$project_name]['projectname'] = $project_name;
-          $releasedata[$project_name]['project_nid'] = $release->field_release_project[$release->language][0]['target_id'];
-          $releasedata[$project_name][$release->field_release_version[$release->language][0]['value']]['release_nid'] = $release->nid;
-          $releasedata[$project_name][$release->field_release_version[$release->language][0]['value']]['release_compatibility'] = isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[$release->language][0]['tid'] : 0;
+          $releasedata[$project_name]['project_nid'] = $release->field_release_project[LANGUAGE_NONE][0]['target_id'];
+          $releasedata[$project_name][$release->field_release_version[LANGUAGE_NONE][0]['value']]['release_nid'] = $release->nid;
+          $releasedata[$project_name][$release->field_release_version[LANGUAGE_NONE][0]['value']]['release_compatibility'] = isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE][0]['tid'] : 0;
         }
       }
     }
