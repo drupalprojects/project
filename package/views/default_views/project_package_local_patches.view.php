@@ -1,4 +1,5 @@
 <?php
+
 $view = new view();
 $view->name = 'project_package_local_patches';
 $view->description = 'Table of local patches to a given packaged release.';
@@ -131,3 +132,46 @@ $handler->display->display_options['filters']['status']['field'] = 'status';
 $handler->display->display_options['filters']['status']['value'] = 1;
 $handler->display->display_options['filters']['status']['group'] = 1;
 $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+
+/* Display: Content pane */
+$handler = $view->new_display('panel_pane', 'Content pane', 'local_patches_pane');
+$handler->display->display_options['allow']['use_pager'] = 0;
+$handler->display->display_options['allow']['items_per_page'] = 0;
+$handler->display->display_options['allow']['offset'] = 0;
+$handler->display->display_options['allow']['link_to_view'] = 0;
+$handler->display->display_options['allow']['more_link'] = 0;
+$handler->display->display_options['allow']['path_override'] = 0;
+$handler->display->display_options['allow']['title_override'] = 'title_override';
+$handler->display->display_options['allow']['exposed_form'] = 0;
+$handler->display->display_options['allow']['fields_override'] = 0;
+$handler->display->display_options['argument_input'] = array(
+  'nid' => array(
+    'type' => 'context',
+    'context' => 'entity:node.nid',
+    'context_optional' => 0,
+    'panel' => '0',
+    'fixed' => '',
+    'label' => 'Content: Nid',
+  ),
+);
+$translatables['project_package_local_patches'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Package release node'),
+  t('Item release node'),
+  t('Item project node'),
+  t('Patch file node'),
+  t('Project'),
+  t('Patch node'),
+  t('Patch issue'),
+  t('#[patch_nid]: [title_1]'),
+  t('Patch URL'),
+  t('All'),
+  t('Content pane'),
+  t('View panes'),
+);

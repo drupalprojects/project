@@ -92,3 +92,43 @@ $handler->display->display_options['arguments']['package_nid_1']['validate_optio
   'project_release' => 'project_release',
 );
 $handler->display->display_options['arguments']['package_nid_1']['validate_options']['access'] = TRUE;
+
+/* Display: Content pane */
+$handler = $view->new_display('panel_pane', 'Content pane', 'remote_patches_pane');
+$handler->display->display_options['allow']['use_pager'] = 0;
+$handler->display->display_options['allow']['items_per_page'] = 0;
+$handler->display->display_options['allow']['offset'] = 0;
+$handler->display->display_options['allow']['link_to_view'] = 0;
+$handler->display->display_options['allow']['more_link'] = 0;
+$handler->display->display_options['allow']['path_override'] = 0;
+$handler->display->display_options['allow']['title_override'] = 'title_override';
+$handler->display->display_options['allow']['exposed_form'] = 0;
+$handler->display->display_options['allow']['fields_override'] = 0;
+$handler->display->display_options['argument_input'] = array(
+  'package_nid_1' => array(
+    'type' => 'context',
+    'context' => 'entity:node.nid',
+    'context_optional' => 0,
+    'panel' => '0',
+    'fixed' => '',
+    'label' => 'Project package remote patches: Package node',
+  ),
+);
+$translatables['project_package_remote_patches'] = array(
+  t('Defaults'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Patch file node'),
+  t('Name'),
+  t('Patch node'),
+  t('Patch issue'),
+  t('#[patch_nid]: [title]'),
+  t('URL'),
+  t('All'),
+  t('Content pane'),
+  t('View panes'),
+);
