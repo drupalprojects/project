@@ -97,6 +97,39 @@ $handler->display->display_options['arguments']['nid']['summary_options']['items
 
 /* Display: Content pane */
 $handler = $view->new_display('panel_pane', 'Content pane', 'release_files_pane');
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['row_plugin'] = 'fields';
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['filesize']['label'] = '';
+$handler->display->display_options['fields']['filesize']['exclude'] = TRUE;
+$handler->display->display_options['fields']['filesize']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['filesize']['alter']['text'] = '([filesize])';
+$handler->display->display_options['fields']['filesize']['element_label_colon'] = FALSE;
+/* Field: Field collection item: Release file */
+$handler->display->display_options['fields']['field_release_file']['id'] = 'field_release_file';
+$handler->display->display_options['fields']['field_release_file']['table'] = 'field_data_field_release_file';
+$handler->display->display_options['fields']['field_release_file']['field'] = 'field_release_file';
+$handler->display->display_options['fields']['field_release_file']['label'] = '';
+$handler->display->display_options['fields']['field_release_file']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['field_release_file']['alter']['text'] = '[field_release_file] [filesize]';
+$handler->display->display_options['fields']['field_release_file']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_release_file']['click_sort_column'] = 'fid';
+/* Field: Field collection item: Release file hash */
+$handler->display->display_options['fields']['field_release_file_hash']['id'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['table'] = 'field_data_field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['field'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['label'] = '';
+$handler->display->display_options['fields']['field_release_file_hash']['exclude'] = TRUE;
+$handler->display->display_options['fields']['field_release_file_hash']['element_label_colon'] = FALSE;
 $handler->display->display_options['argument_input'] = array(
   'nid' => array(
     'type' => 'context',
@@ -106,4 +139,23 @@ $handler->display->display_options['argument_input'] = array(
     'fixed' => '',
     'label' => 'Content: Nid',
   ),
+);
+$translatables['project_release_files'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('file from field_release_file'),
+  t('field_release_files'),
+  t('Download'),
+  t('Size'),
+  t('md5 hash'),
+  t('All'),
+  t('Content pane'),
+  t('([filesize])'),
+  t('[field_release_file] [filesize]'),
+  t('View panes'),
 );
