@@ -843,6 +843,56 @@ function _project_release_create_release_node_type() {
     'bundle' => 'field_release_files',
   ));
 
+  // Toggle for showing a release in a download table.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(),
+    'field_name' => 'field_show_download',
+    'type' => 'list_boolean',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Show in project’s download table when branch is supported'),
+    'widget' => array(
+      'weight' => '6',
+      'type' => 'options_onoff',
+      'module' => 'options',
+      'active' => 1,
+      'settings' => array(
+        'display_label' => 1,
+      ),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '15',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => array(
+      array(
+        'value' => 0,
+      ),
+    ),
+    'field_name' => 'field_show_download',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+
   // Field to mark if a project has releases.
   field_create_field(array(
     'translatable' => '0',
