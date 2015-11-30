@@ -846,7 +846,13 @@ function _project_release_create_release_node_type() {
   // Toggle for showing a release in a download table.
   field_create_field(array(
     'translatable' => '0',
-    'settings' => array(),
+    'settings' => array(
+      'allowed_values' => array(
+        '0' => '',
+        '1' => '',
+      ),
+      'allowed_values_function' => '',
+    ),
     'field_name' => 'field_show_download',
     'type' => 'list_boolean',
     'active' => '1',
