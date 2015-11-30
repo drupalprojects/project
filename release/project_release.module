@@ -1057,7 +1057,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
     // VCS info.
     if (!empty($node->content['field_release_vcs_label'])) {
       if ($node->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic') {
-        $node->content['field_release_vcs_label']['#title'] = t('Nightly development snapshot from branch');
+        $node->content['field_release_vcs_label']['#title'] = t('Development release from branch');
       }
       else {
         $node->content['field_release_vcs_label']['#title'] = t('Official release from tag');
