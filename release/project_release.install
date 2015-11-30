@@ -1868,3 +1868,33 @@ function project_release_update_7017() {
     'bundle' => 'project_release',
   ));
 }
+
+/**
+ * Populate field_show_download for dynamic releases.
+ */
+function project_release_update_7018() {
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
+  $releases = array();
+  $supported_versions = db_query('SELECT nid, tid, major FROM {project_release_supported_versions} WHERE snapshot = 1');
+  foreach ($supported_versions as $supported_version) {
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->propertyCondition('type', project_release_release_node_types())
+      ->fieldCondition('field_release_build_type', 'value', 'dynamic')
+      ->fieldCondition('field_release_project', 'target_id', $supported_version->nid)
+      ->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $supported_version->tid)
+      ->fieldCondition('field_release_version_major', 'value', $supported_version->major)
+      ->execute();
+    if (!empty($result)) {
+      $releases = array_merge($releases, array_keys($result['node']));
+    }
+  }
+  foreach (array_chunk($releases, 20) as $batch) {
+    foreach (node_load_multiple($batch) as $node) {
+      $node->field_show_download[LANGUAGE_NONE][0]['value'] = 1;
+      field_attach_presave('node', $node);
+      field_attach_update('node', $node);
+    }
+  }
+}
