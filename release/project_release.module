@@ -124,8 +124,13 @@ function project_release_node_access($node, $op, $account) {
  */
 function project_release_field_access($op, $field, $entity_type, $entity, $account) {
   // Require administer projects for custom version format strings.
-  if ($op === 'edit' && $field['field_name'] === 'field_release_version_format') {
-    return user_access('administer projects', $account);
+  if ($op === 'edit') {
+    if ($field['field_name'] === 'field_release_version_format') {
+      return user_access('administer projects', $account);
+    }
+    elseif ($field['field_name'] === 'field_show_download') {
+      return !empty($entity->field_release_build_type) && $entity->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic';
+    }
   }
 }
 
