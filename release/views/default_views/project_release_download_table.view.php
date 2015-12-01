@@ -513,15 +513,55 @@ $handler->display->display_options['filters']['field_release_build_type_value'][
   'dynamic' => 'dynamic',
 );
 $handler->display->display_options['filters']['field_release_build_type_value']['group'] = 1;
-/* Filter criterion: Project release: Show snapshot */
-$handler->display->display_options['filters']['snapshot']['id'] = 'snapshot';
-$handler->display->display_options['filters']['snapshot']['table'] = 'project_release_supported_versions';
-$handler->display->display_options['filters']['snapshot']['field'] = 'snapshot';
-$handler->display->display_options['filters']['snapshot']['relationship'] = 'supported_releases_rel';
-$handler->display->display_options['filters']['snapshot']['value'] = '1';
-$handler->display->display_options['filters']['snapshot']['group'] = 1;
+/* Filter criterion: Content: Show in project’s download table when branch is supported (field_show_download) */
+$handler->display->display_options['filters']['field_show_download_value']['id'] = 'field_show_download_value';
+$handler->display->display_options['filters']['field_show_download_value']['table'] = 'field_data_field_show_download';
+$handler->display->display_options['filters']['field_show_download_value']['field'] = 'field_show_download_value';
+$handler->display->display_options['filters']['field_show_download_value']['value'] = array(
+  1 => '1',
+);
+/* Filter criterion: Project release: Supported */
+$handler->display->display_options['filters']['supported']['id'] = 'supported';
+$handler->display->display_options['filters']['supported']['table'] = 'project_release_supported_versions';
+$handler->display->display_options['filters']['supported']['field'] = 'supported';
+$handler->display->display_options['filters']['supported']['relationship'] = 'supported_releases_rel';
+$handler->display->display_options['filters']['supported']['value'] = '1';
 $handler->display->display_options['displays'] = array(
   'recommended' => 'recommended',
   'default' => 0,
 );
 $handler->display->display_options['attachment_position'] = 'after';
+$translatables['project_release_download_table'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Title'),
+  t('<h4>Recommended releases</h4>'),
+  t('term'),
+  t('field collection item from field_release_files 1'),
+  t('file from field_release_file 1'),
+  t('field collection item from field_release_files 2'),
+  t('file from field_release_file 2'),
+  t('supported versions'),
+  t('Path'),
+  t('Version'),
+  t('Download'),
+  t('[extension] <span class="filesize">([filesize])</span>'),
+  t('[extension_1] <span class="filesize">([filesize_1])</span>'),
+  t('Date'),
+  t('All'),
+  t('Recommended releases'),
+  t('Releases missing security updates'),
+  t('<h4>Releases missing security updates</h4>
+
+<div class="warning">There are security updates available for code included in these releases. Review release notes before downloading.</div>
+'),
+  t('Other releases'),
+  t('<h4>Other releases</h4>'),
+  t('Development releases'),
+  t('<h4>Development releases</h4>'),
+);
