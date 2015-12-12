@@ -1039,7 +1039,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
       $files = array_map('field_collection_field_get_entity', $node->field_release_files[LANGUAGE_NONE]);
       $max_file_timestamp = 0;
       foreach ($files as $file) {
-        if (array_key_exists('timestamp', $file->field_release_file[LANGUAGE_NONE][0])) {
+        if (!empty($file->field_release_file) && array_key_exists('timestamp', $file->field_release_file[LANGUAGE_NONE][0])) {
           $max_file_timestamp = max($max_file_timestamp, $file->field_release_file[LANGUAGE_NONE][0]['timestamp']);
         }
       }
@@ -1088,7 +1088,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
     }
 
     // If the release node has a file, include an enclosure attribute for it.
-    if ($view_mode === 'rss' && isset($files)) {
+    if ($view_mode === 'rss' && isset($files) && !empty($files[0]->field_release_file)) {
       // RSS will only take the first file.
       $url = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[LANGUAGE_NONE][0], array('type' => 'file_url_plain'));
       $node->rss_elements[] = array(
