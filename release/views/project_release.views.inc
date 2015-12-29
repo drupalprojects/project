@@ -6,25 +6,6 @@
  */
 
 /**
- * Implements hook_views_handlers().
- */
-function project_release_views_handlers() {
-  return array(
-    'info' => array(
-      'path' => drupal_get_path('module', 'project_release') .'/views/handlers',
-    ),
-    'handlers' => array(
-      'project_release_handler_filter_version' => array(
-        'parent' => 'views_handler_filter_field_list',
-      ),
-      'project_release_handler_relationship_supported_versions' => array(
-        'parent' => 'views_handler_relationship',
-      ),
-    ),
-  );
-}
-
-/**
  * Implementation of hook_views_data().
  *
  * Exposes all fields to the views system.
