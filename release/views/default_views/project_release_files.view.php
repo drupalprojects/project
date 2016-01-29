@@ -119,10 +119,11 @@ $handler->display->display_options['fields']['field_release_file']['id'] = 'fiel
 $handler->display->display_options['fields']['field_release_file']['table'] = 'field_data_field_release_file';
 $handler->display->display_options['fields']['field_release_file']['field'] = 'field_release_file';
 $handler->display->display_options['fields']['field_release_file']['label'] = '';
-$handler->display->display_options['fields']['field_release_file']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['field_release_file']['exclude'] = TRUE;
 $handler->display->display_options['fields']['field_release_file']['alter']['text'] = '[field_release_file] [filesize]';
 $handler->display->display_options['fields']['field_release_file']['element_label_colon'] = FALSE;
 $handler->display->display_options['fields']['field_release_file']['click_sort_column'] = 'fid';
+$handler->display->display_options['fields']['field_release_file']['type'] = 'file_url_plain';
 /* Field: Field collection item: Release file hash */
 $handler->display->display_options['fields']['field_release_file_hash']['id'] = 'field_release_file_hash';
 $handler->display->display_options['fields']['field_release_file_hash']['table'] = 'field_data_field_release_file_hash';
@@ -130,6 +131,18 @@ $handler->display->display_options['fields']['field_release_file_hash']['field']
 $handler->display->display_options['fields']['field_release_file_hash']['label'] = '';
 $handler->display->display_options['fields']['field_release_file_hash']['exclude'] = TRUE;
 $handler->display->display_options['fields']['field_release_file_hash']['element_label_colon'] = FALSE;
+/* Field: File: Name */
+$handler->display->display_options['fields']['filename']['id'] = 'filename';
+$handler->display->display_options['fields']['filename']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filename']['field'] = 'filename';
+$handler->display->display_options['fields']['filename']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['filename']['label'] = '';
+$handler->display->display_options['fields']['filename']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['filename']['alter']['text'] = '[filename] [filesize]';
+$handler->display->display_options['fields']['filename']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['filename']['alter']['path'] = '[field_release_file]';
+$handler->display->display_options['fields']['filename']['alter']['absolute'] = TRUE;
+$handler->display->display_options['fields']['filename']['element_label_colon'] = FALSE;
 $handler->display->display_options['argument_input'] = array(
   'nid' => array(
     'type' => 'context',
@@ -157,5 +170,6 @@ $translatables['project_release_files'] = array(
   t('Content pane'),
   t('([filesize])'),
   t('[field_release_file] [filesize]'),
+  t('[filename] [filesize]'),
   t('View panes'),
 );
