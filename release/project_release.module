@@ -1925,3 +1925,29 @@ function project_release_record_rebuild_metadata($nid, $rebuild_version) {
       ->execute();
   }
 }
+
+/**
+ * Get the release that corresponds to the specified project and VCS label.
+ *
+ * @param integer $pid
+ *   The project node ID for the project being queried.
+ * @param string $label
+ *   A tag or branch being queried against.
+ *
+ * @return object
+ *   A release that corresponds with the project and VCS label.
+ */
+function project_release_get_release_for_vcs_label($pid, $label) {
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', project_release_release_node_types())
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_release_project', 'target_id', $pid)
+    ->fieldCondition('field_release_vcs_label', 'value', $label)
+    ->execute();
+  if (isset($result['node'])) {
+    list($nid) = array_keys($result['node']);
+    return node_load($nid);
+  }
+  return FALSE;
+}
