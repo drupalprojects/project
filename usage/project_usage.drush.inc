@@ -30,7 +30,7 @@ function project_usage_drush_help($section) {
     case 'project_usage:process-varnish-file':
       return dt('Process a specific log file as a varnish log.');
     case 'project_usage:tally-usage-stats':
-      return dt('Tally processed update statistics data and prune outdated data.');
+      return dt('Tally processed update statistics data.');
     case 'project_usage:import-usage-stats':
       return dt('Import pre-aggregated usage stats.');
   }
@@ -71,10 +71,10 @@ function project_usage_drush_command() {
   );
 
   $items['tally-usage-stats'] = array(
-    'description' => 'Tally processed update statistics data and prune outdated data.',
+    'description' => 'Tally processed update statistics data.',
     'drupal dependencies' => array('project_usage'),
     'examples' => array(
-      'drush tally-usage-stats' => 'Tally processed update statistics data and prune outdated data.',
+      'drush tally-usage-stats' => 'Tally processed update statistics data.',
     ),
   );
 
@@ -96,48 +96,13 @@ function project_usage_drush_command() {
 }
 
 /**
- * Drush command to tally processed data and prune outdated usage statistics.
+ * Drush command to tally processed data.
  */
 function drush_project_usage_tally_usage_stats() {
   module_load_include('inc', 'project_usage', 'includes/date_api');
   // General bookkeeping stuff.
   project_usage_expire_statfiles(); // Delete old weeks from Mongo
   project_usage_tally(); // Compute summary data.
-  project_usage_prune_site(); // Prune old data from site.
-}
-
-/**
- * Prune old data from site.
- */
-function project_usage_prune_site() {
-  $time_4 = REQUEST_TIME;
-  $project_life = variable_get('project_usage_life_weekly_project', PROJECT_USAGE_YEAR);
-  $count = db_delete('project_usage_week_project')
-    ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $project_life, '<')
-    ->execute();
-  $time_5 = REQUEST_TIME;
-  $substitutions = array(
-    '!rows' => format_plural($count, '1 old weekly project row', '@count old weekly project rows'),
-    '!delta' => format_interval($time_5 - $time_4),
-  );
-  drush_log(dt('Removed !rows (!delta).', $substitutions), 'ok');
-
-  $release_life = variable_get('project_usage_life_weekly_release', 26 * PROJECT_USAGE_WEEK);
-  $count = db_delete('project_usage_week_release')
-    ->condition('timestamp', $_SERVER['REQUEST_TIME'] - $release_life, '<')
-    ->execute();
-  $time_6 = REQUEST_TIME;
-  $substitutions = array(
-    '!rows' => format_plural($count, '1 old weekly release row', '@count old weekly release rows'),
-    '!delta' => format_interval($time_6 - $time_5),
-  );
-  drush_log(dt('Removed !rows (!delta).', $substitutions), 'ok');
-
-  // Reset the list of active weeks.
-  project_usage_get_active_weeks(TRUE);
-
-  // Wipe the cache of all expired usage pages.
-  cache_clear_all(NULL, 'cache_project_usage');
 }
 
 /**

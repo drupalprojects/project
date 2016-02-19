@@ -11,8 +11,6 @@
 function project_usage_uninstall() {
   $variables = array(
     'project_usage_active_weeks',
-    'project_usage_life_weekly_project',
-    'project_usage_life_weekly_release',
     'project_usage_date_long',
     'project_usage_date_short',
   );
@@ -42,6 +40,14 @@ function project_usage_update_7000() {
   }
   db_drop_table('project_usage_raw');
   db_drop_table('project_usage_day');
+}
+
+/**
+ * Remove obsolete configuration.
+ */
+function project_usage_update_7001() {
+  variable_del('project_usage_life_weekly_project')
+  variable_del('project_usage_life_weekly_release');
 }
 
 /**
