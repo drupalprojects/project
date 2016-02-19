@@ -46,7 +46,7 @@ function project_usage_update_7000() {
  * Remove obsolete configuration.
  */
 function project_usage_update_7001() {
-  variable_del('project_usage_life_weekly_project')
+  variable_del('project_usage_life_weekly_project');
   variable_del('project_usage_life_weekly_release');
 }
 
