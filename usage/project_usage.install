@@ -48,7 +48,6 @@ function project_usage_update_7000() {
  * Implements hook_schema().
  */
 function project_usage_schema() {
-
   $schema['project_usage_week_project'] = array(
     'description' => 'Table used to store weekly usage information by project and {taxonomy_term_data}.tid.',
     'fields' => array(
@@ -159,4 +158,3 @@ function project_usage_schema() {
 
   return $schema;
 }
-
