@@ -17,13 +17,6 @@
  * just leave this disabled.
  */
 
-// Number of seconds in a day.
-define('PROJECT_USAGE_DAY', 60 * 60 * 24);
-// Number of seconds in a week.
-define('PROJECT_USAGE_WEEK', PROJECT_USAGE_DAY * 7);
-// Number of seconds in a year.
-define('PROJECT_USAGE_YEAR', PROJECT_USAGE_DAY * 365);
-
 /**
  * Date formats for month and day. We define our own rather than using core's
  * 'date_format_short' and 'date_format_long' variables because our timestamps
