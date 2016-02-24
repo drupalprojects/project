@@ -462,28 +462,33 @@ function project_release_history_generate_project_xml($project) {
     if ($project->status) {
       $project_status = 'published';
       if ($api_tid !== 'all') {
-        // Include the info about supported and recommended major versions.
-        $query = db_query('SELECT major, supported, recommended FROM {project_release_supported_versions} WHERE nid = :nid AND tid = :tid AND (supported = 1 OR recommended = 1)', array(':nid' => $project->nid, ':tid' => $api_tid));
-        $supported_majors = array();
-        $recommended_major = NULL;
-        foreach ($query as $version_info) {
-          if ($version_info->supported) {
-            $supported_majors[] = $version_info->major;
-          }
-          if ($version_info->recommended) {
-            $recommended_major = $version_info->major;
-          }
-        }
-        if (isset($recommended_major)) {
-          $xml .= '<recommended_major>' . $recommended_major . "</recommended_major>\n";
-        }
-        if (empty($supported_majors)) {
+        if (empty($api_term->field_release_recommended) || $api_term->field_release_recommended[LANGUAGE_NONE][0]['value']) {
           $project_status = 'unsupported';
         }
         else {
-          $xml .= '<supported_majors>' . implode(',', $supported_majors) . "</supported_majors>\n";
-          // To avoid confusing existing clients, include <default_major>, too.
-          $xml .= '<default_major>' . min($supported_majors) . "</default_major>\n";
+          // Include the info about supported and recommended major versions.
+          $query = db_query('SELECT major, supported, recommended FROM {project_release_supported_versions} WHERE nid = :nid AND tid = :tid AND (supported = 1 OR recommended = 1)', array(':nid' => $project->nid, ':tid' => $api_tid));
+          $supported_majors = array();
+          $recommended_major = NULL;
+          foreach ($query as $version_info) {
+            if ($version_info->supported) {
+              $supported_majors[] = $version_info->major;
+            }
+            if ($version_info->recommended) {
+              $recommended_major = $version_info->major;
+            }
+          }
+          if (isset($recommended_major)) {
+            $xml .= '<recommended_major>' . $recommended_major . "</recommended_major>\n";
+          }
+          if (empty($supported_majors)) {
+            $project_status = 'unsupported';
+          }
+          else {
+            $xml .= '<supported_majors>' . implode(',', $supported_majors) . "</supported_majors>\n";
+            // To avoid confusing existing clients, include <default_major>, too.
+            $xml .= '<default_major>' . min($supported_majors) . "</default_major>\n";
+          }
         }
       }
       $xml .= '<project_status>' . $project_status . "</project_status>\n";
