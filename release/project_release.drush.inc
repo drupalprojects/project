@@ -462,7 +462,7 @@ function project_release_history_generate_project_xml($project) {
     if ($project->status) {
       $project_status = 'published';
       if ($api_tid !== 'all') {
-        if (empty($api_term->field_release_recommended) || $api_term->field_release_recommended[LANGUAGE_NONE][0]['value']) {
+        if (empty($api_term->field_release_recommended) || !$api_term->field_release_recommended[LANGUAGE_NONE][0]['value']) {
           $project_status = 'unsupported';
         }
         else {
