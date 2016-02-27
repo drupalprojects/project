@@ -129,6 +129,9 @@ function project_release_field_access($op, $field, $entity_type, $entity, $accou
       return user_access('administer projects', $account);
     }
     elseif ($field['field_name'] === 'field_show_download') {
+      if (empty($entity)) { // Manage fields UI.
+        return TRUE;
+      }
       return !empty($entity->field_release_build_type) && $entity->field_release_build_type[LANGUAGE_NONE][0]['value'] === 'dynamic';
     }
   }
