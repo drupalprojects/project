@@ -311,6 +311,14 @@ function drush_project_release_release_create_history($project_id = NULL) {
  */
 function project_release_history_generate_project_xml($project) {
   $vocabularies = taxonomy_vocabulary_get_names();
+  $extra_terms = array(
+    'project_core' => 'Drupal core',
+    'project_distribution' => 'Distributions',
+    'project_module' => 'Modules',
+    'project_theme' => 'Themes',
+    'project_theme_engine' => 'Theme engines',
+    'project_translation' => 'Translations',
+  );
 
   drush_log(dt('Generating release history for @machine_name.', array('@machine_name' => $project->field_project_machine_name[LANGUAGE_NONE][0]['value'])), 'ok');
 
@@ -442,10 +450,11 @@ function project_release_history_generate_project_xml($project) {
   }
 
   foreach ($releases_xml as $api_tid => $release_xml) {
-    $xml = '<title>' . check_plain($project->title) . "</title>\n";
-    $xml .= '<short_name>' . check_plain($project->field_project_machine_name[LANGUAGE_NONE][0]['value']) . "</short_name>\n";
-    $xml .= '<dc:creator>' . check_plain($project->name) . "</dc:creator>\n";
-    $xml .= '<type>' . check_plain($project->type) . "</type>\n";
+    $xml = new SimpleXMLElement('<root></root>');
+    $xml->title = check_plain($project->title);
+    $xml->short_name = check_plain($project->field_project_machine_name[LANGUAGE_NONE][0]['value']);
+    $xml->{'dc:creator'} = check_plain($project->name);
+    $xml->type = check_plain($project->type);
 
     if ($api_tid === 'all') {
       $api_version = 'all';
@@ -457,7 +466,7 @@ function project_release_history_generate_project_xml($project) {
       }
       $api_version = check_plain($api_term->name);
     }
-    $xml .= '<api_version>' . $api_version . "</api_version>\n";
+    $xml->api_version = $api_version;
 
     if ($project->status) {
       $project_status = 'published';
@@ -479,20 +488,20 @@ function project_release_history_generate_project_xml($project) {
             }
           }
           if (isset($recommended_major)) {
-            $xml .= '<recommended_major>' . $recommended_major . "</recommended_major>\n";
+            $xml->recommended_major = $recommended_major;
           }
           if (empty($supported_majors)) {
             $project_status = 'unsupported';
           }
           else {
-            $xml .= '<supported_majors>' . implode(',', $supported_majors) . "</supported_majors>\n";
+            $xml->supported_majors = implode(',', $supported_majors);
             // To avoid confusing existing clients, include <default_major>, too.
-            $xml .= '<default_major>' . min($supported_majors) . "</default_major>\n";
+            $xml->default_major = min($supported_majors);
           }
         }
       }
-      $xml .= '<project_status>' . $project_status . "</project_status>\n";
-      $xml .= '<link>' . url('node/' . $project->nid, array('absolute' => TRUE)) . "</link>\n";
+      $xml->project_status = $project_status;
+      $xml->link = url('node/' . $project->nid, array('absolute' => TRUE));
 
       // To prevent the update(_status) module from having problems parsing the
       // XML, the terms need to be at the end of the information for the project.
@@ -505,24 +514,35 @@ function project_release_history_generate_project_xml($project) {
         }
       }
       if (!empty($tids)) {
-        $xml .= "  <terms>\n";
-        $xml .= _project_release_compatibility_term($project);
-        foreach (taxonomy_term_load_multiple($tids) as $term) {
-          $xml .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
-          $xml .= '<value>' . check_plain($term->name) . "</value></term>\n";
+        $n = 0;
+        if (isset($extra_terms[$project->type])) {
+          $xml->terms->term[$n]->name = 'Projects';
+          $xml->terms->term[$n]->value = $extra_terms[$project->type];
+          $n += 1;
         }
-        $xml .= "  </terms>\n";
+        foreach (taxonomy_term_load_multiple($tids) as $term) {
+          $xml->terms->term[$n]->name = check_plain($vocabularies[$term->vocabulary_machine_name]->name);
+          $xml->terms->term[$n]->value = check_plain($term->name);
+          $n += 1;
+        }
       }
     }
     else {
-      $xml .= "<project_status>unpublished</project_status>\n";
+      $xml->project_status = 'unpublished';
+    }
+
+    drupal_alter('project_release_xml', $xml, $project, $api_tid);
+
+    $string = '';
+    foreach ($xml->children() as $child) {
+      $string .= $child->asXML() . "\n";
     }
 
     if (!empty($release_xml)) {
-      $xml .= "<releases>\n" . $release_xml . "</releases>\n";
+      $string .= "<releases>\n" . $release_xml . "</releases>\n";
     }
 
-    project_release_history_write_xml($xml, $project, $api_version);
+    project_release_history_write_xml($string, $project, $api_version);
   }
 }
 
