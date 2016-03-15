@@ -789,6 +789,92 @@ function _project_release_create_release_node_type() {
     'bundle' => 'field_release_files',
   ));
 
+  // A SHA-1 hash of the file.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '40',
+    ),
+    'field_name' => 'field_release_file_sha1',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Release file SHA-1 hash'),
+    'widget' => array(
+      'weight' => '2',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'text_default',
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'text_default',
+        'weight' => '1',
+        'settings' => array(),
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_sha1',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
+  // A SHA-256 hash of the file.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '64',
+    ),
+    'field_name' => 'field_release_file_sha256',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Release file SHA-256 hash'),
+    'widget' => array(
+      'weight' => '2',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'text_default',
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'text_default',
+        'weight' => '1',
+        'settings' => array(),
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_sha256',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
   // Number of times this file has been downloaded. This value is updated by
   // site specific means.
   field_create_field(array(
