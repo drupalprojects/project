@@ -1991,3 +1991,38 @@ function project_release_update_7019() {
     'bundle' => 'field_release_files',
   ));
 }
+
+/**
+ * Populate existing releases’ SHA sums.
+ */
+function project_release_update_7020() {
+  $query = new EntityFieldQuery();
+  $items = $query->entityCondition('entity_type', 'field_collection_item')
+    ->propertyCondition('field_name', 'field_release_files')
+    ->execute();
+  if (!isset($items['field_collection_item'])) {
+    // Nothing to do.
+    return;
+  }
+  $items = array_keys($items['field_collection_item']);
+
+  // Remove any which are already populated.
+  $query = new EntityFieldQuery();
+  $non_empty = $query->entityCondition('entity_type', 'field_collection_item')
+    ->propertyCondition('field_name', 'field_release_files')
+    ->fieldCondition('field_release_file_sha1', 'value', NULL, 'IS NOT NULL')
+    ->execute();
+  if (isset($non_empty['field_collection_item'])) {
+    $items = array_diff($items, array_keys($non_empty['field_collection_item']));
+  }
+
+  // Calculate and save the SHA sums in batches of 50.
+  foreach (array_chunk($items, 50) as $ids) {
+    foreach (field_collection_item_load_multiple($ids, array(), TRUE) as $item) {
+      $file = file_load($item->field_release_file[LANGUAGE_NONE][0]['fid']);
+      $item->field_release_file_sha1[LANGUAGE_NONE][0]['value'] = hash_file('sha1', $file->uri);
+      $item->field_release_file_sha256[LANGUAGE_NONE][0]['value'] = hash_file('sha256', $file->uri);
+      $item->save(TRUE); // Saving host entity, the release node, is not needed.
+    }
+  }
+}
