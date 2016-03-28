@@ -12,6 +12,7 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 
 /* Display: Master */
 $handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['css_class'] = 'no-hashes';
 $handler->display->display_options['use_more_always'] = FALSE;
 $handler->display->display_options['access']['type'] = 'none';
 $handler->display->display_options['cache']['type'] = 'none';
@@ -99,21 +100,12 @@ $handler->display->display_options['arguments']['nid']['summary_options']['items
 $handler = $view->new_display('panel_pane', 'Content pane', 'release_files_pane');
 $handler->display->display_options['defaults']['style_plugin'] = FALSE;
 $handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['style_options']['row_class_special'] = FALSE;
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'fields';
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['defaults']['fields'] = FALSE;
-/* Field: File: Size */
-$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
-$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
-$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
-$handler->display->display_options['fields']['filesize']['relationship'] = 'field_release_file_fid';
-$handler->display->display_options['fields']['filesize']['label'] = '';
-$handler->display->display_options['fields']['filesize']['exclude'] = TRUE;
-$handler->display->display_options['fields']['filesize']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['filesize']['alter']['text'] = '([filesize])';
-$handler->display->display_options['fields']['filesize']['element_label_colon'] = FALSE;
 /* Field: Field collection item: Release file */
 $handler->display->display_options['fields']['field_release_file']['id'] = 'field_release_file';
 $handler->display->display_options['fields']['field_release_file']['table'] = 'field_data_field_release_file';
@@ -124,25 +116,61 @@ $handler->display->display_options['fields']['field_release_file']['alter']['tex
 $handler->display->display_options['fields']['field_release_file']['element_label_colon'] = FALSE;
 $handler->display->display_options['fields']['field_release_file']['click_sort_column'] = 'fid';
 $handler->display->display_options['fields']['field_release_file']['type'] = 'file_url_plain';
-/* Field: Field collection item: Release file hash */
-$handler->display->display_options['fields']['field_release_file_hash']['id'] = 'field_release_file_hash';
-$handler->display->display_options['fields']['field_release_file_hash']['table'] = 'field_data_field_release_file_hash';
-$handler->display->display_options['fields']['field_release_file_hash']['field'] = 'field_release_file_hash';
-$handler->display->display_options['fields']['field_release_file_hash']['label'] = '';
-$handler->display->display_options['fields']['field_release_file_hash']['exclude'] = TRUE;
-$handler->display->display_options['fields']['field_release_file_hash']['element_label_colon'] = FALSE;
 /* Field: File: Name */
 $handler->display->display_options['fields']['filename']['id'] = 'filename';
 $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
 $handler->display->display_options['fields']['filename']['field'] = 'filename';
 $handler->display->display_options['fields']['filename']['relationship'] = 'field_release_file_fid';
 $handler->display->display_options['fields']['filename']['label'] = '';
-$handler->display->display_options['fields']['filename']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['filename']['alter']['text'] = '[filename] [filesize]';
-$handler->display->display_options['fields']['filename']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['filename']['alter']['path'] = '[field_release_file]';
-$handler->display->display_options['fields']['filename']['alter']['absolute'] = TRUE;
+$handler->display->display_options['fields']['filename']['exclude'] = TRUE;
 $handler->display->display_options['fields']['filename']['element_label_colon'] = FALSE;
+/* Field: File: Extension */
+$handler->display->display_options['fields']['extension']['id'] = 'extension';
+$handler->display->display_options['fields']['extension']['table'] = 'file_managed';
+$handler->display->display_options['fields']['extension']['field'] = 'extension';
+$handler->display->display_options['fields']['extension']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['extension']['label'] = '';
+$handler->display->display_options['fields']['extension']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['extension']['alter']['text'] = 'Download <span class="filename">[filename]</span><span class="extension">[extension]</span>';
+$handler->display->display_options['fields']['extension']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['extension']['alter']['path'] = '[field_release_file]';
+$handler->display->display_options['fields']['extension']['alter']['link_class'] = 'download';
+$handler->display->display_options['fields']['extension']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['extension']['element_wrapper_type'] = '0';
+$handler->display->display_options['fields']['extension']['element_default_classes'] = FALSE;
+$handler->display->display_options['fields']['extension']['extension_detect_tar'] = TRUE;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['relationship'] = 'field_release_file_fid';
+$handler->display->display_options['fields']['filesize']['label'] = '';
+$handler->display->display_options['fields']['filesize']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['filesize']['element_wrapper_type'] = '0';
+/* Field: Field collection item: Release file hash */
+$handler->display->display_options['fields']['field_release_file_hash']['id'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['table'] = 'field_data_field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['field'] = 'field_release_file_hash';
+$handler->display->display_options['fields']['field_release_file_hash']['label'] = 'MD5';
+$handler->display->display_options['fields']['field_release_file_hash']['element_type'] = 'span';
+$handler->display->display_options['fields']['field_release_file_hash']['element_class'] = 'hash';
+$handler->display->display_options['fields']['field_release_file_hash']['element_label_type'] = 'span';
+/* Field: Field collection item: Release file SHA-1 hash */
+$handler->display->display_options['fields']['field_release_file_sha1']['id'] = 'field_release_file_sha1';
+$handler->display->display_options['fields']['field_release_file_sha1']['table'] = 'field_data_field_release_file_sha1';
+$handler->display->display_options['fields']['field_release_file_sha1']['field'] = 'field_release_file_sha1';
+$handler->display->display_options['fields']['field_release_file_sha1']['label'] = 'SHA-1';
+$handler->display->display_options['fields']['field_release_file_sha1']['element_type'] = 'span';
+$handler->display->display_options['fields']['field_release_file_sha1']['element_class'] = 'hash';
+$handler->display->display_options['fields']['field_release_file_sha1']['element_label_type'] = 'span';
+/* Field: Field collection item: Release file SHA-256 hash */
+$handler->display->display_options['fields']['field_release_file_sha256']['id'] = 'field_release_file_sha256';
+$handler->display->display_options['fields']['field_release_file_sha256']['table'] = 'field_data_field_release_file_sha256';
+$handler->display->display_options['fields']['field_release_file_sha256']['field'] = 'field_release_file_sha256';
+$handler->display->display_options['fields']['field_release_file_sha256']['label'] = 'SHA-256';
+$handler->display->display_options['fields']['field_release_file_sha256']['element_type'] = 'span';
+$handler->display->display_options['fields']['field_release_file_sha256']['element_class'] = 'hash';
+$handler->display->display_options['fields']['field_release_file_sha256']['element_label_type'] = 'span';
 $handler->display->display_options['argument_input'] = array(
   'nid' => array(
     'type' => 'context',
@@ -168,8 +196,10 @@ $translatables['project_release_files'] = array(
   t('md5 hash'),
   t('All'),
   t('Content pane'),
-  t('([filesize])'),
   t('[field_release_file] [filesize]'),
-  t('[filename] [filesize]'),
+  t('Download <span class="filename">[filename]</span><span class="extension">[extension]</span>'),
+  t('MD5'),
+  t('SHA-1'),
+  t('SHA-256'),
   t('View panes'),
 );
