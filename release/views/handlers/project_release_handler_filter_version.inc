@@ -107,11 +107,12 @@ class project_release_handler_filter_version extends views_handler_filter_field_
         }
         // Grab the project from the arguments.
         $arg = $this->view->args[$this->view->argument[$this->options['project_argument']]->position];
-        $project = project_load($arg);
         // Remove the original entry in the value list.
-        unset ($this->value[$key]);
+        unset($this->value[$key]);
         // Append the version list.
-        $this->value += project_release_get_available_versions($project->nid, $tid);
+        foreach (project_release_query_releases(project_load($arg)->nid, $tid) as $release) {
+          $this->value[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+        }
       }
     }
     return parent::query();
