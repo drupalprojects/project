@@ -1445,13 +1445,11 @@ function _project_release_extract_multisort_columns($releases) {
 /**
  * Get a list of valid version strings for a project.
  */
-function project_release_get_available_versions($project_nid, $api_tid = NULL) {
+function project_release_get_available_versions($project_nid) {
   // @todo Caching
   $versions = array();
-  $releases = project_release_query_releases($project_nid, $api_tid);
-  $return = array();
-  foreach ($releases as $release) {
-    $versions[] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+  foreach (project_release_query_releases($project_nid) as $release) {
+    $versions[$release->field_release_version[LANGUAGE_NONE][0]['value']] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
   }
   uasort($versions, '_project_release_version_compare');
   return $versions;
@@ -1476,7 +1474,6 @@ function _project_release_version_compare($a, $b) {
  * entityreference field.
  */
 function project_release_version_allowed_values($field, $instance, $entity_type, $entity) {
-  $return = array();
   if ($entity) {
     $settings = $field['settings'];
     $reference_field = field_info_field($settings['entityreference_field']);
@@ -1484,10 +1481,10 @@ function project_release_version_allowed_values($field, $instance, $entity_type,
     $referenced_entity_type = $reference_field['settings']['target_type'];
     $referenced_entity_id = $reference_items[0]['target_id'];
     if ($referenced_entity_id) {
-      $return = drupal_map_assoc(project_release_get_available_versions($referenced_entity_id));
+      return project_release_get_available_versions($referenced_entity_id);
     }
   }
-  return $return;
+  return [];
 }
 
 /**

@@ -84,7 +84,7 @@ class project_release_handler_filter_version extends views_handler_filter_field_
         }
 
         // And then the normal options.
-        $this->value_options += drupal_map_assoc(project_release_get_available_versions($project->nid));
+        $this->value_options += project_release_get_available_versions($project->nid);
       }
       else {
         $this->value_options = array();
