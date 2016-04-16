@@ -374,9 +374,9 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  *
  * This function walks through all the release nodes matching the given branch
  * (API compatibility term ID and major version) for a specified project in
- * version order (as determined by project_release_query_releases_by_branch()
- * which sorts by version_minor, version_patch, version_extra_weight and
- * finally version_extra), and compares them with that branch's latest release,
+ * version order (as determined by project_release_query_releases() which sorts
+ * by version_minor, version_patch, version_extra_weight and finally
+ * version_extra), and compares them with that branch's latest release,
  * recommended release, and latest security release to compute their update
  * status. If the release is the latest or recommended, it's 'current'.
  * Otherwise, it's 'not-current' if we haven't passed a security update yet, or
@@ -402,7 +402,6 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
  *   appropriate values.
  *
  * @see project_release_check_supported_versions()
- * @see project_release_query_releases_by_branch()
  * @see project_release_release_nodeapi()
  */
 function project_release_compute_update_status($pid, $api_tid, $major, $regen = TRUE) {
@@ -413,7 +412,7 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
     $api_tid = NULL;
   }
 
-  foreach (project_release_query_releases_by_branch($pid, $api_tid, $major) as $release) {
+  foreach (project_release_query_releases($pid, $api_tid, $major) as $release) {
     // Clear out the status so we always start fresh with each release.
     unset($update_status);
     if (empty($latest_release)) {
@@ -1289,13 +1288,14 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
  * @return
  *  An array containing the node ID (nid) of the latest and recommended
  *  releases, and latest security update (if any) from the given branch.
- *
- * @see project_release_query_releases_by_branch()
  */
 function project_release_find_latest_releases($project_nid, $api_tid, $major, $access = FALSE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
 
-  foreach (project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access) as $release) {
+  if ($api_tid == '') {
+    $api_tid = NULL;
+  }
+  foreach (project_release_query_releases($project_nid, $api_tid, $major, $access) as $release) {
     if (empty($latest_release)) {
       $latest_release = $release->nid;
     }
@@ -1326,18 +1326,6 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
     $latest_security_release,
   );
 }
-
-/**
- * Deprecated, use project_release_query_releases().
- */
-function project_release_query_releases_by_branch($project_nid, $api_tid, $major, $access = FALSE) {
-  // $api_tid can also be false or the empty string
-  if ($api_tid == '') {
-    $api_tid = NULL;
-  }
-  return project_release_query_releases($project_nid, $api_tid, $major, $access);
-}
-
 
 /**
  * Find releases, optionally limited to a branch and major, ordered by version.
