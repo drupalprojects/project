@@ -1295,7 +1295,7 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
   if ($api_tid == '') {
     $api_tid = NULL;
   }
-  foreach (project_release_query_releases($project_nid, $api_tid, $major, $access) as $release) {
+  foreach (project_release_query_releases($project_nid, $api_tid, $major, $access, TRUE) as $release) {
     if (empty($latest_release)) {
       $latest_release = $release->nid;
     }
