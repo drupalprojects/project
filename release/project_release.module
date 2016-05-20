@@ -412,7 +412,7 @@ function project_release_compute_update_status($pid, $api_tid, $major, $regen = 
     $api_tid = NULL;
   }
 
-  foreach (project_release_query_releases($pid, $api_tid, $major) as $release) {
+  foreach (project_release_query_releases($pid, $api_tid, $major, FALSE, TRUE) as $release) {
     // Clear out the status so we always start fresh with each release.
     unset($update_status);
     if (empty($latest_release)) {
