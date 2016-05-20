@@ -327,7 +327,7 @@ function project_release_history_generate_project_xml($project) {
   );
 
   if ($project->status) {
-    foreach (project_release_query_releases($project->nid) as $release) {
+    foreach (project_release_query_releases($project->nid, NULL, NULL, FALSE, TRUE) as $release) {
       $output = " <release>\n";
       $output .= '  <name>' . check_plain($release->title) . "</name>\n";
       $output .= '  <version>' . check_plain($release->field_release_version[LANGUAGE_NONE][0]['value']) . "</version>\n";

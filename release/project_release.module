@@ -1342,13 +1342,15 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  *   the releases or projects. However, this function usually has to compute
  *   the accurate values regardless of access, and consumers of this data are
  *   responsible for ensuring access.
+ * @param $dev_last
+ *   Return the development releases at the bottom of the list instead of the top.
  * @return
  *   An associative array of stub entities, as retured by
  *   entity_create_stub_entity(). Keys are node IDs.
  *
  * @see project_release_find_latest_releases()
  */
-function project_release_query_releases($project_nid, $api_tid = NULL, $major = NULL, $access = FALSE) {
+function project_release_query_releases($project_nid, $api_tid = NULL, $major = NULL, $access = FALSE, $dev_last = FALSE) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', project_release_release_node_types())
@@ -1388,7 +1390,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
   $columns = _project_release_extract_multisort_columns($releases);
 
   array_multisort(
-    $columns['field_release_build_type'], SORT_ASC,
+    $columns['field_release_build_type'], $dev_last ? SORT_DESC : SORT_ASC,
     $columns['field_release_version_major'], SORT_DESC, SORT_NUMERIC,
     $columns['field_release_version_minor'], SORT_DESC, SORT_NUMERIC,
     $columns['field_release_version_patch'], SORT_DESC, SORT_NUMERIC,
