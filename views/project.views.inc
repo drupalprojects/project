@@ -117,28 +117,6 @@ function project_views_data_alter(&$data) {
 }
 
 /**
- * Implementation of hook_views_handlers().
- */
-function project_views_handlers() {
-  return array(
-    'info' => array(
-      'path' => drupal_get_path('module', 'project') .'/views/handlers',
-    ),
-    'handlers' => array(
-      'project_handler_filter_project_behavior' => array(
-        'parent' => 'views_handler_filter',
-      ),
-      'project_handler_filter_project_sort_method' => array(
-        'parent' => 'views_handler_filter',
-      ),
-      'project_handler_filter_project_status' => array(
-        'parent' => 'views_handler_filter_boolean_operator',
-      ),
-    ),
-  );
-}
-
-/**
  * Implementation of hook_views_plugins().
  */
 function project_views_plugins() {

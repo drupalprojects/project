@@ -6,25 +6,6 @@
  */
 
 /**
- * Implements hook_views_handlers().
- */
-function project_release_views_handlers() {
-  return array(
-    'info' => array(
-      'path' => drupal_get_path('module', 'project_release') .'/views/handlers',
-    ),
-    'handlers' => array(
-      'project_release_handler_filter_version' => array(
-        'parent' => 'views_handler_filter_field_list',
-      ),
-      'project_release_handler_relationship_supported_versions' => array(
-        'parent' => 'views_handler_relationship',
-      ),
-    ),
-  );
-}
-
-/**
  * Implementation of hook_views_data().
  *
  * Exposes all fields to the views system.
@@ -79,18 +60,6 @@ function project_release_views_data() {
   $data['project_release_supported_versions']['recommended'] = array(
     'title' => t('Recommended branch'),
     'help' => t('Is the specific branch the recommended branch for a given project.'),
-    'field' => array(
-      'handler' => 'views_handler_field_boolean',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_boolean_operator',
-      'type' => 'yes-no',
-    ),
-  );
-  $data['project_release_supported_versions']['snapshot'] = array(
-    'title' => t('Show snapshot'),
-    'help' => t('Show development snapshot releases from a branch.'),
     'field' => array(
       'handler' => 'views_handler_field_boolean',
       'click sortable' => TRUE,

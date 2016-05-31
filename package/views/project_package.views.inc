@@ -478,19 +478,3 @@ function project_package_views_data() {
 
   return $data;
 }
-
-/**
- * Implementation of hook_views_handlers().
- */
-function project_package_views_handlers() {
-  return array(
-    'info' => array(
-      'path' => drupal_get_path('module', 'project_package') .'/views/handlers',
-    ),
-    'handlers' => array(
-      'project_package_handler_field_local_patch_count' => array(
-        'parent' => 'views_handler_field',
-      ),
-    ),
-  );
-}

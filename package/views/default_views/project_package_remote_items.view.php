@@ -61,3 +61,39 @@ $handler->display->display_options['arguments']['package_nid']['default_argument
 $handler->display->display_options['arguments']['package_nid']['summary']['number_of_records'] = '0';
 $handler->display->display_options['arguments']['package_nid']['summary']['format'] = 'default_summary';
 $handler->display->display_options['arguments']['package_nid']['summary_options']['items_per_page'] = '25';
+
+/* Display: Content pane */
+$handler = $view->new_display('panel_pane', 'Content pane', 'remote_items_pane');
+$handler->display->display_options['allow']['use_pager'] = 0;
+$handler->display->display_options['allow']['items_per_page'] = 0;
+$handler->display->display_options['allow']['offset'] = 0;
+$handler->display->display_options['allow']['link_to_view'] = 0;
+$handler->display->display_options['allow']['more_link'] = 0;
+$handler->display->display_options['allow']['path_override'] = 0;
+$handler->display->display_options['allow']['title_override'] = 'title_override';
+$handler->display->display_options['allow']['exposed_form'] = 0;
+$handler->display->display_options['allow']['fields_override'] = 0;
+$handler->display->display_options['argument_input'] = array(
+  'package_nid' => array(
+    'type' => 'context',
+    'context' => 'entity:node.nid',
+    'context_optional' => 0,
+    'panel' => '0',
+    'fixed' => '',
+    'label' => 'Project package remote items: Package node',
+  ),
+);
+$translatables['project_package_remote_items'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Name'),
+  t('URL'),
+  t('All'),
+  t('Content pane'),
+  t('View panes'),
+);

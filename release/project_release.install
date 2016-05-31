@@ -1771,3 +1771,258 @@ function project_release_update_7015() {
     'not null' => FALSE,
   ));
 }
+
+/**
+ * Fix schema inconsistencies.
+ */
+function project_release_update_7016() {
+  $schema['project_release_supported_versions'] = array(
+    'fields' => array(
+      'recommended_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the recommended release node for this API tid and major version (the latest release without any "extra" version info such as "alpha1").',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'latest_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the latest release node for this API tid and major version (even if it has "extra" version info such as "alpha1").',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'latest_security_release' => array(
+        'description' => 'The {project_release_nodes}.nid of the latest release node marked as a "security update" for this API tid and major version.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+  );
+
+  db_change_field('project_release_supported_versions', 'recommended_release', 'recommended_release', $schema['project_release_supported_versions']['fields']['recommended_release']);
+  db_change_field('project_release_supported_versions', 'latest_release', 'latest_release', $schema['project_release_supported_versions']['fields']['latest_release']);
+  db_change_field('project_release_supported_versions', 'latest_security_release', 'latest_security_release', $schema['project_release_supported_versions']['fields']['latest_security_release']);
+}
+
+/**
+ * Add toggle for showing a release in a download table.
+ */
+function project_release_update_7017() {
+  $t = get_t();
+
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'allowed_values' => array(
+        '0' => '',
+        '1' => '',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'field_name' => 'field_show_download',
+    'type' => 'list_boolean',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Show in project’s download table when branch is supported'),
+    'widget' => array(
+      'weight' => '6',
+      'type' => 'options_onoff',
+      'module' => 'options',
+      'active' => 1,
+      'settings' => array(
+        'display_label' => 1,
+      ),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+        'weight' => '15',
+        'settings' => array(),
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => array(
+      array(
+        'value' => 0,
+      ),
+    ),
+    'field_name' => 'field_show_download',
+    'entity_type' => 'node',
+    'bundle' => 'project_release',
+  ));
+}
+
+/**
+ * Populate field_show_download for dynamic releases.
+ */
+function project_release_update_7018() {
+  $api_vocabulary = taxonomy_vocabulary_load(variable_get('project_release_api_vocabulary', 0));
+  $releases = array();
+  $supported_versions = db_query('SELECT nid, tid, major FROM {project_release_supported_versions} WHERE snapshot = 1');
+  foreach ($supported_versions as $supported_version) {
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->propertyCondition('type', project_release_release_node_types())
+      ->fieldCondition('field_release_build_type', 'value', 'dynamic')
+      ->fieldCondition('field_release_project', 'target_id', $supported_version->nid)
+      ->fieldCondition('taxonomy_' . $api_vocabulary->machine_name, 'tid', $supported_version->tid)
+      ->fieldCondition('field_release_version_major', 'value', $supported_version->major)
+      ->execute();
+    if (!empty($result)) {
+      $releases = array_merge($releases, array_keys($result['node']));
+    }
+  }
+  foreach (array_chunk($releases, 20) as $batch) {
+    foreach (node_load_multiple($batch) as $node) {
+      $node->field_show_download[LANGUAGE_NONE][0]['value'] = 1;
+      field_attach_presave('node', $node);
+      field_attach_update('node', $node);
+    }
+  }
+}
+
+/**
+ * Add SHA-1 & SHA-256 fields to releases.
+ */
+function project_release_update_7019() {
+  $t = get_t();
+
+  // A SHA-1 hash of the file.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '40',
+    ),
+    'field_name' => 'field_release_file_sha1',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Release file SHA-1 hash'),
+    'widget' => array(
+      'weight' => '2',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'text_default',
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'text_default',
+        'weight' => '1',
+        'settings' => array(),
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_sha1',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+
+  // A SHA-256 hash of the file.
+  field_create_field(array(
+    'translatable' => '0',
+    'settings' => array(
+      'max_length' => '64',
+    ),
+    'field_name' => 'field_release_file_sha256',
+    'type' => 'text',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+  ));
+  field_create_instance(array(
+    'label' => $t('Release file SHA-256 hash'),
+    'widget' => array(
+      'weight' => '2',
+      'type' => 'field_extrawidgets_hidden',
+      'active' => 1,
+      'settings' => array(
+        'formatter' => 'text_default',
+        'display_empty' => 0,
+      ),
+    ),
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'text_default',
+        'weight' => '1',
+        'settings' => array(),
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_release_file_sha256',
+    'entity_type' => 'field_collection_item',
+    'bundle' => 'field_release_files',
+  ));
+}
+
+/**
+ * Populate existing releases’ SHA sums.
+ */
+function project_release_update_7020() {
+  $query = new EntityFieldQuery();
+  $items = $query->entityCondition('entity_type', 'field_collection_item')
+    ->propertyCondition('field_name', 'field_release_files')
+    ->execute();
+  if (!isset($items['field_collection_item'])) {
+    // Nothing to do.
+    return;
+  }
+  $items = array_keys($items['field_collection_item']);
+
+  // Remove any which are already populated.
+  $query = new EntityFieldQuery();
+  $non_empty = $query->entityCondition('entity_type', 'field_collection_item')
+    ->propertyCondition('field_name', 'field_release_files')
+    ->fieldCondition('field_release_file_sha1', 'value', NULL, 'IS NOT NULL')
+    ->execute();
+  if (isset($non_empty['field_collection_item'])) {
+    $items = array_diff($items, array_keys($non_empty['field_collection_item']));
+  }
+
+  // Calculate and save the SHA sums in batches of 50.
+  foreach (array_chunk($items, 50) as $ids) {
+    foreach (field_collection_item_load_multiple($ids, array(), TRUE) as $item) {
+      $file = file_load($item->field_release_file[LANGUAGE_NONE][0]['fid']);
+      $item->field_release_file_sha1[LANGUAGE_NONE][0]['value'] = hash_file('sha1', $file->uri);
+      $item->field_release_file_sha256[LANGUAGE_NONE][0]['value'] = hash_file('sha256', $file->uri);
+      $item->save(TRUE); // Saving host entity, the release node, is not needed.
+    }
+  }
+}

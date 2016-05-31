@@ -11,8 +11,6 @@
 function project_usage_uninstall() {
   $variables = array(
     'project_usage_active_weeks',
-    'project_usage_life_weekly_project',
-    'project_usage_life_weekly_release',
     'project_usage_date_long',
     'project_usage_date_short',
   );
@@ -45,10 +43,17 @@ function project_usage_update_7000() {
 }
 
 /**
+ * Remove obsolete configuration.
+ */
+function project_usage_update_7001() {
+  variable_del('project_usage_life_weekly_project');
+  variable_del('project_usage_life_weekly_release');
+}
+
+/**
  * Implements hook_schema().
  */
 function project_usage_schema() {
-
   $schema['project_usage_week_project'] = array(
     'description' => 'Table used to store weekly usage information by project and {taxonomy_term_data}.tid.',
     'fields' => array(
@@ -159,4 +164,3 @@ function project_usage_schema() {
 
   return $schema;
 }
-

@@ -75,7 +75,7 @@ function drush_project_release_release_package($type, $project_id) {
   if ($project_node->status != NODE_PUBLISHED) {
     return drush_set_error('UNPUBLISHED_PROJECT', dt('ERROR: Project @id not published', array('@id' => $project_id)));
   }
-  if (!$project_node->field_project_has_releases[$project_node->language][0]['value']) {
+  if (!$project_node->field_project_has_releases[LANGUAGE_NONE][0]['value']) {
     return drush_set_error('NO_RELEASES_PROJECT', dt('ERROR: Project @id does not have releases', array('@id' => $project_id)));
   }
 
@@ -173,7 +173,7 @@ function drush_project_release_release_package($type, $project_id) {
   drush_shell_exec('rm -rf %s', $repository);
 
   if ($num_built > 0 || $type === 'branch') {
-    drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array('@project_short_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered)), 'ok');
+    drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array('@project_short_name' => $project_node->field_project_machine_name[LANGUAGE_NONE][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered)), 'ok');
   }
 }
 
@@ -325,20 +325,28 @@ function drush_project_release_release_create_history($project_id = NULL) {
  */
 function project_release_history_generate_project_xml($project) {
   $vocabularies = taxonomy_vocabulary_get_names();
+  $extra_terms = array(
+    'project_core' => 'Drupal core',
+    'project_distribution' => 'Distributions',
+    'project_module' => 'Modules',
+    'project_theme' => 'Themes',
+    'project_theme_engine' => 'Theme engines',
+    'project_translation' => 'Translations',
+  );
 
-  drush_log(dt('Generating release history for @machine_name.', array('@machine_name' => $project->field_project_machine_name[$project->language][0]['value'])), 'ok');
+  drush_log(dt('Generating release history for @machine_name.', array('@machine_name' => $project->field_project_machine_name[LANGUAGE_NONE][0]['value'])), 'ok');
 
   $releases_xml = array(
     'all' => '',
   );
 
   if ($project->status) {
-    foreach (project_release_query_releases($project->nid) as $release) {
+    foreach (project_release_query_releases($project->nid, NULL, NULL, FALSE, TRUE) as $release) {
       $output = " <release>\n";
       $output .= '  <name>' . check_plain($release->title) . "</name>\n";
-      $output .= '  <version>' . check_plain($release->field_release_version[$release->language][0]['value']) . "</version>\n";
-      if (!empty($release->field_release_vcs_label[$release->language][0]['value'])) {
-        $output .= '  <tag>' . check_plain($release->field_release_vcs_label[$release->language][0]['value']) . "</tag>\n";
+      $output .= '  <version>' . check_plain($release->field_release_version[LANGUAGE_NONE][0]['value']) . "</version>\n";
+      if (!empty($release->field_release_vcs_label[LANGUAGE_NONE][0]['value'])) {
+        $output .= '  <tag>' . check_plain($release->field_release_vcs_label[LANGUAGE_NONE][0]['value']) . "</tag>\n";
       }
       foreach (array('major', 'minor', 'patch', 'extra') as $type) {
         $vers_type = 'version_' . $type;
@@ -346,15 +354,15 @@ function project_release_history_generate_project_xml($project) {
         // we need to test with isset() instead of !empty(). However, we do
         // *not* want to include anything in the release history XML if the
         // value is an empty string.
-        if (isset($release->{'field_release_' . $vers_type}[$release->language][0]['value'])
-            && $release->{'field_release_' . $vers_type}[$release->language][0]['value'] !== '') {
-          $output .= "  <$vers_type>" . check_plain($release->{'field_release_' . $vers_type}[$release->language][0]['value']) . "</$vers_type>\n";
+        if (isset($release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value'])
+            && $release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value'] !== '') {
+          $output .= "  <$vers_type>" . check_plain($release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value']) . "</$vers_type>\n";
         }
       }
 
       // Need to fetch list of files for this release
-      if (!empty($release->field_release_files[$release->language])) {
-        $files = array_map('field_collection_field_get_entity', $release->field_release_files[$release->language]);
+      if (!empty($release->field_release_files[LANGUAGE_NONE])) {
+        $files = array_map('field_collection_field_get_entity', $release->field_release_files[LANGUAGE_NONE]);
       }
       else {
         $files = array();
@@ -365,7 +373,7 @@ function project_release_history_generate_project_xml($project) {
         $output .= "  <status>published</status>\n";
         $output .= '  <release_link>' . url('node/' . $release->nid, array('absolute' => TRUE)) . "</release_link>\n";
         if (!empty($files[0])) {
-          $download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[$release->language][0]);
+          $download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[LANGUAGE_NONE][0]);
           $output .= '  <download_link>' . file_create_url($download_link['#file']->uri) . "</download_link>\n";
         }
       }
@@ -374,19 +382,19 @@ function project_release_history_generate_project_xml($project) {
       }
       // We want to include the rest of these regardless of the status.
       if (!empty($files[0])) {
-        $output .= '  <date>' . check_plain($files[0]->field_release_file[$release->language][0]['timestamp']) . "</date>\n";
-        $output .= '  <mdhash>'  . check_plain($files[0]->field_release_file_hash[$release->language][0]['value']) . "</mdhash>\n";
-        $output .= '  <filesize>' . check_plain($files[0]->field_release_file[$release->language][0]['filesize']) . "</filesize>\n";
+        $output .= '  <date>' . check_plain($files[0]->field_release_file[LANGUAGE_NONE][0]['timestamp']) . "</date>\n";
+        $output .= '  <mdhash>'  . check_plain($files[0]->field_release_file_hash[LANGUAGE_NONE][0]['value']) . "</mdhash>\n";
+        $output .= '  <filesize>' . check_plain($files[0]->field_release_file[LANGUAGE_NONE][0]['filesize']) . "</filesize>\n";
       }
 
       $output .= "  <files>\n";
       foreach ($files as $file) {
         $output .= "   <file>\n";
         if ($release->status) {
-          $download_link = field_view_value('field_collection_item', $file, 'field_release_file', $file->field_release_file[$release->language][0]);
+          $download_link = field_view_value('field_collection_item', $file, 'field_release_file', $file->field_release_file[LANGUAGE_NONE][0]);
           $output .= '    <url>' . file_create_url($download_link['#file']->uri) . "</url>\n";
         }
-        $file_parts = explode('.', $file->field_release_file[$release->language][0]['filename']);
+        $file_parts = explode('.', $file->field_release_file[LANGUAGE_NONE][0]['filename']);
         $archive_type = array_pop($file_parts);
         // See if the previous extension is '.tar' and if so, add that, so we
         // see 'tar.gz' or 'tar.bz2' instead of just 'gz' or 'bz2'.
@@ -415,9 +423,9 @@ function project_release_history_generate_project_xml($project) {
           }
           $output .= '    <variant>' . $variant . "</variant>\n";
         }
-        $output .= '    <md5>' . check_plain($file->field_release_file_hash[$release->language][0]['value']) . "</md5>\n";
-        $output .= '    <size>' . check_plain($file->field_release_file[$release->language][0]['filesize']) . "</size>\n";
-        $output .= '    <filedate>' . check_plain($file->field_release_file[$release->language][0]['timestamp']) . "</filedate>\n";
+        $output .= '    <md5>' . check_plain($file->field_release_file_hash[LANGUAGE_NONE][0]['value']) . "</md5>\n";
+        $output .= '    <size>' . check_plain($file->field_release_file[LANGUAGE_NONE][0]['filesize']) . "</size>\n";
+        $output .= '    <filedate>' . check_plain($file->field_release_file[LANGUAGE_NONE][0]['timestamp']) . "</filedate>\n";
         $output .= "   </file>\n";
       }
       $output .= "  </files>\n";
@@ -425,8 +433,8 @@ function project_release_history_generate_project_xml($project) {
       $tids = array();
       $api_tid = project_release_get_release_api_tid($release);
       foreach (taxonomy_get_vocabularies() as $vocabulary) {
-        if (isset($release->{'taxonomy_' . $vocabulary->machine_name}[$release->language])) {
-          foreach ($release->{'taxonomy_' . $vocabulary->machine_name}[$release->language] as $term) {
+        if (isset($release->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE])) {
+          foreach ($release->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE] as $term) {
             if ($term['tid'] != $api_tid) {
               $tids[] = $term['tid'];
             }
@@ -456,10 +464,11 @@ function project_release_history_generate_project_xml($project) {
   }
 
   foreach ($releases_xml as $api_tid => $release_xml) {
-    $xml = '<title>' . check_plain($project->title) . "</title>\n";
-    $xml .= '<short_name>' . check_plain($project->field_project_machine_name[$project->language][0]['value']) . "</short_name>\n";
-    $xml .= '<dc:creator>' . check_plain($project->name) . "</dc:creator>\n";
-    $xml .= '<type>' . check_plain($project->type) . "</type>\n";
+    $xml = new SimpleXMLElement('<root></root>');
+    $xml->title = check_plain($project->title);
+    $xml->short_name = check_plain($project->field_project_machine_name[LANGUAGE_NONE][0]['value']);
+    $xml->{'dc:creator'} = check_plain($project->name);
+    $xml->type = check_plain($project->type);
 
     if ($api_tid === 'all') {
       $api_version = 'all';
@@ -471,67 +480,83 @@ function project_release_history_generate_project_xml($project) {
       }
       $api_version = check_plain($api_term->name);
     }
-    $xml .= '<api_version>' . $api_version . "</api_version>\n";
+    $xml->api_version = $api_version;
 
     if ($project->status) {
       $project_status = 'published';
       if ($api_tid !== 'all') {
-        // Include the info about supported and recommended major versions.
-        $query = db_query('SELECT major, supported, recommended FROM {project_release_supported_versions} WHERE nid = :nid AND tid = :tid AND (supported = 1 OR recommended = 1)', array(':nid' => $project->nid, ':tid' => $api_tid));
-        $supported_majors = array();
-        $recommended_major = NULL;
-        foreach ($query as $version_info) {
-          if ($version_info->supported) {
-            $supported_majors[] = $version_info->major;
-          }
-          if ($version_info->recommended) {
-            $recommended_major = $version_info->major;
-          }
-        }
-        if (isset($recommended_major)) {
-          $xml .= '<recommended_major>' . $recommended_major . "</recommended_major>\n";
-        }
-        if (empty($supported_majors)) {
+        if (empty($api_term->field_release_recommended) || !$api_term->field_release_recommended[LANGUAGE_NONE][0]['value']) {
           $project_status = 'unsupported';
         }
         else {
-          $xml .= '<supported_majors>' . implode(',', $supported_majors) . "</supported_majors>\n";
-          // To avoid confusing existing clients, include <default_major>, too.
-          $xml .= '<default_major>' . min($supported_majors) . "</default_major>\n";
+          // Include the info about supported and recommended major versions.
+          $query = db_query('SELECT major, supported, recommended FROM {project_release_supported_versions} WHERE nid = :nid AND tid = :tid AND (supported = 1 OR recommended = 1)', array(':nid' => $project->nid, ':tid' => $api_tid));
+          $supported_majors = array();
+          $recommended_major = NULL;
+          foreach ($query as $version_info) {
+            if ($version_info->supported) {
+              $supported_majors[] = $version_info->major;
+            }
+            if ($version_info->recommended) {
+              $recommended_major = $version_info->major;
+            }
+          }
+          if (isset($recommended_major)) {
+            $xml->recommended_major = $recommended_major;
+          }
+          if (empty($supported_majors)) {
+            $project_status = 'unsupported';
+          }
+          else {
+            $xml->supported_majors = implode(',', $supported_majors);
+            // To avoid confusing existing clients, include <default_major>, too.
+            $xml->default_major = min($supported_majors);
+          }
         }
       }
-      $xml .= '<project_status>' . $project_status . "</project_status>\n";
-      $xml .= '<link>' . url('node/' . $project->nid, array('absolute' => TRUE)) . "</link>\n";
+      $xml->project_status = $project_status;
+      $xml->link = url('node/' . $project->nid, array('absolute' => TRUE));
 
       // To prevent the update(_status) module from having problems parsing the
       // XML, the terms need to be at the end of the information for the project.
       $tids = array();
       foreach (taxonomy_get_vocabularies() as $vocabulary) {
-        if (isset($project->{'taxonomy_' . $vocabulary->machine_name}[$project->language])) {
-          foreach ($project->{'taxonomy_' . $vocabulary->machine_name}[$project->language] as $term) {
+        if (isset($project->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE])) {
+          foreach ($project->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE] as $term) {
             $tids[] = $term['tid'];
           }
         }
       }
       if (!empty($tids)) {
-        $xml .= "  <terms>\n";
-        $xml .= _project_release_compatibility_term($project);
-        foreach (taxonomy_term_load_multiple($tids) as $term) {
-          $xml .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
-          $xml .= '<value>' . check_plain($term->name) . "</value></term>\n";
+        $n = 0;
+        if (isset($extra_terms[$project->type])) {
+          $xml->terms->term[$n]->name = 'Projects';
+          $xml->terms->term[$n]->value = $extra_terms[$project->type];
+          $n += 1;
         }
-        $xml .= "  </terms>\n";
+        foreach (taxonomy_term_load_multiple($tids) as $term) {
+          $xml->terms->term[$n]->name = check_plain($vocabularies[$term->vocabulary_machine_name]->name);
+          $xml->terms->term[$n]->value = check_plain($term->name);
+          $n += 1;
+        }
       }
     }
     else {
-      $xml .= "<project_status>unpublished</project_status>\n";
+      $xml->project_status = 'unpublished';
+    }
+
+    drupal_alter('project_release_xml', $xml, $project, $api_tid);
+
+    $string = '';
+    foreach ($xml->children() as $child) {
+      $string .= $child->asXML() . "\n";
     }
 
     if (!empty($release_xml)) {
-      $xml .= "<releases>\n" . $release_xml . "</releases>\n";
+      $string .= "<releases>\n" . $release_xml . "</releases>\n";
     }
 
-    project_release_history_write_xml($xml, $project, $api_version);
+    project_release_history_write_xml($string, $project, $api_version);
   }
 }
 
@@ -583,8 +608,8 @@ function project_release_history_write_xml($xml, $project = NULL, $api_version =
     // the global variables at the top of this script, so we can trust those.
     // The only one we should be careful of is the taxonomy term for the API
     // compatibility.
-    $project_dir = $project->field_project_machine_name[$project->language][0]['value'];
-    $filename = $project->field_project_machine_name[$project->language][0]['value'] . '-' . strtr($api_version, '/', '_') . '.xml';
+    $project_dir = $project->field_project_machine_name[LANGUAGE_NONE][0]['value'];
+    $filename = $project->field_project_machine_name[LANGUAGE_NONE][0]['value'] . '-' . strtr($api_version, '/', '_') . '.xml';
     $full_xml .= '<project ' . $dc_namespace . ">\n" . $xml . "</project>\n";
   }
 
@@ -621,7 +646,7 @@ function drush_project_release_release_check_status($project_id = NULL) {
       return drush_set_error('INVALID_PROJECT', dt('Project ID @id not found.', array('@id' => $project_id)));
     }
     else {
-      drush_log(dt('Checking release status for @title [@machine_name]', array('@title' => $project_node->title, '@machine_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'])), 'ok');
+      drush_log(dt('Checking release status for @title [@machine_name]', array('@title' => $project_node->title, '@machine_name' => $project_node->field_project_machine_name[LANGUAGE_NONE][0]['value'])), 'ok');
     }
     project_release_release_check_status_project($project_node);
   }

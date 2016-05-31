@@ -29,7 +29,7 @@ function project_release_project_edit_form($form, $form_state, $node) {
   $query->condition('psrv.nid', $node->nid);
   $query->innerJoin('taxonomy_term_data', 'ttd', 'ttd.tid = psrv.tid');
   $query->condition('ttd.tid', array_keys($recommended_api_terms['taxonomy_term']));
-  $query->fields('psrv', array('tid', 'major', 'snapshot', 'supported', 'recommended'));
+  $query->fields('psrv', array('tid', 'major', 'supported', 'recommended'));
   $query->fields('ttd', array('name'));
   $query->orderBy('ttd.weight');
   $query->orderBy('ttd.name');
@@ -42,7 +42,6 @@ function project_release_project_edit_form($form, $form_state, $node) {
       );
     }
     $data[$object->tid]['majors'][$object->major] = array(
-      '#snapshot' => $object->snapshot ? TRUE : FALSE,
       '#supported' => $object->supported ? TRUE : FALSE,
       '#recommended' => $object->recommended ? TRUE : FALSE,
     );
@@ -55,7 +54,7 @@ function project_release_project_edit_form($form, $form_state, $node) {
   else {
     if (!empty($api_vocabulary)) {
       $form['help'] = array(
-        '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported. You can also control if the development snapshot releases should be displayed on the front page of the project. Finally, for each term in the %api_vocabulary_name vocabulary, you can select which major version (if any) should be recommended for new users to download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
+        '#markup' => '<p>' . t('For each term in the %api_vocabulary_name vocabulary, this page allows you to define which major versions are supported and recommended for download.', array('%api_vocabulary_name' => $api_vocabulary->name)) . '</p>',
       );
     }
     // Build the form elements for supported and recommended major versions.
@@ -79,19 +78,13 @@ function project_release_project_edit_form($form, $form_state, $node) {
         $current_recommended = project_release_get_current_recommended($node->nid, $api_tid, $major_version);
         $form['api'][$api_tid]['major'][$major_version] = array(
           'current' => array(
-            '#markup' => (!empty($current_recommended)) ? check_plain($current_recommended->field_release_version[$current_recommended->language][0]['value']) : '',
+            '#markup' => (!empty($current_recommended)) ? check_plain($current_recommended->field_release_version[LANGUAGE_NONE][0]['value']) : '',
           ),
           'supported' => array(
             '#type' => 'checkbox',
             '#title' => t('Supported'),
             '#default_value' => $major_data['#supported'],
             '#attributes' => array('class' => array('supported')),
-          ),
-          'snapshot' => array(
-            '#type' => 'checkbox',
-            '#title' => t('Show snapshot release'),
-            '#default_value' => $major_data['#snapshot'],
-            '#attributes' => array('class' => array('snapshot')),
           ),
         );
       }
@@ -136,10 +129,6 @@ function theme_project_release_edit_table($v) {
     t('Major version'),
     t('Current Release'),
     t('Supported'),
-    array(
-      'data' => t('Show snapshot release'),
-      'colspan' => 2,
-    ),
   );
   foreach (element_children($v['api']) as $tid) {
     $output .= '<h3>'. $v['api'][$tid]['#api_term_name'] .'</h3>';
@@ -153,15 +142,13 @@ function theme_project_release_edit_table($v) {
       // table headers to label each column.
       unset($v['api'][$tid]['major'][$major]['supported']['#title']);
       $row[] = drupal_render($v['api'][$tid]['major'][$major]['supported']);
-      unset($v['api'][$tid]['major'][$major]['snapshot']['#title']);
-      $row[] = drupal_render($v['api'][$tid]['major'][$major]['snapshot']);
       $rows[] = $row;
     }
     // Finally, add a row for the currently recommended version.
     $row = array();
     $row[] = array(
       'data' => drupal_render($v['api'][$tid]['recommended']),
-      'colspan' => 5,
+      'colspan' => 3,
     );
     $rows[] = $row;
     $output .= theme('table', array('header' => $header, 'rows' => $rows));
@@ -183,9 +170,6 @@ function project_release_project_edit_form_validate($form, &$form_state) {
       // First, we just iterate through to see if *any* majors are supported.
       foreach ($api_info['major'] as $major => $flags) {
         // At least 1 major is supported, so validate the settings.
-        if ($flags['supported'] == FALSE && $flags['snapshot'] == TRUE) {
-          form_error($form['api'][$tid]['major'][$major]['snapshot'], t('You can not show a snapshot release for a major version that is not supported for %api_term_name.', array('%api_term_name' => $form['api'][$tid]['#api_term_name'])));
-        }
         if ($flags['supported'] == FALSE && $api_info['recommended'] == $major) {
           form_error($form['api'][$tid]['recommended'], t('You can not recommend a major version that is not supported for %api_term_name.', array('%api_term_name' => $form['api'][$tid]['#api_term_name'])));
         }
@@ -210,7 +194,7 @@ function project_release_project_edit_form_submit($form, &$form_state) {
         foreach ($values['major'] as $major => $major_values) {
           $major_values['recommended'] = ($values['recommended'] == $major) ? 1 : 0;
           $existing = db_select('project_release_supported_versions', 'psrv')
-            ->fields('psrv', array('supported', 'recommended', 'snapshot'))
+            ->fields('psrv', array('supported', 'recommended'))
             ->condition('nid', $nid)
             ->condition('tid', $tid)
             ->condition('major', $major)
@@ -234,7 +218,6 @@ function project_release_project_edit_form_submit($form, &$form_state) {
                 'major' => $major,
                 'supported' => $major_values['supported'],
                 'recommended' => $major_values['recommended'],
-                'snapshot' => $major_values['snapshot'],
               ))
               ->execute();
             $updates[] = array('api_tid' => $tid, 'major' => $major);
@@ -256,5 +239,4 @@ function project_release_project_edit_form_submit($form, &$form_state) {
   if (!empty($updates)) {
     drupal_register_shutdown_function('project_release_compute_update_status_multiple', $nid, $updates);
   }
-
 }
