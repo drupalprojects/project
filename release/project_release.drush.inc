@@ -94,6 +94,17 @@ function drush_project_release_release_package($type, $project_id) {
     return;
   }
 
+  // Get a clone of the project
+  //
+  $working_dir = drush_tempdir();
+  $repository = $working_dir . '/clone';
+  $repo = variable_get('git_base_url', 'git://git.drupal.org/project/') . $project_node->versioncontrol_project['repo']->name . '.git';
+
+  if (!drush_shell_exec('%s clone %s %s', _versioncontrol_git_get_binary_path(), $repo, $repository)) {
+    watchdog('package_error', 'Git clone failed: <pre>@output</pre>', ['@output' => implode("\n", drush_shell_exec_output())], WATCHDOG_ERROR, $this->release_node_view_link);
+    return 'error';
+  }
+
   // If needed, prod module_implements() to recognize our
   // project_release_watchdog() implementation.
   if (!in_array('project_release', module_implements('watchdog'))) {
@@ -120,7 +131,7 @@ function drush_project_release_release_package($type, $project_id) {
     }
 
     // Find the packager plugin.
-    $packager = project_release_get_packager_plugin($release_node, drush_tempdir());
+    $packager = project_release_get_packager_plugin($release_node, $working_dir);
     if ($packager === FALSE) {
       watchdog('package_error', "Can't find packager plugin to use for %release", array('%release' => $release_node->title), WATCHDOG_ERROR);
       continue;
@@ -157,6 +168,9 @@ function drush_project_release_release_package($type, $project_id) {
     // Write any log entries.
     project_release_watchdog(NULL, FALSE);
   }
+
+  // Clean up the git clone.
+  drush_shell_exec('rm -rf %s', $repository);
 
   if ($num_built > 0 || $type === 'branch') {
     drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array('@project_short_name' => $project_node->field_project_machine_name[$project_node->language][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered)), 'ok');
