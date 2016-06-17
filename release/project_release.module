@@ -1146,7 +1146,7 @@ function project_release_views_pre_render(&$view) {
           foreach ($view->result as $result) {
             if (!empty($result->{$field->field_alias})) {
               // Rewrite the results to use the download base.
-              $download_base = variable_get('project_release_download_base_' . $result->_field_data['nid']['entity']->type, '');
+              $download_base = variable_get('project_release_download_base_' . $result->_field_data['nid_1']['entity']->type, '');
               if (!empty($download_base)) {
                 $result->{$field->field_alias} = project_release_add_download_base($result->{$field->field_alias}, $download_base);
               }
