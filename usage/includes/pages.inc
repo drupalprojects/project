@@ -64,10 +64,10 @@ function project_usage_dispatch($key) {
       }
     }
     else {
-      return drupal_access_denied();
+      return MENU_ACCESS_DENIED;
     }
   }
-  return drupal_not_found();
+  return MENU_NOT_FOUND;
 }
 
 /**
