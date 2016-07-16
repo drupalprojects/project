@@ -166,5 +166,6 @@ function project_release_packager_update_node($release_node, $release_files = ar
     $release_node->status = NODE_PUBLISHED;
   }
 
+  $release_node->project_release_in_packaging = TRUE;
   node_save($release_node);
 }
