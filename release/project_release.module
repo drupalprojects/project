@@ -1011,7 +1011,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
           ),
         ),
       );
-      if (project_user_access($node->nid, 'administer releases')) {
+      if ($view_mode === 'full' && project_user_access($node->nid, 'administer releases')) {
         $types = project_release_release_node_types();
         // todo this uses the first release node type. What to do if there are
         // multiple?
