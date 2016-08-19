@@ -247,7 +247,7 @@ function project_menu_alter(&$callbacks) {
   $callbacks['node/%node/edit/project']['title'] = 'Project';
   // Only take over secondary local tasks for projects.
   $callbacks['node/%node/edit/project']['access callback'] = 'project_user_access';
-  $callbacks['node/%node/edit/project']['access arguments'] = array(1, 'edit project');
+  $callbacks['node/%node/edit/project']['access arguments'] = array(1, 'update project');
 }
 
 /**
@@ -260,7 +260,7 @@ function project_promote_project_access($node) {
   // This callback is only valid for projects that are sandboxes. Further,
   // restrict to users with either 'administer projects' or users that have
   // access to edit the project and a valid 'create full projects' permission.
-  return project_promote_project_is_sandbox($node) && (user_access('administer projects') || (project_user_access($node, 'edit project') && (user_access('create full projects') || user_access("create full {$node->type} projects"))));
+  return project_promote_project_is_sandbox($node) && (user_access('administer projects') || (project_user_access($node, 'update project') && (user_access('create full projects') || user_access("create full {$node->type} projects"))));
 }
 
 /**
