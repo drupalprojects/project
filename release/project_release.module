@@ -1159,7 +1159,7 @@ function project_release_views_pre_render(&$view) {
     }
   }
 
-  if ($view->name === 'project_release_by_project') {
+  if ($view->name === 'project_release_by_project' && is_numeric($view->args[0])) {
     project_project_set_breadcrumb(node_load($view->args[0]), TRUE);
   }
 }
