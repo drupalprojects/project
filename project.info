@@ -9,7 +9,6 @@ files[] = tests/integration/project_creation.test
 files[] = tests/integration/maintainers.test
 files[] = tests/spec/install.test
 
-files[] = views/handlers/project_handler_argument_project_nid.inc
 files[] = views/handlers/project_handler_argument_term_node_tid_depth_project.inc
 files[] = views/handlers/project_handler_field_term_node_project_type_tid.inc
 files[] = views/handlers/project_handler_filter_project_sort_method.inc

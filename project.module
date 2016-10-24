@@ -346,52 +346,6 @@ function project_menu_breadcrumb_alter(&$active_trail, $item) {
 }
 
 /**
- * Return an array of breadcrumb links for a given project.
- *
- * @param $project
- *   A fully-loaded node object representing the project to generate
- *   breadcrumbs for.
- * @param boolean $include_project
- *   Should the breadcrumb trail include a link to the project itself?
- * @param array $extra
- *   An array of additional breadcrumb links to include after the main
- *   project breadcrumb items (e.g. for issue queues, releases, etc).
- *
- * @see drupal_set_breadcrumb()
- */
-function project_project_get_breadcrumb($project = NULL, $include_project = FALSE, $extra = array()) {
-  $breadcrumb = array();
-  $breadcrumb[] = l(t('Home'), NULL);
-
-  // If project_solr exists, inject breadcrumbs for its browsing pages.
-  if (module_exists('project_solr')) {
-    $breadcrumb[] = l(t('Project summary'), 'project');
-    $type = node_type_load($project->type);
-    $breadcrumb[] = l(check_plain($type->name), 'project/' . $type->type);
-  }
-  // else {
-  // TODO: We want a link to the root of the project browsing, but we're not
-  // yet providing views for that.
-
-  // TODO: If the site has multiple project node types, we want a breadcrumb
-  // entry here pointing to the way to browse all projects of the same type.
-  // E.g. on Drupal.org if we're viewing a module project page, we'd want a
-  // link to the module browsing section. However, we're not providing any
-  // views for this.
-  // }
-
-  if ($include_project && !empty($project)) {
-    $breadcrumb[] = l($project->title, 'node/' . $project->nid);
-  }
-
-  if (!empty($extra)) {
-    $breadcrumb = array_merge($breadcrumb, $extra);
-  }
-
-  return $breadcrumb;
-}
-
-/**
  * Implements hook_node_view().
  */
 function project_node_view($node, $view_mode, $langcode) {
