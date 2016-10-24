@@ -1028,7 +1028,11 @@ function project_release_node_view($node, $view_mode, $langcode) {
     $project = node_load(project_release_get_release_project_nid($node));
 
     if ($view_mode === 'full') {
-      project_project_set_breadcrumb($project, TRUE, array(l(t('Releases'), 'node/' . $project->nid . '/release')));
+      project_project_set_breadcrumb($project, TRUE, [[
+        'title' => t('Releases'),
+        'href' => 'node/' . $project->nid . '/release',
+        'localized_options' => [],
+      ]]);
     }
 
     // Add "Release notes" header.

@@ -38,6 +38,7 @@ function project_usage_menu() {
     'page callback' => 'project_usage_overview',
     'access arguments' => array('view project usage'),
     'file' => 'includes/pages.inc',
+    'type' => MENU_CALLBACK,
   );
   $items['project/usage/%'] = array(
     'title' => 'Project usage',

@@ -300,9 +300,49 @@ function project_promote_project_is_sandbox($node) {
  *
  * @see drupal_set_breadcrumb()
  */
-function project_project_set_breadcrumb($project = NULL, $include_project = FALSE, $extra = array()) {
-  $breadcrumb = project_project_get_breadcrumb($project, $include_project, $extra);
-  drupal_set_breadcrumb($breadcrumb);
+function project_project_set_breadcrumb($project = NULL, $include_project = FALSE, $extra = array(), $_set = TRUE) {
+  static $options;
+
+  if ($_set) {
+    $options = [
+      'project' => $project,
+      'include_project' => $include_project,
+      'extra' => $extra,
+    ];
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_menu_breadcrumb_alter().
+ */
+function project_menu_breadcrumb_alter(&$active_trail, $item) {
+  if ($options = project_project_set_breadcrumb(NULL, FALSE, [], FALSE)) {
+    // Add extra items.
+    if (!empty($options['extra'])) {
+      array_splice($active_trail, 1, 0, $options['extra']);
+    }
+
+    // Add project to the breadcrumb.
+    if ($options['include_project'] && !empty($options['project'])) {
+      array_splice($active_trail, 1, 0, [[
+        'title' => $options['project']->title,
+        'href' => 'node/' . $options['project']->nid,
+        'localized_options' => [],
+      ]]);
+    }
+
+    // If project_solr exists, inject breadcrumbs for its browsing pages.
+    if (module_exists('project_solr')) {
+      $type = node_type_load($options['project']->type);
+      array_splice($active_trail, 1, 0, [[
+        'title' => $type->name,
+        'href' => 'project/' . $type->type,
+        'localized_options' => [],
+      ]]);
+    }
+  }
 }
 
 /**

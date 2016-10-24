@@ -385,7 +385,11 @@ function project_usage_release_page($node) {
   module_load_include('inc', 'project_usage', 'includes/date_api');
 
   $project = node_load(project_release_get_release_project_nid($node));
-  project_project_set_breadcrumb($project, TRUE, array(l(t('Usage'), 'project/usage/' . $project->nid)));
+  project_project_set_breadcrumb($project, TRUE, [[
+    'title' => t('Usage'),
+    'href' => 'project/usage/' . $project->nid,
+    'localized_options' => [],
+  ]]);
   drupal_set_title(t('Usage statistics for %release', array('%release' => $node->title)), PASS_THROUGH);
 
   // Check for a cached page.
