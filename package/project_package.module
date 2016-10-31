@@ -37,29 +37,16 @@ function project_package_preprocess_views_view_table(&$variables) {
  * Implement hook_project_release_update_status_alter().
  */
 function project_package_project_release_update_status_alter(&$update_status, $release) {
-  if (isset($release->project_package)) {
-    // Set the update_status for a package based on its included items.
-    foreach (node_load_multiple(db_query("SELECT item_nid FROM {project_package_local_release_item} WHERE package_nid = :nid", array(':nid' => $release->nid))->fetchCol()) as $item) {
-      $update_status = max($update_status, $item->field_release_update_status[LANGUAGE_NONE][0]['value']);
-    }
-  }
-}
-
-function project_package_node_load($nodes) {
-  foreach ($nodes as $node) {
-    if (project_release_node_is_release($node)) {
-      $count = db_query("SELECT COUNT(*) FROM {project_package_local_release_item} WHERE package_nid = :nid", array(':nid' => $node->nid))->fetchField();
-      if (!empty($count)) {
-        $node->project_package['count'] = $count;
-      }
-    }
+  // Set the update_status for a package based on its included items.
+  foreach (node_load_multiple(db_query('SELECT item_nid FROM {project_package_local_release_item} WHERE package_nid = :nid', [':nid' => $release->nid])->fetchCol()) as $item) {
+    $update_status = max($update_status, $item->field_release_update_status[LANGUAGE_NONE][0]['value']);
   }
 }
 
 function project_package_node_view($node, $view_mode, $langcode) {
   if (project_release_node_is_release($node)) {
     // If this release has any packaged local items, embed the view of those.
-    if (!empty($node->project_package['count'])) {
+    if (db_query_range("SELECT 1 FROM {project_package_local_release_item} WHERE package_nid = :nid", 0, 1, [':nid' => $node->nid])->fetchField()) {
       $view_info = variable_get('project_package_release_items_view', 'project_package_local_items:default');
       list($view_name, $display_name) = explode(':', $view_info);
       $node->content['release_package_items'] = array(
