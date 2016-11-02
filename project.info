@@ -3,8 +3,8 @@ description = Make node types into Projects.
 package = Project
 
 dependencies[] = drupal:system (>= 7.15)
-dependencies[] = machine_name
-dependencies[] = list
+dependencies[] = machine_name:machine_name
+dependencies[] = drupal:list
 
 files[] = tests/project.test
 files[] = tests/integration/project_creation.test
