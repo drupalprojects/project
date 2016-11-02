@@ -1,6 +1,8 @@
 name = Project
 description = Make node types into Projects.
 package = Project
+
+dependencies[] = drupal:system (>= 7.15)
 dependencies[] = machine_name
 dependencies[] = list
 
