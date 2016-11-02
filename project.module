@@ -833,8 +833,7 @@ function project_projects_select_options(array $conditions = array()) {
   }
 
   $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node', '=')
-    ->addTag('node_access');
+  $query->entityCondition('entity_type', 'node');
 
   // Restrict the query to the node types that can be projects.
   $query->propertyCondition('type', $project_node_types);

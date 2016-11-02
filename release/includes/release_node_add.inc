@@ -53,7 +53,6 @@ function project_release_pick_project_form_validate($form, &$form_state) {
         ->fieldCondition('field_project_has_releases', 'value', 1)
         ->propertyCondition('title', $form_state['values']['project_id'])
         ->range(0, 1)
-        ->addTag('node_access')
         ->execute();
       if (isset($result['node'])) {
         $nids = array_keys($result['node']);
@@ -84,7 +83,6 @@ function project_release_autocomplete_project($string) {
     ->fieldCondition('field_project_has_releases', 'value', 1)
     ->propertyCondition('title', db_like($string) . '%', 'LIKE')
     ->range(0, 10)
-    ->addTag('node_access')
     ->execute();
 
   $projects = isset($result['node']) ? $result['node'] : array();

@@ -1374,10 +1374,7 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
 
   // Only enforce node access if the caller specifically requested that
   // behavior.
-  if ($access) {
-    $query->addTag('node_access');
-  }
-  else {
+  if (!$access) {
     $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
   }
 
