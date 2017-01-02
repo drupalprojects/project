@@ -1750,102 +1750,172 @@ function project_release_project_behavior_settings($node_type) {
  * Implements hook_node_type_update().
  */
 function project_release_node_type_update($info) {
-
-  $project_behavior = variable_get('project_behavior_' . $info->type, '');
-  if ($project_behavior == 'project_issue') {
-    // Synchronize field configuration.
-
-    if (!field_info_field('field_issue_version')) {
-      // The field_issue_version field is missing entirely, create it and attach
-      // it to all the issue types.
-      $field = array(
-        'cardinality' => '1',
-        'entity_types' => array(),
-        'field_name' => 'field_issue_version',
-        'foreign keys' => array(),
-        'indexes' => array(
-          'value' => array(
-            0 => 'value',
-          ),
-        ),
-        'module' => 'list',
-        'settings' => array(
-          'allowed_values' => array(),
-          // We use a custom allowed values function that looks at which project
-          // the issue is targeting.
-          'allowed_values_function' => 'project_release_version_allowed_values',
-          'entityreference_field' => 'field_project',
-        ),
-        'translatable' => '0',
-        'type' => 'list_text',
-      );
-      field_create_field($field);
-    }
-
-    // Check instances across the board.
-    foreach (project_issue_issue_node_types() as $issue_type) {
-      if (!field_info_instance('node', 'field_issue_version', $issue_type)) {
-        $instance = array(
-          'bundle' => $issue_type,
-          'default_value' => NULL,
-          'description' => '',
-          'display' => array(
-            'default' => array(
-              'label' => 'above',
-              'module' => 'list',
-              'settings' => array(),
-              'type' => 'list_default',
-              'weight' => 1,
-            ),
-            'teaser' => array(
-              'label' => 'above',
-              'settings' => array(),
-              'type' => 'hidden',
-              'weight' => 1,
-            ),
-            'issuemetadata' => array(
-              'label' => 'inline',
-              'module' => 'list',
-              'settings' => array(),
-              'type' => 'list_default',
-              'weight' => 1,
-            ),
-            'nodechanges' => array(
-              'label' => 'inline',
-              'module' => 'list',
-              'settings' => array(),
-              'type' => 'list_default',
-              'weight' => 1,
-            ),
-          ),
-          'entity_type' => 'node',
+  switch (variable_get('project_behavior_' . $info->type)) {
+    case 'project_issue':
+      // Synchronize field configuration.
+      if (!field_info_field('field_issue_version')) {
+        // The field_issue_version field is missing entirely, create it and attach
+        // it to all the issue types.
+        $field = array(
+          'cardinality' => '1',
+          'entity_types' => array(),
           'field_name' => 'field_issue_version',
-          'label' => 'Version',
-          'required' => 1,
+          'foreign keys' => array(),
+          'indexes' => array(
+            'value' => array(
+              0 => 'value',
+            ),
+          ),
+          'module' => 'list',
           'settings' => array(
-            'user_register_form' => FALSE,
+            'allowed_values' => array(),
+            // We use a custom allowed values function that looks at which project
+            // the issue is targeting.
+            'allowed_values_function' => 'project_release_version_allowed_values',
+            'entityreference_field' => 'field_project',
           ),
-          'widget' => array(
-            'active' => 1,
-            'module' => 'options',
-            'settings' => array(),
-            'type' => 'options_select',
-            'weight' => 1,
-          ),
+          'translatable' => '0',
+          'type' => 'list_text',
         );
-        field_create_instance($instance);
+        field_create_field($field);
       }
-    }
 
-    // The "version" field on issues maps to version strings of releases.
-    // Anything not specifically defined here is allowed to be overridden.
-    $field = field_read_field('field_issue_version');
-    // We mainly care that the reference is set up.
-    $field['settings']['allowed_values_function'] = 'project_release_version_allowed_values';
-    $field['settings']['entityreference_field'] = 'field_project';
-    // @todo Check if anything changed and skip updating?
-    field_update_field($field);
-    // No need to update the instances for field_issue_version.
+      // Check instances across the board.
+      foreach (project_issue_issue_node_types() as $issue_type) {
+        if (!field_info_instance('node', 'field_issue_version', $issue_type)) {
+          $instance = array(
+            'bundle' => $issue_type,
+            'default_value' => NULL,
+            'description' => '',
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'module' => 'list',
+                'settings' => array(),
+                'type' => 'list_default',
+                'weight' => 1,
+              ),
+              'teaser' => array(
+                'label' => 'above',
+                'settings' => array(),
+                'type' => 'hidden',
+                'weight' => 1,
+              ),
+              'issuemetadata' => array(
+                'label' => 'inline',
+                'module' => 'list',
+                'settings' => array(),
+                'type' => 'list_default',
+                'weight' => 1,
+              ),
+              'nodechanges' => array(
+                'label' => 'inline',
+                'module' => 'list',
+                'settings' => array(),
+                'type' => 'list_default',
+                'weight' => 1,
+              ),
+            ),
+            'entity_type' => 'node',
+            'field_name' => 'field_issue_version',
+            'label' => 'Version',
+            'required' => 1,
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'widget' => array(
+              'active' => 1,
+              'module' => 'options',
+              'settings' => array(),
+              'type' => 'options_select',
+              'weight' => 1,
+            ),
+          );
+          field_create_instance($instance);
+        }
+      }
+
+      // The "version" field on issues maps to version strings of releases.
+      // Anything not specifically defined here is allowed to be overridden.
+      $field = field_read_field('field_issue_version');
+      // We mainly care that the reference is set up.
+      $field['settings']['allowed_values_function'] = 'project_release_version_allowed_values';
+      $field['settings']['entityreference_field'] = 'field_project';
+      // @todo Check if anything changed and skip updating?
+      field_update_field($field);
+      break;
+
+    case 'project':
+      if (module_exists('project_issue')) {
+        if (!field_info_field('field_project_issue_version_opts')) {
+          field_create_field([
+            'cardinality' => -1,
+            'entity_types' => [],
+            'field_name' => 'field_project_issue_version_opts',
+            'foreign keys' => [],
+            'indexes' => [
+              'value' => ['value'],
+            ],
+            'module' => 'list',
+            'settings' => [
+              'allowed_values' => [
+                'static' => 'Tagged releases',
+                'dynamic' => 'Development branch releases',
+              ],
+              'allowed_values_function' => '',
+            ],
+            'translatable' => 0,
+            'type' => 'list_text',
+          ]);
+        }
+        ctools_include('export');
+        foreach (project_project_node_types() as $project_type) {
+          if (!field_info_instance('node', 'field_project_issue_version_opts', $project_type)) {
+            field_create_instance([
+              'bundle' => $project_type,
+              'default_value' => [
+                ['value' => 'static'],
+                ['value' => 'dynamic'],
+              ],
+              'description' => '',
+              'display' => [
+                'default' => [
+                  'type' => 'hidden',
+                  'label' => 'above',
+                  'settings' => [],
+                  'weight' => 0,
+                ],
+                'teaser' => [
+                  'type' => 'hidden',
+                  'label' => 'above',
+                  'settings' => [],
+                  'weight' => 0,
+                ],
+              ],
+              'entity_type' => 'node',
+              'field_name' => 'field_project_issue_version_opts',
+              'label' => 'Version options',
+              'required' => 1,
+              'settings' => [
+                'user_register_form' => FALSE,
+              ],
+              'widget' => [
+                'weight' => 41,
+                'type' => 'options_buttons',
+                'module' => 'options',
+                'active' => 1,
+                'settings' => [],
+              ],
+            ]);
+            $groups = field_group_info_groups('node', $project_type, 'form', TRUE);
+            if (isset($groups['group_project_issues'])) {
+              $groups['group_project_issues']->children[] = 'field_project_issue_version_opts';
+              ctools_export_crud_save('field_group', $groups['group_project_issues']);
+            }
+          }
+        }
+      }
+      break;
   }
 }
 
