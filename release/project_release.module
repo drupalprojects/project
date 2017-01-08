@@ -587,6 +587,14 @@ function project_release_field_widget_form_alter(&$element, &$form_state, $conte
         $element['value']['#element_validate'] = array('_project_release_validate_format_string');
         break;
 
+      case 'field_project_issue_version_opts':
+        // Hide issue version options if releases are not enabled.
+        $wrapper = entity_metadata_wrapper('node', $element['#entity']);
+        if (!$wrapper->field_project_has_releases->value()) {
+          $element['#access'] = FALSE;
+        }
+        break;
+
       case 'field_release_version':
         // Create readable string from format for help text.
         $string = '';
