@@ -1378,13 +1378,16 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  *   responsible for ensuring access.
  * @param $dev_last
  *   Return the development releases at the bottom of the list instead of the top.
+ * @param $build_types
+ *   If filtering by build type, such as 'static' or 'dynamic', an array of
+ *   those build types.
  * @return
  *   An associative array of stub entities, as retured by
  *   entity_create_stub_entity(). Keys are node IDs.
  *
  * @see project_release_find_latest_releases()
  */
-function project_release_query_releases($project_nid, $api_tid = NULL, $major = NULL, $access = FALSE, $dev_last = FALSE) {
+function project_release_query_releases($project_nid, $api_tid = NULL, $major = NULL, $access = FALSE, $dev_last = FALSE, $build_types = NULL) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', project_release_release_node_types())
@@ -1404,6 +1407,10 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
   // behavior.
   if (!$access) {
     $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  }
+
+  if (isset($build_types)) {
+    $query->fieldCondition('field_release_build_type', 'value', $build_types);
   }
 
   // Since not all releases will have a field value for everything we might
@@ -1479,12 +1486,18 @@ function _project_release_extract_multisort_columns($releases) {
  * Get a form options list of valid version strings for a project.
  */
 function project_release_get_available_versions($project_nid) {
-  // @todo Caching
-  $versions = array();
-  foreach (project_release_query_releases($project_nid) as $release) {
-    $versions[$release->field_release_version[LANGUAGE_NONE][0]['value']] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+  static $versions = [];
+
+  if (!isset($versions[$project_nid])) {
+    $versions[$project_nid] = [];
+    $project = node_load($project_nid);
+    $project_wrapper = entity_metadata_wrapper('node', $project);
+    foreach (project_release_query_releases($project_nid, NULL, NULL, FALSE, FALSE, $project_wrapper->field_project_issue_version_opts->value()) as $release) {
+      $versions[$project_nid][$release->field_release_version[LANGUAGE_NONE][0]['value']] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+    }
   }
-  return $versions;
+
+  return $versions[$project_nid];
 }
 
 /**
