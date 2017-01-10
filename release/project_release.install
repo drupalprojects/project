@@ -2026,3 +2026,29 @@ function project_release_update_7020() {
     }
   }
 }
+
+/**
+ * Add a field to track which types of releases should be in issue version
+ * options.
+ */
+function project_release_update_7021() {
+  // Update project node types to add field_project_issue_version_opts.
+  $project_types = project_project_node_types();
+  project_release_node_type_update(node_type_get_type(reset($project_types)));
+
+  // Back-fill data.
+  foreach (['0' => "'static'", '1' => "'dynamic'"] as $delta => $value) {
+    $query = db_select('node', 'n')
+      ->condition('type', $project_types);
+    $query->addExpression("'node'", 'entity_type');
+    $query->addField('n', 'type', 'bundle');
+    $query->addExpression('0', 'deleted');
+    $query->addField('n', 'nid', 'entity_id');
+    $query->addField('n', 'vid', 'revision_id');
+    $query->addField('n', 'language', 'language');
+    $query->addExpression($delta, 'delta');
+    $query->addExpression($value, 'field_project_issue_version_opts_value');
+    db_insert('field_data_field_project_issue_version_opts')->from($query)->execute();
+  }
+  field_cache_clear();
+}
