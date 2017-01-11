@@ -2045,7 +2045,7 @@ function project_release_update_7021() {
     $query->addExpression('0', 'deleted');
     $query->addField('n', 'nid', 'entity_id');
     $query->addField('n', 'vid', 'revision_id');
-    $query->addField('n', 'language', 'language');
+    $query->addExpression(LANGUAGE_NONE, 'language');
     $query->addExpression($delta, 'delta');
     $query->addExpression($value, 'field_project_issue_version_opts_value');
     db_insert('field_data_field_project_issue_version_opts')->from($query)->execute();
