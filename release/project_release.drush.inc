@@ -143,7 +143,7 @@ function drush_project_release_release_package($type, $project_id) {
       case 'rebuild':
         project_release_packager_update_node($release_node, $files);
         project_release_check_supported_versions(project_release_get_release_project_nid($release_node), project_release_get_release_api_tid($release_node), $release_node->field_release_version_major[LANGUAGE_NONE][0]['value']);
-        module_invoke_all('project_release_create_package', $project_node, $release_node);
+        module_invoke_all('project_release_create_package', $project_node, $release_node, $rval);
         $num_built += 1;
         if ($rval === 'rebuild') {
           $msg = '%release_title has changed, re-packaged.';
