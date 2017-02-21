@@ -377,27 +377,7 @@ function project_release_history_generate_project_xml($project) {
         if ($previous_ext == 'tar') {
           $archive_type = $previous_ext . '.' . $archive_type;
         }
-        else {
-          // Put it back on the array, so our profile logic below still works.
-          array_push($file_parts, $previous_ext);
-        }
         $xml->release->files->file[$key]->archive_type = $archive_type;
-
-        /// @todo: This is a drupal.org-specific hack.
-        /// @see http://drupal.org/node/1003764
-        if ($project->type === 'project_distribution') {
-          $variant_chunk = array_pop($file_parts);
-          if (strrpos($variant_chunk, 'no-core') !== FALSE) {
-            $variant = 'projects';
-          }
-          elseif (strrpos($variant_chunk, 'core') !== FALSE) {
-            $variant = 'full';
-          }
-          else {
-            $variant = 'profile-only';
-          }
-          $xml->release->files->file[$key]->variant = $variant;
-        }
         $xml->release->files->file[$key]->md5 = $file->field_release_file_hash->value(['sanitize' => TRUE]);
         $xml->release->files->file[$key]->size = check_plain($file->field_release_file->value()['filesize']);
         $xml->release->files->file[$key]->filedate = check_plain($file->field_release_file->value()['timestamp']);
@@ -421,6 +401,8 @@ function project_release_history_generate_project_xml($project) {
           $xml->release->terms->term[$key]->value = check_plain($term->name);
         }
       }
+
+      drupal_alter('project_release_xml_release', $xml, $project, $release);
 
       $output = $xml->release->asXML();
       $releases_xml['all'] .= $output;
