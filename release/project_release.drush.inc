@@ -330,11 +330,11 @@ function project_release_history_generate_project_xml($project) {
   if ($project->status) {
     foreach (project_release_query_releases($project->nid, NULL, NULL, FALSE, TRUE) as $release) {
       $release_wrapper = entity_metadata_wrapper('node', $release);
-      $output = " <release>\n";
-      $output .= '  <name>' . check_plain($release->title) . "</name>\n";
-      $output .= '  <version>' . $release_wrapper->field_release_version->value(['sanitize' => TRUE]) . "</version>\n";
+      $xml = new SimpleXMLElement('<root></root>');
+      $xml->release->name = check_plain($release->title);
+      $xml->release->version = $release_wrapper->field_release_version->value(['sanitize' => TRUE]);
       if ($value = $release_wrapper->field_release_vcs_label->value(['sanitize' => TRUE])) {
-        $output .= '  <tag>' . $value . "</tag>\n";
+        $xml->release->tag = $value;
       }
       foreach (['version_major', 'version_minor', 'version_patch', 'version_extra'] as $vers_type) {
         // 0 is a totally legitimate value for any of these version fields, so
@@ -343,33 +343,31 @@ function project_release_history_generate_project_xml($project) {
         // value is an empty string.
         $value = $release_wrapper->{'field_release_' . $vers_type}->value(['sanitize' => TRUE]);
         if (isset($value) && $value !== '') {
-          $output .= "  <$vers_type>" . $value . "</$vers_type>\n";
+          $xml->release->$vers_type = $value;
         }
       }
 
       if ($release->status) {
         // Published, so we should include the links.
-        $output .= "  <status>published</status>\n";
-        $output .= '  <release_link>' . url('node/' . $release->nid, ['absolute' => TRUE]) . "</release_link>\n";
+        $xml->release->status = 'published';
+        $xml->release->release_link = url('node/' . $release->nid, ['absolute' => TRUE]);
         if (!empty($release_wrapper->field_release_files[0])) {
-          $output .= '  <download_link>' . field_view_value('field_collection_item', $release_wrapper->field_release_files[0]->value(), 'field_release_file', $release_wrapper->field_release_files[0]->field_release_file->value())['#file']->uri . "</download_link>\n";
+          $xml->release->download_link = field_view_value('field_collection_item', $release_wrapper->field_release_files[0]->value(), 'field_release_file', $release_wrapper->field_release_files[0]->field_release_file->value())['#file']->uri;
         }
       }
       else {
-        $output .= "  <status>unpublished</status>\n";
+        $xml->release->status = 'unpublished';
       }
       // We want to include the rest of these regardless of the status.
       if (!empty($release_wrapper->field_release_files[0])) {
-        $output .= '  <date>' . check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['timestamp']) . "</date>\n";
-        $output .= '  <mdhash>' . $release_wrapper->field_release_files[0]->field_release_file_hash->value(['sanitize' => TRUE]) . "</mdhash>\n";
-        $output .= '  <filesize>' . check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['filesize']) . "</filesize>\n";
+        $xml->release->date = check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['timestamp']);
+        $xml->release->mdhash = $release_wrapper->field_release_files[0]->field_release_file_hash->value(['sanitize' => TRUE]);
+        $xml->release->filesize = check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['filesize']);
       }
 
-      $output .= "  <files>\n";
-      foreach ($release_wrapper->field_release_files as $file) {
-        $output .= "   <file>\n";
+      foreach ($release_wrapper->field_release_files as $key => $file) {
         if ($release->status) {
-          $output .= '    <url>' . field_view_value('field_collection_item', $file->value(), 'field_release_file', $file->field_release_file->value())['#file']->uri . "</url>\n";
+          $xml->release->files->file[$key]->url = field_view_value('field_collection_item', $file->value(), 'field_release_file', $file->field_release_file->value())['#file']->uri;
         }
         $file_parts = explode('.', $file->field_release_file->value()['filename']);
         $archive_type = array_pop($file_parts);
@@ -383,7 +381,7 @@ function project_release_history_generate_project_xml($project) {
           // Put it back on the array, so our profile logic below still works.
           array_push($file_parts, $previous_ext);
         }
-        $output .= '    <archive_type>' . $archive_type . "</archive_type>\n";
+        $xml->release->files->file[$key]->archive_type = $archive_type;
 
         /// @todo: This is a drupal.org-specific hack.
         /// @see http://drupal.org/node/1003764
@@ -398,14 +396,12 @@ function project_release_history_generate_project_xml($project) {
           else {
             $variant = 'profile-only';
           }
-          $output .= '    <variant>' . $variant . "</variant>\n";
+          $xml->release->files->file[$key]->variant = $variant;
         }
-        $output .= '    <md5>' . $file->field_release_file_hash->value(['sanitize' => TRUE]) . "</md5>\n";
-        $output .= '    <size>' . check_plain($file->field_release_file->value()['filesize']) . "</size>\n";
-        $output .= '    <filedate>' . check_plain($file->field_release_file->value()['timestamp']) . "</filedate>\n";
-        $output .= "   </file>\n";
+        $xml->release->files->file[$key]->md5 = $file->field_release_file_hash->value(['sanitize' => TRUE]);
+        $xml->release->files->file[$key]->size = check_plain($file->field_release_file->value()['filesize']);
+        $xml->release->files->file[$key]->filedate = check_plain($file->field_release_file->value()['timestamp']);
       }
-      $output .= "  </files>\n";
 
       $tids = [];
       $api_tid = project_release_get_release_api_tid($release);
@@ -420,16 +416,13 @@ function project_release_history_generate_project_xml($project) {
       }
       $terms_output = '';
       if (!empty($tids)) {
-        foreach (taxonomy_term_load_multiple($tids) as $term) {
-          $terms_output .= '   <term><name>' . check_plain($vocabularies[$term->vocabulary_machine_name]->name) . '</name>';
-          $terms_output .= '<value>' . check_plain($term->name) . "</value></term>\n";
+        foreach (array_values(taxonomy_term_load_multiple($tids)) as $key => $term) {
+          $xml->release->terms->term[$key]->name = check_plain($vocabularies[$term->vocabulary_machine_name]->name);
+          $xml->release->terms->term[$key]->value = check_plain($term->name);
         }
       }
-      if ($terms_output !== '') {
-        $output .= "  <terms>\n" . $terms_output . "  </terms>\n";
-      }
-      $output .= " </release>\n";
 
+      $output = $xml->release->asXML();
       $releases_xml['all'] .= $output;
       if (isset($releases_xml[$api_tid])) {
         $releases_xml[$api_tid] .= $output;
