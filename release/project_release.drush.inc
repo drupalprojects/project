@@ -329,59 +329,49 @@ function project_release_history_generate_project_xml($project) {
 
   if ($project->status) {
     foreach (project_release_query_releases($project->nid, NULL, NULL, FALSE, TRUE) as $release) {
+      $release_wrapper = entity_metadata_wrapper('node', $release);
       $output = " <release>\n";
       $output .= '  <name>' . check_plain($release->title) . "</name>\n";
-      $output .= '  <version>' . check_plain($release->field_release_version[LANGUAGE_NONE][0]['value']) . "</version>\n";
-      if (!empty($release->field_release_vcs_label[LANGUAGE_NONE][0]['value'])) {
-        $output .= '  <tag>' . check_plain($release->field_release_vcs_label[LANGUAGE_NONE][0]['value']) . "</tag>\n";
+      $output .= '  <version>' . $release_wrapper->field_release_version->value(['sanitize' => TRUE]) . "</version>\n";
+      if ($value = $release_wrapper->field_release_vcs_label->value(['sanitize' => TRUE])) {
+        $output .= '  <tag>' . $value . "</tag>\n";
       }
-      foreach (array('major', 'minor', 'patch', 'extra') as $type) {
-        $vers_type = 'version_' . $type;
+      foreach (['version_major', 'version_minor', 'version_patch', 'version_extra'] as $vers_type) {
         // 0 is a totally legitimate value for any of these version fields, so
         // we need to test with isset() instead of !empty(). However, we do
         // *not* want to include anything in the release history XML if the
         // value is an empty string.
-        if (isset($release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value'])
-            && $release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value'] !== '') {
-          $output .= "  <$vers_type>" . check_plain($release->{'field_release_' . $vers_type}[LANGUAGE_NONE][0]['value']) . "</$vers_type>\n";
+        $value = $release_wrapper->{'field_release_' . $vers_type}->value(['sanitize' => TRUE]);
+        if (isset($value) && $value !== '') {
+          $output .= "  <$vers_type>" . $value . "</$vers_type>\n";
         }
-      }
-
-      // Need to fetch list of files for this release
-      if (!empty($release->field_release_files[LANGUAGE_NONE])) {
-        $files = array_map('field_collection_field_get_entity', $release->field_release_files[LANGUAGE_NONE]);
-      }
-      else {
-        $files = array();
       }
 
       if ($release->status) {
         // Published, so we should include the links.
         $output .= "  <status>published</status>\n";
-        $output .= '  <release_link>' . url('node/' . $release->nid, array('absolute' => TRUE)) . "</release_link>\n";
-        if (!empty($files[0])) {
-          $download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[LANGUAGE_NONE][0]);
-          $output .= '  <download_link>' . file_create_url($download_link['#file']->uri) . "</download_link>\n";
+        $output .= '  <release_link>' . url('node/' . $release->nid, ['absolute' => TRUE]) . "</release_link>\n";
+        if (!empty($release_wrapper->field_release_files[0])) {
+          $output .= '  <download_link>' . field_view_value('field_collection_item', $release_wrapper->field_release_files[0]->value(), 'field_release_file', $release_wrapper->field_release_files[0]->field_release_file->value())['#file']->uri . "</download_link>\n";
         }
       }
       else {
         $output .= "  <status>unpublished</status>\n";
       }
       // We want to include the rest of these regardless of the status.
-      if (!empty($files[0])) {
-        $output .= '  <date>' . check_plain($files[0]->field_release_file[LANGUAGE_NONE][0]['timestamp']) . "</date>\n";
-        $output .= '  <mdhash>'  . check_plain($files[0]->field_release_file_hash[LANGUAGE_NONE][0]['value']) . "</mdhash>\n";
-        $output .= '  <filesize>' . check_plain($files[0]->field_release_file[LANGUAGE_NONE][0]['filesize']) . "</filesize>\n";
+      if (!empty($release_wrapper->field_release_files[0])) {
+        $output .= '  <date>' . check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['timestamp']) . "</date>\n";
+        $output .= '  <mdhash>' . $release_wrapper->field_release_files[0]->field_release_file_hash->value(['sanitize' => TRUE]) . "</mdhash>\n";
+        $output .= '  <filesize>' . check_plain($release_wrapper->field_release_files[0]->field_release_file->value()['filesize']) . "</filesize>\n";
       }
 
       $output .= "  <files>\n";
-      foreach ($files as $file) {
+      foreach ($release_wrapper->field_release_files as $file) {
         $output .= "   <file>\n";
         if ($release->status) {
-          $download_link = field_view_value('field_collection_item', $file, 'field_release_file', $file->field_release_file[LANGUAGE_NONE][0]);
-          $output .= '    <url>' . file_create_url($download_link['#file']->uri) . "</url>\n";
+          $output .= '    <url>' . field_view_value('field_collection_item', $file->value(), 'field_release_file', $file->field_release_file->value())['#file']->uri . "</url>\n";
         }
-        $file_parts = explode('.', $file->field_release_file[LANGUAGE_NONE][0]['filename']);
+        $file_parts = explode('.', $file->field_release_file->value()['filename']);
         $archive_type = array_pop($file_parts);
         // See if the previous extension is '.tar' and if so, add that, so we
         // see 'tar.gz' or 'tar.bz2' instead of just 'gz' or 'bz2'.
@@ -410,16 +400,16 @@ function project_release_history_generate_project_xml($project) {
           }
           $output .= '    <variant>' . $variant . "</variant>\n";
         }
-        $output .= '    <md5>' . check_plain($file->field_release_file_hash[LANGUAGE_NONE][0]['value']) . "</md5>\n";
-        $output .= '    <size>' . check_plain($file->field_release_file[LANGUAGE_NONE][0]['filesize']) . "</size>\n";
-        $output .= '    <filedate>' . check_plain($file->field_release_file[LANGUAGE_NONE][0]['timestamp']) . "</filedate>\n";
+        $output .= '    <md5>' . $file->field_release_file_hash->value(['sanitize' => TRUE]) . "</md5>\n";
+        $output .= '    <size>' . check_plain($file->field_release_file->value()['filesize']) . "</size>\n";
+        $output .= '    <filedate>' . check_plain($file->field_release_file->value()['timestamp']) . "</filedate>\n";
         $output .= "   </file>\n";
       }
       $output .= "  </files>\n";
 
-      $tids = array();
+      $tids = [];
       $api_tid = project_release_get_release_api_tid($release);
-      foreach (taxonomy_get_vocabularies() as $vocabulary) {
+      foreach ($vocabularies as $vocabulary) {
         if (isset($release->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE])) {
           foreach ($release->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE] as $term) {
             if ($term['tid'] != $api_tid) {
