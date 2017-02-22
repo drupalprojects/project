@@ -361,7 +361,7 @@ function project_release_history_generate_project_xml($project) {
         $xml->release->status = 'published';
         $xml->release->release_link = url('node/' . $release->nid, ['absolute' => TRUE]);
         if (!empty($release_wrapper->field_release_files[0])) {
-          $xml->release->download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[1]->field_release_file[LANGUAGE_NONE][0])['#file']->uri;
+          $xml->release->download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[0]->field_release_file[LANGUAGE_NONE][0])['#file']->uri;
         }
       }
       else {
