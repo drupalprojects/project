@@ -347,12 +347,21 @@ function project_release_history_generate_project_xml($project) {
         }
       }
 
+      // Need to fetch list of files for this release, so field_collection
+      // properly loads host entities.
+      if (!empty($release->field_release_files[LANGUAGE_NONE])) {
+        $files = array_map('field_collection_field_get_entity', $release->field_release_files[LANGUAGE_NONE]);
+      }
+      else {
+        $files = [];
+      }
+
       if ($release->status) {
         // Published, so we should include the links.
         $xml->release->status = 'published';
         $xml->release->release_link = url('node/' . $release->nid, ['absolute' => TRUE]);
         if (!empty($release_wrapper->field_release_files[0])) {
-          $xml->release->download_link = field_view_value('field_collection_item', $release_wrapper->field_release_files[0]->value(), 'field_release_file', $release_wrapper->field_release_files[0]->field_release_file->value())['#file']->uri;
+          $xml->release->download_link = field_view_value('field_collection_item', $files[0], 'field_release_file', $files[1]->field_release_file[LANGUAGE_NONE][0])['#file']->uri;
         }
       }
       else {
@@ -367,7 +376,7 @@ function project_release_history_generate_project_xml($project) {
 
       foreach ($release_wrapper->field_release_files as $key => $file) {
         if ($release->status) {
-          $xml->release->files->file[$key]->url = field_view_value('field_collection_item', $file->value(), 'field_release_file', $file->field_release_file->value())['#file']->uri;
+          $xml->release->files->file[$key]->url = field_view_value('field_collection_item', $files[$key], 'field_release_file', $files[$key]->field_release_file[LANGUAGE_NONE][0])['#file']->uri;
         }
         $file_parts = explode('.', $file->field_release_file->value()['filename']);
         $archive_type = array_pop($file_parts);
