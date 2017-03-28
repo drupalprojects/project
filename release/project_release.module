@@ -523,10 +523,10 @@ function project_release_form_project_promote_project_form_alter(&$form, &$form_
     $form['releases'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable releases'),
-      '#return_value' => 1,
       '#weight' => 10,
       '#default_value' => $node->field_project_has_releases[LANGUAGE_NONE][0]['value'],
       '#description' => t('Allow releases of this project with specific versions. This can be changed later.'),
+      '#access' => field_access('edit', field_info_field('field_project_has_releases'), 'node', $node),
     );
     $form['#submit'][] = 'project_release_project_promote_form_submit';
   }
