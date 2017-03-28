@@ -84,7 +84,8 @@ function project_release_menu_alter(&$callbacks) {
  * Access callback for node/%project_node/edit/releases subtab.
  */
 function project_release_project_settings_form_access($node) {
-  if (!variable_get('project_release_sandbox_allow_release', TRUE) && $node->field_project_type[LANGUAGE_NONE][0]['value'] === 'sandbox' && !$node->field_project_has_releases[LANGUAGE_NONE][0]['value']) {
+  $wrapper = entity_metadata_wrapper('node', $node);
+  if (!variable_get('project_release_sandbox_allow_release', TRUE) && $wrapper->field_project_type->value() === 'sandbox' && !$wrapper->field_project_has_releases->value()) {
     return FALSE;
   }
   else {
