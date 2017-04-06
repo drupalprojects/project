@@ -1298,6 +1298,42 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
 }
 
 /**
+ * Determine if a project has a supported full release.
+ *
+ * @param $node
+ *   A project node.
+ *
+ * @return
+ *   TRUE if there is a supported full release, otherwise FALSE.
+ */
+function project_release_has_full_release(stdClass $node) {
+  // Get “Recommended” API compatibilities that can be shown on the project
+  // page.
+  $query = new EntityFieldQuery();
+  $recommended_term_result = $query->entityCondition('entity_type', 'taxonomy_term')
+    ->fieldCondition('field_release_recommended', 'value', 1)
+    ->execute();
+  // Get “Supported” release NIDs in supported branches.
+  $recommended_releases = db_query('SELECT recommended_release FROM {project_release_supported_versions} WHERE nid = :nid AND supported = 1 AND tid IN (:tids)', [
+    ':nid' => $node->nid,
+    ':tids' => array_keys($recommended_term_result['taxonomy_term']),
+  ])->fetchCol();
+  if (count($recommended_releases) === 0) {
+    return FALSE;
+  }
+  // Check if those releases have extra versions, like alpha42 or dev.
+  $query = new EntityFieldQuery();
+  $with_extra_release_count = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', project_release_release_node_types())
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->propertyCondition('nid', $recommended_releases)
+    ->fieldCondition('field_release_version_extra', 'value', '', '<>')
+    ->count()->execute();
+  // If there are full releases, recommended without extra.
+  return count($recommended_releases) - $with_extra_release_count > 0;
+}
+
+/**
  * Finds the latest and recommended releases for a given project and branch.
  *
  * The "latest" release just means the published release node with the highest
