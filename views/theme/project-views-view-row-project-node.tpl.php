@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file project-views-view-row-project-node.tpl.php
  * Default view template to display a single project node.

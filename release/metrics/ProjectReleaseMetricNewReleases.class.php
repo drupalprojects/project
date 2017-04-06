@@ -48,4 +48,3 @@ class ProjectReleaseMetricNewReleases extends ProjectReleaseMetric {
     }
   }
 }
-

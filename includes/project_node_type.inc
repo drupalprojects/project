@@ -109,4 +109,3 @@ function project_uninstall_default_project_node_type() {
   field_delete_field('field_project_components');
   watchdog('project', 'Deleted the :field_name field from all content type instances.', array(':field_name' => 'field_project_components'));
 }
-

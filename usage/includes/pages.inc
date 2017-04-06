@@ -653,4 +653,3 @@ function project_usage_chart_axis_labels(&$args, $labels) {
   }
   $args['chxl'] = implode('|', $l);
 }
-

@@ -23,4 +23,3 @@ function project_package_views_default_views() {
   }
   return $views;
 }
-

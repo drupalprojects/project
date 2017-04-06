@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Theme functions related to Views support (style plugins, etc).
@@ -187,4 +186,3 @@ function template_preprocess_project_views_view_row_project_fields(&$vars) {
     }
   }
 }
-

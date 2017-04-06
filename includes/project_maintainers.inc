@@ -270,4 +270,3 @@ function project_maintainer_delete_confirm_submit($form, &$form_state) {
   drupal_set_message(t('Removed !user as a maintainer.', array('!user' => theme('username', array('account' => $user)))));
   $form_state['redirect'] = "node/$nid/maintainers";
 }
-

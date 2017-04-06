@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Base class plugin for Project release metrics.

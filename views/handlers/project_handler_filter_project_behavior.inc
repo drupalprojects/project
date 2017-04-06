@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * A views filter that limits node.type based on project behavior settings.

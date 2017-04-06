@@ -133,4 +133,3 @@ function project_usage_get_current_active_week() {
 function project_usage_cache_time() {
   return REQUEST_TIME + variable_get('project_usage_cache_length', 86400);
 }
-

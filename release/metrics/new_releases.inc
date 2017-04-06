@@ -15,4 +15,3 @@ $plugin = array(
     'parent' => 'project_release_metric',
   ),
 );
-

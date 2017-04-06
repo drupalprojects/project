@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Show correct allowed values when dealing with project arguments.
@@ -119,4 +120,3 @@ class project_release_handler_filter_version extends views_handler_filter_field_
   }
 
 }
-

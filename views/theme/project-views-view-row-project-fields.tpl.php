@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file project-views-view-row-project-fields.tpl.php
  * View template to display available project fields in a row.

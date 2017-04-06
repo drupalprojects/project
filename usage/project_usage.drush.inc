@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Update the project_usage statistics incrementally from varnish webserver logs.

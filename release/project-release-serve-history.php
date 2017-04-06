@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Ultra-thin PHP wrapper to serve XML release history files to
