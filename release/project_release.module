@@ -2040,3 +2040,52 @@ function project_release_get_release_for_vcs_label($pid, $label) {
   }
   return FALSE;
 }
+
+/**
+ * Implementation of hook_apachesolr_index_document_build_ENTITY_TYPE().
+ *
+ * This adds information about releases for the project to the Solr document
+ * so we can facet on releases (API compatibility terms, usage, etc), along
+ * with other project-specific metadata (e.g. shortname/uri).
+ */
+function project_release_apachesolr_index_document_build_node(ApacheSolrDocument $document, stdClass $node, $env_id) {
+  // If there are project releases, include release information.
+  if (project_node_is_project($node)) {
+    $ds_project_latest_activity = 0;
+    $ds_project_latest_release = 0;
+    foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
+      // Find latest releases.
+      list($latest_nid, $recommended_nid) = project_release_find_latest_releases($node->nid, $term->tid, NULL, FALSE);
+      if ($latest_nid != 0) {
+        $latest_node = node_load($latest_nid);
+
+        // Copy the API compatibily tag to the project document.
+        $document->setMultiValue('im_project_release_api_tids', $term->tid);
+
+        // Add the last release date.
+        $document->addField('ds_project_latest_activity_' . $term->tid, apachesolr_date_iso($latest_node->created));
+        $ds_project_latest_activity = max($latest_node->created, $ds_project_latest_activity);
+      }
+
+      if ($recommended_nid != 0) {
+        $recommended_node = node_load($recommended_nid);
+        // Add the last recommended release date.
+        $document->addField('ds_project_latest_release_' . $term->tid, apachesolr_date_iso($recommended_node->created));
+        $ds_project_latest_release = max($recommended_node->created, $ds_project_latest_release);
+      }
+
+      // Add the project usage stats.
+      if (module_exists('project_usage')) {
+        $document->addField('iss_project_release_usage_' . $term->tid, project_usage_get_project_usage($node->nid, $term->tid));
+      }
+    }
+
+    if (module_exists('project_usage')) {
+      $document->addField('iss_project_release_usage', project_usage_get_project_total_usage($node->nid));
+    }
+
+    // Add the latest release across all API versions.
+    $document->addField('ds_project_latest_activity', apachesolr_date_iso($ds_project_latest_activity));
+    $document->addField('ds_project_latest_release', apachesolr_date_iso($ds_project_latest_release));
+  }
+}
