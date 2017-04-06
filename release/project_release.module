@@ -1302,21 +1302,27 @@ function project_release_get_current_recommended($project_nid, $api_tid, $recomm
  *
  * @param $node
  *   A project node.
+ * @param $api_tids
+ *   Optional API compatibility term IDs to search. Defaults to “Recommended”
+ *   API compatibilities.
  *
  * @return
  *   TRUE if there is a supported full release, otherwise FALSE.
  */
-function project_release_has_full_release(stdClass $node) {
-  // Get “Recommended” API compatibilities that can be shown on the project
-  // page.
-  $query = new EntityFieldQuery();
-  $recommended_term_result = $query->entityCondition('entity_type', 'taxonomy_term')
-    ->fieldCondition('field_release_recommended', 'value', 1)
-    ->execute();
+function project_release_has_full_release(stdClass $node, array $api_tids = NULL) {
+  if (is_null($api_tids)) {
+    // Get “Recommended” API compatibilities that can be shown on the project
+    // page.
+    $query = new EntityFieldQuery();
+    $recommended_term_result = $query->entityCondition('entity_type', 'taxonomy_term')
+      ->fieldCondition('field_release_recommended', 'value', 1)
+      ->execute();
+    $api_tids = array_keys($recommended_term_result['taxonomy_term']);
+  }
   // Get “Supported” release NIDs in supported branches.
   $recommended_releases = db_query('SELECT recommended_release FROM {project_release_supported_versions} WHERE nid = :nid AND supported = 1 AND tid IN (:tids)', [
     ':nid' => $node->nid,
-    ':tids' => array_keys($recommended_term_result['taxonomy_term']),
+    ':tids' => $api_tids,
   ])->fetchCol();
   if (count($recommended_releases) === 0) {
     return FALSE;
