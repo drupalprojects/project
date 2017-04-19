@@ -14,7 +14,7 @@ define('PROJECT_RELEASE_UPDATE_STATUS_NOT_SECURE', 2);
  */
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function project_release_init() {
   // These constants are defined here since they use t() and the global $locale
@@ -32,7 +32,7 @@ function project_release_init() {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  * @ingroup project_release_core
  */
 function project_release_menu() {
@@ -61,7 +61,7 @@ function project_release_menu() {
 }
 
 /**
- * Implementation of hook_menu_alter().
+ * Implements hook_menu_alter().
  */
 function project_release_menu_alter(&$callbacks) {
   foreach (project_release_release_node_types() as $release_type) {
@@ -1142,7 +1142,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implementation of hook_field_attach_view_alter().
+ * Implements hook_field_attach_view_alter().
  *
  * Changes file URI if custom download base is set.
  */
@@ -1165,7 +1165,7 @@ function project_release_field_attach_view_alter(&$output, $context) {
 }
 
 /**
- * Implementation of hook_views_pre_render().
+ * Implements hook_views_pre_render().
  *
  * Changes file URI if custom download base is set.
  */
@@ -1218,7 +1218,7 @@ function project_release_add_download_base($uri, $download_base) {
 }
 
 /**
- * Implementation of hook_field_formatter_info(). Formats update status as
+ * Implements hook_field_formatter_info(). Formats update status as
  * string.
  */
 function project_release_field_formatter_info() {
@@ -1231,7 +1231,7 @@ function project_release_field_formatter_info() {
 }
 
 /**
- * Implementation of hook_field_formatter_view(). Formats update status as
+ * Implements hook_field_formatter_view(). Formats update status as
  * string.
  */
 function project_release_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
@@ -1623,7 +1623,7 @@ function project_release_exists($project_nid, $version) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function project_release_theme() {
   return array(
@@ -1635,7 +1635,7 @@ function project_release_theme() {
 }
 
 /**
- * Implementation of hook_views_api().
+ * Implements hook_views_api().
  */
 function project_release_views_api() {
   return array(
@@ -1727,7 +1727,7 @@ function project_release_views_default_views_alter(&$views) {
 }
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function project_release_ctools_plugin_directory($module, $plugin) {
   // todo D7, needs sampler
@@ -2084,7 +2084,7 @@ function project_release_get_release_for_vcs_label($pid, $label) {
 }
 
 /**
- * Implementation of hook_apachesolr_index_document_build_ENTITY_TYPE().
+ * Implements hook_apachesolr_index_document_build_ENTITY_TYPE().
  *
  * This adds information about releases for the project to the Solr document
  * so we can facet on releases (API compatibility terms, usage, etc), along
