@@ -730,7 +730,7 @@ function project_release_get_release_api_tid($node) {
  * @param $node
  *   A release node object.
  *
- * @return integer
+ * @return int
  *   A node ID.
  */
 function project_release_get_release_project_nid($node) {
@@ -982,8 +982,9 @@ function project_release_node_update($node) {
  */
 function project_release_node_save($node) {
   if (project_release_node_is_release($node)) {
-    // Use a shutdown function so action is taken after the node is updated in
+    // Use shutdown functions so action is taken after the node is updated in
     // the DB.
+    drupal_register_shutdown_function('cache_clear_all', 'project_release:versions:' . project_release_get_release_project_nid($node), 'cache');
     drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[LANGUAGE_NONE][0]['value']);
 
     // Queue release packaging, if we are not in packaging currently.
@@ -996,8 +997,9 @@ function project_release_node_save($node) {
 
 function project_release_node_delete($node) {
   if (project_release_node_is_release($node)) {
-    // Use a shutdown function so action is taken after the node is deleted
-    // from the DB.
+    // Use shutdown functions so action is taken after the node is deleted from
+    // the DB.
+    drupal_register_shutdown_function('cache_clear_all', 'project_release:versions:' . project_release_get_release_project_nid($node), 'cache');
     drupal_register_shutdown_function('project_release_check_supported_versions', project_release_get_release_project_nid($node), project_release_get_release_api_tid($node), $node->field_release_version_major[LANGUAGE_NONE][0]['value'], TRUE);
   }
 }
@@ -1531,11 +1533,17 @@ function project_release_get_available_versions($project_nid) {
   static $versions = [];
 
   if (!isset($versions[$project_nid])) {
-    $versions[$project_nid] = [];
-    $project = node_load($project_nid);
-    $project_wrapper = entity_metadata_wrapper('node', $project);
-    foreach (project_release_query_releases($project_nid, NULL, NULL, FALSE, FALSE, $project_wrapper->field_project_issue_version_opts->value()) as $release) {
-      $versions[$project_nid][$release->field_release_version[LANGUAGE_NONE][0]['value']] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+    if ($cache = cache_get('project_release:versions:' . $project_nid)) {
+      $versions[$project_nid] = $cache->data;
+    }
+    else {
+      $versions[$project_nid] = [];
+      $project = node_load($project_nid);
+      $project_wrapper = entity_metadata_wrapper('node', $project);
+      foreach (project_release_query_releases($project_nid, NULL, NULL, FALSE, FALSE, $project_wrapper->field_project_issue_version_opts->value()) as $release) {
+        $versions[$project_nid][$release->field_release_version[LANGUAGE_NONE][0]['value']] = $release->field_release_version[LANGUAGE_NONE][0]['value'];
+      }
+      cache_set('project_release:versions:' . $project_nid, $versions[$project_nid]);
     }
   }
 
@@ -1598,7 +1606,7 @@ function project_release_is_security_update($node) {
  * @param $version
  *   A string version number for a release.
  *
- * @return integer
+ * @return int
  *   The node ID of an existing release with the given version information, or
  *   FALSE if no such release already exists.
  */
@@ -1745,7 +1753,7 @@ function project_release_ctools_plugin_directory($module, $plugin) {
  * @param $node
  *   A node to check.
  *
- * @return boolean
+ * @return bool
  *   Is the given node an release or not?
  */
 function project_release_node_is_release($node) {
@@ -1761,7 +1769,7 @@ function project_release_node_is_release($node) {
  * @param string $node_type
  *   The node type (machine name) to check.
  *
- * @return boolean
+ * @return bool
  *   Is the given node type a release node type or not?
  */
 function project_release_node_type_is_release($node_type) {
@@ -2033,7 +2041,7 @@ function _project_release_validate_format_string($element) {
 /**
  * API for populating the metadata about releases that are rebuilt.
  *
- * @param integer $nid
+ * @param int $nid
  *   The node ID of the release to record a rebuild version string for.
  * @param string $rebuild_version
  *   The rebuild version string to record for the given release.
@@ -2060,7 +2068,7 @@ function project_release_record_rebuild_metadata($nid, $rebuild_version) {
 /**
  * Get the release that corresponds to the specified project and VCS label.
  *
- * @param integer $pid
+ * @param int $pid
  *   The project node ID for the project being queried.
  * @param string $label
  *   A tag or branch being queried against.
