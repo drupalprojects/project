@@ -786,11 +786,13 @@ function project_release_node_presave($node) {
     }
 
     // Save file information.
-    foreach (array_map('field_collection_field_get_entity', $node->field_release_files[LANGUAGE_NONE]) as $collection) {
-      $file = file_load($collection->field_release_file[LANGUAGE_NONE][0]['fid']);
-      $collection->field_release_file_hash[LANGUAGE_NONE][0]['value'] = md5_file($file->uri);
-      $collection->field_release_file_sha1[LANGUAGE_NONE][0]['value'] = hash_file('sha1', $file->uri);
-      $collection->field_release_file_sha256[LANGUAGE_NONE][0]['value'] = hash_file('sha256', $file->uri);
+    if (!empty($node->field_release_files)) {
+      foreach (array_map('field_collection_field_get_entity', $node->field_release_files[LANGUAGE_NONE]) as $collection) {
+        $file = file_load($collection->field_release_file[LANGUAGE_NONE][0]['fid']);
+        $collection->field_release_file_hash[LANGUAGE_NONE][0]['value'] = md5_file($file->uri);
+        $collection->field_release_file_sha1[LANGUAGE_NONE][0]['value'] = hash_file('sha1', $file->uri);
+        $collection->field_release_file_sha256[LANGUAGE_NONE][0]['value'] = hash_file('sha256', $file->uri);
+      }
     }
   }
 }
