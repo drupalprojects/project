@@ -141,4 +141,5 @@ class project_release_handler_filter_release_node_nid extends views_handler_filt
     $where .= " $this->operator $base_nid";
     return $where;
   }
+
 }

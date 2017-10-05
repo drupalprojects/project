@@ -4,6 +4,7 @@
  * Provide a default argument of the currently relevant project type.
  */
 class project_plugin_argument_default_project_type extends views_plugin_argument_default {
+
   function get_argument() {
     // If we're on one of the project menu items (e.g. for project browsing),
     // the 2nd element in the URL *should* be the project type.
@@ -17,4 +18,5 @@ class project_plugin_argument_default_project_type extends views_plugin_argument
       return $node->type;
     }
   }
+
 }

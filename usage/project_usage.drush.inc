@@ -706,8 +706,6 @@ function project_usage_retrieve_metadata() {
   return $data;
 }
 
-
-
 /**
  * Run the counts for projects and releases, and update the database.
  */

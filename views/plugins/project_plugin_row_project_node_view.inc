@@ -7,6 +7,7 @@
  *
  */
 class project_plugin_row_project_node_view extends views_plugin_row {
+
   function option_definition() {
     $options = parent::option_definition();
 
@@ -52,5 +53,5 @@ class project_plugin_row_project_node_view extends views_plugin_row {
       );
     }
   }
-}
 
+}

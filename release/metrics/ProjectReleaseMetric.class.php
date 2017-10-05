@@ -30,4 +30,5 @@ class ProjectReleaseMetric extends SamplerMetric {
     }
     return $nids;
   }
+
 }

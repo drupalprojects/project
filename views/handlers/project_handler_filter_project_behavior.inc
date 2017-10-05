@@ -43,4 +43,5 @@ class project_handler_filter_project_behavior extends views_handler_filter {
     $this->ensure_my_table();
     $this->query->add_where($this->options['group'], "$this->table_alias.$this->real_field", $allowed, 'IN');
   }
+
 }

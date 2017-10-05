@@ -4,6 +4,7 @@
  * Views handler for relationships between releases and supported version info.
  */
 class project_release_handler_relationship_supported_versions extends views_handler_relationship {
+
   function init(&$view, &$options) {
     parent::init($view, $options);
     // This relationship only works with {project_release_supported_versions}
@@ -37,4 +38,5 @@ class project_release_handler_relationship_supported_versions extends views_hand
     $join->construct();
     $this->alias = $this->query->add_relationship($alias, $join, $this->definition['base'], $this->relationship);
   }
+
 }

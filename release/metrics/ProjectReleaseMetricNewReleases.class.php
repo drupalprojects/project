@@ -47,4 +47,5 @@ class ProjectReleaseMetricNewReleases extends ProjectReleaseMetric {
       $this->currentSample->values[$node->pid]['releases'] = (int)$node->releases;
     }
   }
+
 }

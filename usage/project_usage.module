@@ -120,7 +120,6 @@ function project_usage_permission() {
   );
 }
 
-
 /**
  * Implements hook_devel_caches().
  *

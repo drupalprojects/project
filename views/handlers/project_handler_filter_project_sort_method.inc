@@ -5,6 +5,7 @@
  * used for project node listings.
  */
 class project_handler_filter_project_sort_method extends views_handler_filter {
+
   /**
    * Since we're not using the operator option, we have to override parent::init().
    */
@@ -172,4 +173,5 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
    * modify the query here.
    */
   function query() { }
+
 }

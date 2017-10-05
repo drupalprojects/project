@@ -4,6 +4,7 @@
  * Field handler to provide a count of patches applied to package items.
  */
 class project_package_handler_field_local_patch_count extends views_handler_field {
+
   function construct() {
     parent::construct();
     $this->additional_fields['package_nid'] = 'package_nid';
@@ -60,4 +61,5 @@ class project_package_handler_field_local_patch_count extends views_handler_fiel
     }
     return '';
   }
+
 }

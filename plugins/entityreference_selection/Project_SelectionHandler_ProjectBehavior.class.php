@@ -87,4 +87,5 @@ class Project_SelectionHandler_ProjectBehavior extends EntityReference_Selection
 
     return $query;
   }
+
 }

@@ -9,6 +9,7 @@
  * argument's title to the full title of the project node.
  */
 class project_plugin_argument_validate_project_nid extends views_plugin_argument_validate {
+
   function validate_argument($argument) {
     // Default to the project machine name but allow using a different one too.
     $field = field_info_field(isset($this->argument->definition['field_name']) ? $this->argument->definition['field_name'] : 'field_project_machine_name');
@@ -54,5 +55,5 @@ class project_plugin_argument_validate_project_nid extends views_plugin_argument
       // This part is what we care about.
       ->fieldCondition('field_project_type', 'value', NULL, 'IS NOT NULL');
   }
-}
 
+}

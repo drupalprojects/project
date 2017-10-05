@@ -9,6 +9,7 @@
  */
 
 interface ProjectReleasePackagerInterface {
+
   /**
    * Constructor for a packager plugin class.
    *
@@ -36,6 +37,7 @@ interface ProjectReleasePackagerInterface {
    *   - 'no-op': There was nothing to do to package the given release
    */
   public function createPackage(&$files);
+
 }
 
 /**

@@ -1,6 +1,7 @@
 <?php
 
 class ProjectTestCase extends ProjectWebTestCase {
+
   public static function getInfo() {
     return array(
       'name' => 'Project creation functionality',

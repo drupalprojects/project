@@ -1,6 +1,7 @@
 <?php
 
 class ProjectInstallTestCase extends ProjectWebTestCase {
+
   public static function getInfo() {
     return array(
       'name' => 'Project installation functionality',
@@ -33,6 +34,6 @@ class ProjectInstallTestCase extends ProjectWebTestCase {
     );
     $fields = field_info_instances('node', 'project');
     $this->assertEqual(count(array_diff($expected, array_keys($fields))), 0, 'Project specific fields are installed.');
-
   }
+
 }

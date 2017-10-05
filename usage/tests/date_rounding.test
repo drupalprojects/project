@@ -1,6 +1,7 @@
 <?php
 
 class ProjectUsageGetDateTests extends DrupalTestCase {
+
   function get_info() {
     return array(
       'name' => 'project_usage_gmgetdate()',
@@ -40,11 +41,11 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
     $this->assertTrue(is_array($parts), "Returns an array");
     $this->assertEqual($parts[0], $expected, "Timestamps differ by the server's offset ($offset seconds)");
   }
+
 }
 
-
-
 class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
+
   function get_info() {
     return array(
       'name' => 'project_usage_daily_timestamp()',
@@ -64,6 +65,7 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
   function test_timestamp_param() {
     $time = 1189700682;
     $expected = 1189641600;
@@ -71,6 +73,7 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
   function test_array_param() {
     $time = 1189700682;
     $expected = 1189641600;
@@ -80,8 +83,8 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
   }
 }
 
-
 class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
+
   function get_info() {
     return array(
       'name' => 'project_usage_weekly_timestamp()',
@@ -101,6 +104,7 @@ class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
   function test_timestamp_param() {
     $time = 1189700682;
     $expected = 1189296000;
@@ -108,6 +112,7 @@ class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
   function test_array_param() {
     $time = 1189700682;
     $expected = 1189296000;
@@ -115,10 +120,11 @@ class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
 }
 
-
 class ProjectUsageGetWeeksSinceTests extends DrupalTestCase {
+
   function get_info() {
     return array(
       'name' => 'project_usage_get_weeks_since()',
@@ -144,5 +150,5 @@ class ProjectUsageGetWeeksSinceTests extends DrupalTestCase {
     $this->assertEqual($actual_first, $expected_first, "First value should be " . $this->format_date($expected_first) . ' got ' . $this->format_date($actual_first));
     $this->assertEqual($actual_last, $expected_last, "Last value should be " . $this->format_date($expected_last) . ' got ' . $this->format_date($actual_last));
   }
-}
 
+}

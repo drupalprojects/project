@@ -1,6 +1,7 @@
 <?php
 
 class ProjectWebTestCase extends DrupalWebTestCase {
+
   /**
    * Setup basic tasks for all project issue tests.
    */
@@ -128,5 +129,5 @@ class ProjectWebTestCase extends DrupalWebTestCase {
     $settings = drupal_array_merge_deep($defaults, $settings);
     return $this->drupalCreateNode($settings);
   }
-}
 
+}

@@ -1,6 +1,7 @@
 <?php
 
 class ProjectMaintainersTestCase extends ProjectWebTestCase {
+
   public static function getInfo() {
     return array(
       'name' => 'Project maintainers functionality',
@@ -8,7 +9,6 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
       'group' => 'Project'
     );
   }
-
 
   protected function setUp($modules = array()) {
     parent::setUp();
@@ -114,4 +114,5 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
     $this->drupalGet("node/$project->nid/maintainers");
     $this->assertResponse(403, 'Project maintainers form is protected.');
   }
+
 }
