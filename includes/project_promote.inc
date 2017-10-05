@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Code for the node/N/promote tab on project nodes.
@@ -31,7 +32,7 @@ function project_promote_project_form($form, $form_state, $project) {
     '#type' => 'checkbox',
     '#title' => t('I understand that this action cannot be undone and wish to proceed anyway'),
     '#default_value' => FALSE,
-    '#description' => t('Please confirm that you understand the implications of promoting this project.')
+    '#description' => t('Please confirm that you understand the implications of promoting this project.'),
   );
 
   // Only show the shortname field if it's auto-generated for sandbox projects.
@@ -140,7 +141,7 @@ function project_promote_project_confirm_form($form, $form_state, $project) {
  */
 function project_promote_project_confirm_form_submit($form, &$form_state) {
   $project = node_load($form_state['values']['nid']);
-  $project->field_project_type[LANGUAGE_NONE][0]['value'] = 'full' ;
+  $project->field_project_type[LANGUAGE_NONE][0]['value'] = 'full';
 
   unset($_SESSION['project_promote_project_shortname_' . $project->nid]);
 

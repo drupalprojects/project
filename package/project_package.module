@@ -1,12 +1,11 @@
 <?php
 
 /**
- * @file project_package.module
- * Provides packages made up of releases of other projects.
+ * @file Provides packages made up of releases of other projects.
  */
 
 /**
- * Implement hook_views_api().
+ * Implements hook_views_api().
  */
 function project_package_views_api() {
   return array(
@@ -16,7 +15,7 @@ function project_package_views_api() {
 }
 
 /**
- * Implementation of hook_preprocess_views_view_table()
+ * Implements hook_preprocess_views_view_table().
  *
  * Add dynamic css classes to project package tables.
  */
@@ -24,8 +23,8 @@ function project_package_preprocess_views_view_table(&$variables) {
   $view = $variables['view'];
   if ($view->name == 'project_package_local_items') {
     foreach ($view->result as $num => $result) {
-      if (isset($result->field_field_release_update_status [0]['raw']['value'])) {
-        // View of Content
+      if (isset($result->field_field_release_update_status[0]['raw']['value'])) {
+        // View of content.
         $variables['row_classes'][$num][] = 'release-update-status-' . drupal_clean_css_identifier(drupal_strtolower($result->field_field_release_update_status[0]['raw']['value']));
       }
     }
@@ -34,7 +33,7 @@ function project_package_preprocess_views_view_table(&$variables) {
 }
 
 /**
- * Implement hook_project_release_update_status_alter().
+ * Implements hook_project_release_update_status_alter().
  */
 function project_package_project_release_update_status_alter(&$update_status, $release) {
   // Set the update_status for a package based on its included items.
@@ -109,7 +108,7 @@ function project_package_check_update_status($item_nids) {
 /**
  * Record a set of local items included in a given packaged release.
  *
- * @param integer $package_nid
+ * @param int $package_nid
  *   The release node ID of the package to record the remote item for.
  * @param array $local_item_nids
  *   An array of node IDs for the local item(s).
@@ -124,12 +123,10 @@ function project_package_record_local_items($package_nid, $local_item_nids) {
 /**
  * Record a remote item (or library) included in a given release.
  *
- * @param integer $package_nid
+ * @param int $package_nid
  *   The release node ID of the package to record the remote item for.
- *
  * @param string $item_url
  *   The fully qualified URL where the remote item lives.
- *
  * @param string $name
  *   A human readable name to be associated with the item.
  */
@@ -158,18 +155,15 @@ function project_package_record_remote_item($package_nid, $item_url, $name) {
 /**
  * Record a patch file included in a given release package.
  *
- * @param integer $package_nid
+ * @param int $package_nid
  *   The release node ID of the package to record the patch information for.
- *
  * @param string $patch_url
  *   The fully qualified URL where the patch file lives.
- *
- * @param integer $item_id
+ * @param int $item_id
  *   The local release item ID, or remote item ID to which the patch applies.
  *
  *   This id references either {project_package_local_release_item}.item_nid or
  *   {project_package_remote_item}.id.
- *
  * @param string $item_type
  *   The type of item to which the patch is applied. Either 'local' or 'remote'.
  *

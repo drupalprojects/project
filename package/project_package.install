@@ -44,7 +44,7 @@ function project_package_schema() {
         'description' => 'Primary key: The primary identifier for a remote item.',
         'type' => 'serial',
         'unsigned' => TRUE,
-        'not null' => TRUE
+        'not null' => TRUE,
       ),
       'package_nid' => array(
         'description' => 'The {node}.nid of the package release node.',
