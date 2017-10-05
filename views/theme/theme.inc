@@ -39,11 +39,11 @@ function theme_project_views_project_sort_method_options_form($form) {
 }
 
 /**
- * Template helper for theme_project_views_view_row_project_node
+ * Template helper for theme_project_views_view_row_project_node.
  */
 function template_preprocess_project_views_view_row_project_node(&$vars) {
   $options = $vars['options'];
-  $vars['node'] = ''; // make sure var is defined.
+  $vars['node'] = ''; // Make sure var is defined.
   $nid = $vars['row']->nid;
   if (!is_numeric($nid)) {
     return;
@@ -68,8 +68,9 @@ function template_preprocess_project_views_view_row_project_node(&$vars) {
     $vars['project']->terms = theme('links', taxonomy_link('taxonomy terms', $node));
   }
 
-  // Because $vars['id'] is one based but $vars['view']>result-># is zero based, subtract
-  // one from $vars['id'] to get the corresponding index into $vars['view']->result.
+  // Because $vars['id'] is one based but $vars['view']>result-># is zero
+  // based, subtract one from $vars['id'] to get the corresponding index into
+  // $vars['view']->result.
   $result_id = $id - 1;
 
   $vars['project']->title = l($node->title, "node/$node->nid");
@@ -82,7 +83,7 @@ function template_preprocess_project_views_view_row_project_node(&$vars) {
     if (isset($node->project_issue['issues'])) {
       $vars['project_issue']->issues_link = array(
         'title' => t('Bugs and feature requests'),
-        'href' => 'project/issues/'. $node->project['uri'],
+        'href' => 'project/issues/' . $node->project['uri'],
       );
     }
   }
@@ -129,13 +130,11 @@ function template_preprocess_project_views_view_collapsible_summary(&$vars) {
     $count = intval($row->{$argument->count_alias});
     $tid = $row->term_node_tid;
     $term = taxonomy_get_term($tid);
-    //$url = url($view->get_url($args), $url_options);
     $url = taxonomy_term_path($term);
 
-  // @TODO:  We might not want to print terms with no projects so the user doesn't click on the
-  // term and end up with a 404 error.
-
-  // @TODO:  We want to include the description of the term as well.
+    // @TODO We might not want to print terms with no projects so the user
+    // doesn't click on the term and end up with a 404 error.
+    // @TODO We want to include the description of the term as well.
 
     $vars['rows'][$id]->link = $name;
     $vars['rows'][$id]->url = $url;
@@ -166,7 +165,7 @@ function template_preprocess_project_views_view_row_project_fields(&$vars) {
 
   // Loop through the fields for this view.
   $inline = FALSE;
-  $vars['fields'] = array(); // ensure it's at least an empty array.
+  $vars['fields'] = array(); // Ensure it's at least an empty array.
   foreach ($view->field as $id => $field) {
     if (empty($field->options['exclude'])) {
       $object = new stdClass();
@@ -176,7 +175,7 @@ function template_preprocess_project_views_view_row_project_fields(&$vars) {
         $object->raw = $vars['row']->{$view->field[$id]->field_alias};
       }
       else {
-        $object->raw = NULL; // make sure it exists to reduce NOTICE
+        $object->raw = NULL; // Make sure it exists to reduce NOTICE.
       }
 
       $object->handler = $view->field[$id];
