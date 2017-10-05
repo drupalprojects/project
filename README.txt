@@ -23,5 +23,3 @@ the project module: http://drupal.org/node/add/project_issue/project.
 The project family of modules is currently co-maintained by:
 - Derek Wright (dww) https://drupal.org/user/46549
 - Neil Drumm (drumm) https://drupal.org/user/3064
-
-

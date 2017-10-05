@@ -6,7 +6,7 @@
  */
 
 /**
- * Implement hook_views_data().
+ * Implements hook_views_data().
  */
 function project_package_views_data() {
   $data = array();

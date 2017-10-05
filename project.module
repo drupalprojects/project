@@ -31,8 +31,7 @@ function project_form_field_ui_field_edit_form_alter(&$form) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter(), altering
- * apachesolr_search_field_bias_form().
+ * Implements hook_form_FORM_ID_alter().
  */
 function project_form_apachesolr_search_bias_form_alter(&$form) {
   if (isset($form['field_bias']['ss_field_project_machine_name'])) {
@@ -59,7 +58,7 @@ function project_node_is_project($node) {
  * @param string $node_type
  *   The node type (machine name) to check.
  *
- * @return boolean
+ * @return bool
  *   Is the given node type a project node type or not?
  */
 function project_node_type_is_project($node_type) {
@@ -168,7 +167,7 @@ function project_ctools_plugin_api($module, $api) {
 }
 
 /**
- * Implementats hook_menu().
+ * Implements hook_menu().
  */
 function project_menu() {
   $items = array();
@@ -278,7 +277,7 @@ function project_promote_project_page($node) {
  * @param $node
  *   A fully-loaded node object representing the project.
  *
- * @return boolean
+ * @return bool
  *   TRUE if the given node is a sandbox project, FALSE if full.
  */
 function project_promote_project_is_sandbox($node) {
@@ -292,7 +291,7 @@ function project_promote_project_is_sandbox($node) {
  * @param $project
  *   A fully-loaded node object representing the project to generate
  *   breadcrumbs for.
- * @param boolean $include_project
+ * @param bool $include_project
  *   Should the breadcrumb trail include a link to the project itself?
  * @param array $extra
  *   An array of additional breadcrumb links to include after the main
@@ -698,7 +697,7 @@ function project_permission_load($project) {
 }
 
 /**
- * Implement hook_project_permission_info()
+ * Implements hook_project_permission_info().
  */
 function project_project_permission_info($project = NULL) {
   return array(
@@ -1058,7 +1057,7 @@ function project_get_nid_from_machinename($machinename) {
 }
 
 /**
- * Implements hook_modules_enabled(). Sets default pathauto patterns.
+ * Implements hook_modules_enabled().
  */
 function project_project_modules_enabled($modules) {
   if (in_array('pathauto', $modules)) {
@@ -1098,11 +1097,11 @@ function project_form_pathauto_patterns_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Implements hook_pathauto_alias_alter(). If available, use the project type's
- * sandbox alias.
+ * Implements hook_pathauto_alias_alter().
  */
 function project_pathauto_alias_alter(&$alias, array &$context) {
   if ($context['module'] === 'node' && project_node_type_is_project($context['type']) && ($context['op'] === 'insert' || $context['op'] === 'update')) {
+    // If available, use the project type's sandbox alias.
     $sandbox_pattern = variable_get('pathauto_node_' . $context['type'] . '_pattern_sandbox', '');
     if (!empty($sandbox_pattern) && project_promote_project_is_sandbox($context['data']['node'])) {
       $context['pattern'] = $sandbox_pattern;
@@ -1180,7 +1179,7 @@ function theme_project_add_landing_page($variables) {
  * @param $account
  *   A user object. If not provided, the current user is used.
  *
- * @return boolean
+ * @return bool
  *   User can or cannot create a project.
  */
 function project_user_can_create_project($account = NULL) {
