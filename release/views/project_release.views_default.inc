@@ -6,7 +6,7 @@
  */
 
 /**
- * Implement hook_views_default_views().
+ * Implements hook_views_default_views().
  */
 function project_release_views_default_views() {
   // Search the "default_views" subdirectory for files ending in .view.php.

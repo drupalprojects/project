@@ -33,6 +33,7 @@ function project_release_init() {
 
 /**
  * Implements hook_menu().
+ *
  * @ingroup project_release_core
  */
 function project_release_menu() {
@@ -143,7 +144,7 @@ function project_release_field_access($op, $field, $entity_type, $entity, $accou
  */
 
 /**
- * Implement hook_project_permission_info()
+ * Implements hook_project_permission_info().
  *
  * This advertises an 'Administer releases' permission if the site is
  * configured to allow sandboxes to have releases, if the project is not a
@@ -1222,11 +1223,11 @@ function project_release_add_download_base($uri, $download_base) {
 }
 
 /**
- * Implements hook_field_formatter_info(). Formats update status as
- * string.
+ * Implements hook_field_formatter_info().
  */
 function project_release_field_formatter_info() {
   return array(
+    // Format update status as string.
     'project_release_update_status' => array(
       'label' => t('Update status'),
       'field types' => array('number_integer'),
@@ -1235,8 +1236,7 @@ function project_release_field_formatter_info() {
 }
 
 /**
- * Implements hook_field_formatter_view(). Formats update status as
- * string.
+ * Implements hook_field_formatter_view().
  */
 function project_release_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   static $status;
@@ -1244,6 +1244,7 @@ function project_release_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'project_release_update_status':
+      // Format update status as string.
       if (is_null($status)) {
         $status = array(
           PROJECT_RELEASE_UPDATE_STATUS_CURRENT => t('Up to date'),
@@ -1697,7 +1698,7 @@ function project_release_get_version_extra_weight_map() {
 }
 
 /**
- * Implement hook_views_default_views_alter().
+ * Implements hook_views_default_views_alter().
  *
  * This injects project_release-specific features into views provided by the
  * project.module.

@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_views_data().
+ * Implements hook_views_data().
  *
  * Exposes all fields to the views system.
  */

@@ -13,7 +13,7 @@ function project_package_install() {
 }
 
 /**
- * Implements of hook_schema().
+ * Implements hook_schema().
  */
 function project_package_schema() {
   $schema['project_package_local_release_item'] = array(

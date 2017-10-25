@@ -117,7 +117,7 @@ function project_views_data_alter(&$data) {
 }
 
 /**
- * Implementation of hook_views_plugins().
+ * Implements hook_views_plugins().
  */
 function project_views_plugins() {
   $project_path = drupal_get_path('module', 'project');
