@@ -1464,7 +1464,6 @@ function project_release_query_releases($project_nid, $api_tid = NULL, $major = 
   // want to order by, and since EFQ can't sort on NULL values, we find all
   // the nids that match our constraints, load the nodes, and then sort via
   // PHP instead of trying to use fieldOrderBy().
-
   $result = $query->execute();
   if (empty($result)) {
     return array();

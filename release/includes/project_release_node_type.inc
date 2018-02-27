@@ -42,7 +42,6 @@ function _project_release_create_release_node_type() {
   variable_set('node_permissions_project_release', FALSE);
 
   // Define default fields and field instances.
-
   // Project
   field_create_field(array(
     'entity_types' => array(),

@@ -11,8 +11,7 @@
 function project_package_views_data() {
   $data = array();
 
-  // Fields for {project_package_local_release_item}
-
+  // Fields for {project_package_local_release_item}.
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this group by default.
   $data['project_package_local_release_item']['table']['group']  = t('Project package');
@@ -92,8 +91,7 @@ function project_package_views_data() {
     ),
   );
 
-  // Fields for {project_package_remote_item}
-
+  // Fields for {project_package_remote_item}.
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this group by default.
   $data['project_package_remote_item']['table']['group']  = t('Project package remote items');
@@ -171,8 +169,7 @@ function project_package_views_data() {
     ),
   );
 
-  // Fields for {project_package_local_patch}
-
+  // Fields for {project_package_local_patch}.
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this group by default.
   $data['project_package_local_patch']['table']['group']  = t('Project package local patches');
@@ -325,8 +322,7 @@ function project_package_views_data() {
     ),
   );
 
-  // Fields for {project_package_remote_patch}
-
+  // Fields for {project_package_remote_patch}.
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this group by default.
   $data['project_package_remote_patch']['table']['group']  = t('Project package remote patches');

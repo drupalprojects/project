@@ -101,7 +101,6 @@ function project_usage_overview() {
   // - Load all entities that have project usage data
   // - Cycle through them to build a map of entity_id -> machine_name
   // - Stuff the machine name into the project link when assembling the rows.
-
   $headers = array(
     t('#'),
     array(
@@ -215,7 +214,6 @@ function project_usage_project_page($node) {
   // functions do it. This means we end up doing most of the work to build the
   // page's second table early on. We might as well finish the job, then build
   // the other table and output them in the correct order.
-
   // Grab an array of active week timestamps.
   $weeks = project_usage_get_active_weeks();
 
@@ -239,7 +237,6 @@ function project_usage_project_page($node) {
   //   efficient INNER JOIN.
   // - The LEFT JOINs mean we have to limit the entries in {node} so that we're
   //   not including things like forum posts, hence the WHERE IN below.
-
   $query = db_select('node', 'n')
     ->fields('n', array('nid'))
     ->condition('n.nid', array_keys($releases), 'IN')

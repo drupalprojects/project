@@ -210,7 +210,6 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
       // We are cheating on url parsing a bit for speed reasons. We have a lot
       // of log to get through as fast as possible. None of the "sane" entries will
       // have stuff like anchors in the url.
-
       list(, $time, $project, $core, $query) = $matches;
       $ip = substr($line, 0, strpos($line, " "));
 
@@ -593,7 +592,6 @@ function project_usage_tally() {
     if ($updateweek) {
       // If we have release data for this week, then clear out the week in the database
       // to avoid duplicate key errors.
-
       // Do the update in a transaction to prevent glitches if someone requests stats while we're writing.
       db_query("START TRANSACTION");
 

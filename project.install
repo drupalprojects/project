@@ -181,7 +181,6 @@ function project_update_7002() {
     ->execute();
 
   // We are using bare queries here for speed reasons.
-
   // Bulk convert uri -> field_project_machine_name.
   $query = db_select('project_projects', 'p');
   $query->innerJoin('node', 'n', 'p.nid = n.nid');
