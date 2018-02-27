@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file project-views-view-row-project-node.tpl.php
+ * @file
  * Default view template to display a single project node.
  *
  * The following variables are available:

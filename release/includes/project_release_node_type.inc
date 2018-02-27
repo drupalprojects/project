@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Code to define the default project_release node type and its fields.
+ * @file
+ * Code to define the default project_release node type and its fields.
  */
 
 /**

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file project-views-view-collapsible-summary.tpl.php
+ * @file
  * Default simple view template to display a list of summary lines within
  * a collapsible fieldset.
  *

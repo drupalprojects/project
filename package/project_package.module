@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Provides packages made up of releases of other projects.
+ * @file
+ * Provides packages made up of releases of other projects.
  */
 
 /**

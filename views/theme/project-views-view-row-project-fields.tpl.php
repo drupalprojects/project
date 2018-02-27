@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file project-views-view-row-project-fields.tpl.php
+ * @file
  * View template to display available project fields in a row.
  *
  * - $view: The view in use.

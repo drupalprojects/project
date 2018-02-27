@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file project-views-view-project-list.tpl.php
+ * @file
  * Default simple view template to display a list of project rows.
  *
  * - $title : The title of this group of rows.  May be empty.
