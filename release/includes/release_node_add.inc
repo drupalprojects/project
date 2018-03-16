@@ -46,7 +46,7 @@ function project_release_pick_project_form_validate($form, &$form_state) {
       $node = node_load($form_state['values']['project_id']);
     }
     else {
-      $query = new EntityFieldQuery;
+      $query = new EntityFieldQuery();
       $result = $query
         ->entityCondition('entity_type', 'node')
         ->entityCondition('bundle', project_project_node_types())
@@ -76,7 +76,7 @@ function project_release_pick_project_form_submit($form, &$form_state) {
 function project_release_autocomplete_project($string) {
   $matches = array();
 
-  $query = new EntityFieldQuery;
+  $query = new EntityFieldQuery();
   $result = $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', project_project_node_types())

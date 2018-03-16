@@ -125,7 +125,7 @@ function theme_project_maintainers_form(&$variables) {
   if (is_array($form['maintainers'])) {
     foreach (element_children($form['maintainers']) as $uid) {
       $row = array();
-      $account = new stdClass;
+      $account = new stdClass();
       $account->uid = $uid;
       $account->name = $form['maintainers'][$uid]['name']['#value'];
       $row[] = theme('username', array('account' => $account));
@@ -221,7 +221,7 @@ function project_maintainers_form_submit($form, &$form_state) {
   // See if we need to insert a record for a new maintainer.
   if (!empty($form_state['values']['new_maintainer']['uid'])) {
     project_maintainer_save($project_nid, $form_state['values']['new_maintainer']['uid'], $form_state['values']['new_maintainer']['permissions']);
-    $account = new stdClass;
+    $account = new stdClass();
     $account->uid = $form_state['values']['new_maintainer']['uid'];
     $account->name = $form_state['values']['new_maintainer']['user'];
     drupal_set_message(t('New maintainer !maintainer added and permissions updated.', array('!maintainer' => theme('username', array('account' => $account)))));
