@@ -156,25 +156,6 @@ function hook_project_behavior_info() {
   );
 }
 
-/*
-function project_milestone_behavior_settings($node_type) {
-  return array(
-    // Provide a form element that will eventually be saved as the
-    // 'project_milestone_color_[node-type]' setting.
-    'project_milestone_color' => array(
-      '#type' => 'select',
-      '#title' => t('What color should these milestones be?'),
-      '#options' => array(
-        'red' => t('Red'),
-        'green' => t('Green'),
-        'blue' => t('Blue'),
-      ),
-      '#default_value' => variable_get('project_milestone_color_' . $node_type, 'blue'),
-    ),
-  );
-}
-*/
-
 /**
  * Notify when a project is promoted from sandbox to full project status.
  *
