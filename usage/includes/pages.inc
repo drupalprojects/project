@@ -244,10 +244,10 @@ function project_usage_project_page($node) {
     ->addTag('node_access');
 
   $release_header = array(array(
-      'field' => 'n.title',
-      'data' => t('Release'),
-      'sort' => 'desc',
-    ));
+    'field' => 'n.title',
+    'data' => t('Release'),
+    'sort' => 'desc',
+  ));
 
   foreach ($weeks as $i => $week) {
     // Note that "{$i}" in these query snippets are used to add a week integer

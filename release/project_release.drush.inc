@@ -226,9 +226,9 @@ function drush_project_release_release_create_history($project_id = NULL) {
     // Generate all xml files for projects with releases.
     $query = new EntityFieldQuery();
     $result = $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', project_project_node_types())
-    ->fieldCondition('field_project_type', 'value', 'full')
-    ->execute();
+      ->entityCondition('bundle', project_project_node_types())
+      ->fieldCondition('field_project_type', 'value', 'full')
+      ->execute();
     if (!empty($result)) {
       foreach ($result['node'] as $project) {
         project_release_history_generate_project_xml(node_load($project->nid, NULL, TRUE));

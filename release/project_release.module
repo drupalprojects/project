@@ -1367,8 +1367,8 @@ function project_release_has_full_release(stdClass $node, array $api_tids = NULL
  *   responsible for ensuring access.
  *
  * @return
- *  An array containing the node ID (nid) of the latest and recommended
- *  releases, and latest security update (if any) from the given branch.
+ *   An array containing the node ID (nid) of the latest and recommended
+ *   releases, and latest security update (if any) from the given branch.
  */
 function project_release_find_latest_releases($project_nid, $api_tid, $major, $access = FALSE) {
   $latest_release = $recommended_release = $latest_security_release = 0;

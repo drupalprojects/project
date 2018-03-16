@@ -658,7 +658,7 @@ function project_user_access($project, $permission, $account = NULL) {
 
   // If the user has the site-wide admin permission, always grant access.
   if (user_access('administer projects')) {
-     return TRUE;
+    return TRUE;
   }
 
   // Project owners are treated as super users and can always access.

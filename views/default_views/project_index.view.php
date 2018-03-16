@@ -64,7 +64,7 @@ $handler->display->display_options['filters']['field_project_type_value']['table
 $handler->display->display_options['filters']['field_project_type_value']['field'] = 'field_project_type_value';
 $handler->display->display_options['filters']['field_project_type_value']['ui_name'] = 'Project type';
 $handler->display->display_options['filters']['field_project_type_value']['value'] = array(
-    'full' => 'full',
+  'full' => 'full',
 );
 $handler->display->display_options['filters']['field_project_type_value']['exposed'] = TRUE;
 $handler->display->display_options['filters']['field_project_type_value']['expose']['operator_id'] = 'field_project_type_value_op';
