@@ -43,7 +43,7 @@ function theme_project_views_project_sort_method_options_form($form) {
  */
 function template_preprocess_project_views_view_row_project_node(&$vars) {
   $options = $vars['options'];
-  $vars['node'] = ''; // Make sure var is defined.
+  $vars['node'] = '';
   $nid = $vars['row']->nid;
   if (!is_numeric($nid)) {
     return;
@@ -158,14 +158,16 @@ function template_preprocess_project_views_view_collapsible_summary(&$vars) {
 }
 
 /**
- * Preprocess theme function to print a single project record from a row, using fields.
+ * Preprocess theme function.
+ *
+ * Print a single project record from a row, using fields.
  */
 function template_preprocess_project_views_view_row_project_fields(&$vars) {
   $view = $vars['view'];
 
   // Loop through the fields for this view.
   $inline = FALSE;
-  $vars['fields'] = array(); // Ensure it's at least an empty array.
+  $vars['fields'] = array();
   foreach ($view->field as $id => $field) {
     if (empty($field->options['exclude'])) {
       $object = new stdClass();
@@ -175,7 +177,7 @@ function template_preprocess_project_views_view_row_project_fields(&$vars) {
         $object->raw = $vars['row']->{$view->field[$id]->field_alias};
       }
       else {
-        $object->raw = NULL; // Make sure it exists to reduce NOTICE.
+        $object->raw = NULL;
       }
 
       $object->handler = $view->field[$id];

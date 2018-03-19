@@ -104,7 +104,7 @@ function project_schema() {
 function project_update_dependencies() {
   $dependencies = array();
   $dependencies['project'][7000] = array(
-    'profile' => 7001,  // @todo Figure out how to make this conditional...
+    'profile' => 7001,
     'system' => 7052,
   );
   return $dependencies;

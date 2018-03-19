@@ -44,7 +44,8 @@ function project_views_data() {
 
   $data['project_maintainer']['update_project'] = array(
     'title' => t('Update Projects'),
-    'help' => t('Can this user update(edit) the given project and modify its settings.'), // The help that appears on the UI.
+    // The help that appears on the UI.
+    'help' => t('Can this user update(edit) the given project and modify its settings.'),
     // Information for displaying the node ID.
     'field' => array(
       'handler' => 'views_handler_field_boolean',
@@ -65,7 +66,8 @@ function project_views_data() {
   );
   $data['project_maintainer']['administer_maintainers'] = array(
     'title' => t('Update Projects'),
-    'help' => t('Can this user manipulate the maintainers for the given project.'), // The help that appears on the UI.
+    // The help that appears on the UI.
+    'help' => t('Can this user manipulate the maintainers for the given project.'),
     // Information for displaying the node ID.
     'field' => array(
       'handler' => 'views_handler_field_boolean',
@@ -146,7 +148,8 @@ function project_views_plugins() {
         'theme' => 'project_views_view_collapsible_summary',
         'theme file' => 'theme.inc',
         'theme path' => "$project_path/views/theme",
-        'type' => 'summary', // only shows up as a summary style
+        // Only shows up as a summary style.
+        'type' => 'summary',
         'uses options' => TRUE,
       ),
     ),
@@ -159,7 +162,8 @@ function project_views_plugins() {
         'theme' => 'project_views_view_row_project_node',
         'theme file' => 'theme.inc',
         'theme path' => "$project_path/views/theme",
-        'base' => array('node'), // only works with 'node' as base.
+        // Only works with 'node' as base.
+        'base' => array('node'),
         'uses options' => TRUE,
         'type' => 'normal',
       ),
@@ -194,7 +198,8 @@ function project_views_plugins() {
         'title' => t('Project-enabled node type from URL'),
         'handler' => 'project_plugin_argument_default_project_type',
         'path' => $path,
-        'parent' => 'fixed', // so that the parent class is included
+        // So that the parent class is included.
+        'parent' => 'fixed',
       ),
     ),
   );

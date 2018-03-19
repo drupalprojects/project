@@ -101,9 +101,10 @@ function project_usage_drush_command() {
  */
 function drush_project_usage_tally_usage_stats() {
   module_load_include('inc', 'project_usage', 'includes/date_api');
-  // General bookkeeping stuff.
-  project_usage_expire_statfiles(); // Delete old weeks from Mongo
-  project_usage_tally(); // Compute summary data.
+  // Delete old weeks from Mongo.
+  project_usage_expire_statfiles();
+  // Compute summary data.
+  project_usage_tally();
 }
 
 /**
@@ -148,7 +149,8 @@ function drush_project_usage_process_varnish_files($glob = NULL) {
       $return = 0;
       // Run the loader as a subprocess.
       _project_usage_process_varnish_file($file, $updates_url);
-      db_query('SELECT 1'); // Ping the database to keep our connection alive.
+      // Ping the database to keep our connection alive.
+      db_query('SELECT 1');
       $c->save($record);
     }
     else {
@@ -192,7 +194,8 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
   $timestr = '';
   $timestamp = 0;
   $week = 0;
-  $ccol = 0; // Current collection
+  // Current collection.
+  $ccol = 0;
   $c = FALSE;
   $st = array(
     '@change' => 0,
@@ -218,8 +221,8 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
       // seconds to 70 seconds. I feel I will be unable to top that. ~bdragon
       if ($timestr != $time) {
         $timestr = $time;
-        $timestamp = strtotime($time); // 28 seconds saved in test run.
-        $week = project_usage_weekly_timestamp($timestamp); // 75 seconds saved(!)
+        $timestamp = strtotime($time);
+        $week = project_usage_weekly_timestamp($timestamp);
         // Change collections on a week boundary.
         if ($ccol != $week) {
           //drush_log(dt("Changing week."));
@@ -245,7 +248,7 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
       if (!empty($qdata['site_key']) && !empty($qdata['version'])) {
         $rkey = strtolower($project . ':' . $qdata['version']);
         if (isset($releasedata[$rkey]) && isset($rterms[$core]) && ($rterms[$core] == $releasedata[$rkey][2])) {
-          $rd = $releasedata[$rkey]; // array($row->pid, $row->nid, $row->version_api_tid);
+          $rd = $releasedata[$rkey];
           $entry = array(
             'site_key' => strtolower($qdata['site_key']),
             'ip' => $ip,
@@ -297,9 +300,8 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
 function project_usage_mongo() {
   static $db;
   if (!$db) {
-    $conn = new Mongo(variable_get('project_usage_mongo_server', 'mongodb://localhost:27017')); // @@@ Ask nnewton about enabling unix domain socket.
+    $conn = new Mongo(variable_get('project_usage_mongo_server', 'mongodb://localhost:27017'));
     $db = $conn->selectDB("update-statistics");
-    // @@@ Check for success?
   }
   return $db;
 }

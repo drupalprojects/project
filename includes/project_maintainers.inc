@@ -148,7 +148,8 @@ function theme_project_maintainers_form(&$variables) {
   foreach (element_children($form['new_maintainer']['permissions']) as $perm) {
     $row[] = drupal_render($form['new_maintainer']['permissions'][$perm]);
   }
-  $row[] = ''; // Empty cell for the 'Operations' column on new maintainers.
+  // Empty cell for the 'Operations' column on new maintainers.
+  $row[] = '';
   $rows[] = $row;
 
   // Always put the owner row at the top of the table.

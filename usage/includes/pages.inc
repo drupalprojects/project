@@ -593,7 +593,15 @@ function theme_project_usage_chart_by_release($variables) {
       'xaxis' => array(
         'mode' => 'time',
       ),
-      'colors' => array('#EDAA00', '#0062A0', '#A17300', '#ED8200', '#38B4BA', '#215D6E'), // Might need more colors than this.
+      'colors' => array(
+        '#EDAA00',
+        '#0062A0',
+        '#A17300',
+        '#ED8200',
+        '#38B4BA',
+        '#215D6E',
+        // Might need more colors than this.
+      ),
       'series' => array(
         'shadowSize' => 0,
       ),

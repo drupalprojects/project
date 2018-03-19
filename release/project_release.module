@@ -1687,7 +1687,8 @@ function project_release_ctools_plugin_api($module, $api) {
  */
 function project_release_get_version_extra_weight_map() {
   $default_map = array(
-    'NULL' => 10, // Official releases without extra are always highest.
+    // Official releases without extra are always highest.
+    'NULL' => 10,
     'rc' => 4,
     'beta' => 3,
     'alpha' => 2,
