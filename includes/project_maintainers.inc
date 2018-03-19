@@ -221,9 +221,13 @@ function project_maintainers_form_submit($form, &$form_state) {
   // See if we need to insert a record for a new maintainer.
   if (!empty($form_state['values']['new_maintainer']['uid'])) {
     project_maintainer_save($project_nid, $form_state['values']['new_maintainer']['uid'], $form_state['values']['new_maintainer']['permissions']);
-    $account = new stdClass();
-    $account->uid = $form_state['values']['new_maintainer']['uid'];
-    $account->name = $form_state['values']['new_maintainer']['user'];
+    $account = user_load($form_state['values']['new_maintainer']['uid']);
+
+    // Notify the new project maintainer based on the project settings.
+    if (variable_get('project_maintainer_notification')) {
+      drupal_mail('project', 'project_maintainer_new', $account->mail, LANGUAGE_NONE, ['node' => node_load($project_nid), 'user' => $account], '"' . mime_header_encode(t('!name (!site)', ['!name' => $GLOBALS['user']->name, '!site' => variable_get('site_name', 'Drupal')])) . '" <' . variable_get('site_mail', ini_get('sendmail_from')) . '>');
+    }
+
     drupal_set_message(t('New maintainer !maintainer added and permissions updated.', array('!maintainer' => theme('username', array('account' => $account)))));
   }
   else {
