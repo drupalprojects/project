@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Provide views data and handlers for project.module.

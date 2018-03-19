@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Install and update routines for project_release.
@@ -139,24 +140,24 @@ function project_release_schema() {
   );
 
   $schema['project_release_project_maintainer'] = array(
-    'description' => t('Users who have various per-project maintainer permissions.'),
+    'description' => 'Users who have various per-project maintainer permissions.',
     'fields' => array(
       'nid' => array(
-        'description' => t('Foreign key: {project_projects}.nid of the project.'),
+        'description' => 'Foreign key: {project_projects}.nid of the project.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'uid' => array(
-        'description' => t('Foreign key: {users}.uid of a user with any project maintainer permissions.'),
+        'description' => 'Foreign key: {users}.uid of a user with any project maintainer permissions.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'administer_releases' => array(
-        'description' => t('Can this user create and administer releases for the given project.'),
+        'description' => 'Can this user create and administer releases for the given project.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -167,17 +168,17 @@ function project_release_schema() {
   );
 
   $schema['project_release_node_rebuild_metadata'] = array(
-    'description' => t('Tracks metadata about releases that are periodically rebuilt.'),
+    'description' => 'Tracks metadata about releases that are periodically rebuilt.',
     'fields' => array(
       'nid' => array(
-        'description' => t('Foreign key: {project_release_node}.nid of the project release.'),
+        'description' => 'Foreign key: {project_release_node}.nid of the project release.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'rebuild_version' => array(
-        'description' => t('The current version string for this release based on the last time it was rebuilt.'),
+        'description' => 'The current version string for this release based on the last time it was rebuilt.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,

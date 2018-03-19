@@ -213,25 +213,25 @@ function project_menu() {
   );
 
   $items['admin/config/project'] = array(
-    'title' => t('Project'),
+    'title' => 'Project',
     'access callback' => 'user_access',
     'access arguments' => array('administer projects'),
   );
 
   $items['admin/config/project/project-settings'] = array(
-    'title' => t('Project settings'),
+    'title' => 'Project settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('project_main_settings_form'),
     'access callback' => 'user_access',
     'access arguments' => array('administer projects'),
-    'description' => t('Configure system-wide settings for the Project module.'),
+    'description' => 'Configure system-wide settings for the Project module.',
   );
 
   $items['project/add'] = array(
-    'title' => t('Create a project'),
+    'title' => 'Create a project',
     'page callback' => 'project_add_landing_page',
     'access callback' => 'project_user_can_create_project',
-    'description' => t('Add a new project node.'),
+    'description' => 'Add a new project node.',
   );
 
   return $items;
