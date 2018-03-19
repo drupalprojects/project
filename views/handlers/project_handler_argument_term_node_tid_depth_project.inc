@@ -27,7 +27,7 @@ class project_handler_argument_term_node_tid_depth_project extends views_handler
     if (isset($this->argument) && is_numeric($this->argument)) {
       // Add {term_hierarchy} table
       $th_alias = $this->query->add_table('term_hierarchy');
-  
+
       // Limit returned results to terms whose parent is the argument.
       $this->query->add_where(0, "$th_alias.parent = %d", $this->argument);
     }
@@ -37,7 +37,4 @@ class project_handler_argument_term_node_tid_depth_project extends views_handler
     return $this->summary_basics();
   }
 
-  //function query() {
-  //  $this->query->clear_fields();
-  //}
 }

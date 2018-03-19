@@ -14,9 +14,13 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
     $this->value = $this->options['value'];
   }
 
-  function has_extra_options() { return TRUE; }
+  function has_extra_options() {
+    return TRUE;
+  }
 
-  function get_value_options() { /* don't overwrite the value options */ }
+  function get_value_options() {
+    // Don't overwrite the value options.
+  }
 
   function option_definition() {
     $options = parent::option_definition();
@@ -172,6 +176,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
    * Since this handler isn't a "true" filter, we don't want to directly
    * modify the query here.
    */
-  function query() { }
+  function query() {
+  }
 
 }

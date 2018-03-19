@@ -41,7 +41,7 @@ class project_package_handler_field_local_patch_count extends views_handler_fiel
         }
       }
     }
-    // Less buckets in the packages_by_item table, meaning it was mostly 
+    // Less buckets in the packages_by_item table, meaning it was mostly
     // results across multiple packages for the same item.
     else {
       foreach ($packages_by_item as $item_nid => $package_nids) {

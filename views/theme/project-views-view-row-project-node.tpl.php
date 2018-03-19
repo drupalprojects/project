@@ -30,8 +30,14 @@
 
 <div class="<?php print $project->class; ?>">
   <h2><?php print $project->title; ?></h2>
-  <?php if (!empty($project->changed)) { print '<p><small>' . $project->changed . '</small></p>'; } ?>
+  <?php if (!empty($project->changed)) {
+    print '<p><small>' . $project->changed . '</small></p>';
+  } ?>
   <?php print $project->body; ?>
-  <?php if (!empty($project_release->download_table)) { print $project_release->download_table; } ?>
-  <?php if (!empty($project->terms)) { print $project->terms; } ?>
+  <?php if (!empty($project_release->download_table)) {
+    print $project_release->download_table;
+  } ?>
+  <?php if (!empty($project->terms)) {
+    print $project->terms;
+  } ?>
 </div>

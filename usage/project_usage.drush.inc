@@ -421,7 +421,8 @@ function project_usage_load_metadata() {
   $c = $db->selectCollection("terms");
   $c->remove(array());
   foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-    if (strlen($term->name) == 3) { // Quick ugly hack to skip drupal < 5.x
+    // Quick ugly hack to skip drupal < 5.x
+    if (strlen($term->name) == 3) {
       $c->insert(array(
         'tid' => $term->tid,
         'name' => $term->name,
@@ -646,7 +647,8 @@ function project_usage_retrieve_metadata() {
 
     // Load core api versions
     foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-      if (strlen($term->name) == 3) { // Quick ugly hack to skip drupal < 5.x
+      // Quick ugly hack to skip drupal < 5.x
+      if (strlen($term->name) == 3) {
         $coreterms[$term->name] = $term->tid;
       }
     }

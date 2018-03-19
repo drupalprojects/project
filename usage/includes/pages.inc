@@ -23,10 +23,10 @@ function _project_usage_help($key) {
     $node = project_load($key);
   }
   if (project_node_is_project($node)) {
-    return '<p>' . t('This page provides information about the usage of the %project_title project, including summaries across all versions and details for each release. For each week beginning on the given date the figures show the number of sites that reported they are using a given version of the project. ', array('%project_title' => $node->title)) . '</p>';
+    return '<p>' . t('This page provides information about the usage of the %project_title project, including summaries across all versions and details for each release. For each week beginning on the given date the figures show the number of sites that reported they are using a given version of the project.', array('%project_title' => $node->title)) . '</p>';
   }
   elseif (project_release_node_is_release($node)) {
-    return '<p>' . t('For each week beginning on a given date, the figures show the number of sites that reported they are using the %release_title release. ', array('%release_title' => $node->title)) . '</p>';
+    return '<p>' . t('For each week beginning on a given date, the figures show the number of sites that reported they are using the %release_title release.', array('%release_title' => $node->title)) . '</p>';
   }
 }
 

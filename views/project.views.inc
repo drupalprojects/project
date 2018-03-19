@@ -164,7 +164,8 @@ function project_views_plugins() {
         'uses options' => TRUE,
         'type' => 'normal',
       ),
-      'project_fields' => array(   // Project row style for fields.
+      // Project row style for fields.
+      'project_fields' => array(
         'title' => t('Project fields'),
         'help' => t('Displays project fields.'),
         'handler' => 'project_plugin_row_project_fields_view',
