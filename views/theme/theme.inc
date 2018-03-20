@@ -110,54 +110,6 @@ function template_preprocess_project_views_view_project_list(&$vars) {
 }
 
 /**
- * Preprocess theme function that is used for the collapsible summary style.
- */
-function template_preprocess_project_views_view_collapsible_summary(&$vars) {
-  $view = $vars['view'];
-  $argument = $view->argument[$view->build_info['summary_level']];
-
-  $url_options = array();
-  $terms = array();
-
-  if (!empty($view->exposed_raw_input)) {
-    $url_options['query'] = $view->exposed_raw_input;
-  }
-
-  $children = array();
-
-  foreach ($vars['rows'] as $id => $row) {
-    $name = $argument->summary_name($row);
-    $count = intval($row->{$argument->count_alias});
-    $tid = $row->term_node_tid;
-    $term = taxonomy_get_term($tid);
-    $url = taxonomy_term_path($term);
-
-    // @TODO We might not want to print terms with no projects so the user
-    // doesn't click on the term and end up with a 404 error.
-    // @TODO We want to include the description of the term as well.
-
-    $vars['rows'][$id]->link = $name;
-    $vars['rows'][$id]->url = $url;
-    $vars['rows'][$id]->count = $count;
-    $vars['rows'][$id]->term = $term;
-
-    // Prepare terms for sending to theme_project_term_list().
-    $l_options = array('attributes' => array('title' => strip_tags($term->description)), 'absolute' => TRUE);
-    $l_options = array_merge($l_options, $url_options);
-    $children[] = l("$name ($count)", $url, $l_options);
-  }
-
-  // For each row returned, we store the data in two different ways for use
-  // and display by the template.
-  $vars['project_terms'] = array(
-    '#title' => t('Categories'),
-    '#collapsible' => TRUE,
-    '#collapsed' => isset($view->original_args[1]) ? TRUE : FALSE,
-    '#children' => theme('item_list', $children),
-  );
-}
-
-/**
  * Preprocess theme function.
  *
  * Print a single project record from a row, using fields.

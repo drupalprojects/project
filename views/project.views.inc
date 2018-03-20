@@ -140,18 +140,6 @@ function project_views_plugins() {
         'uses grouping' => TRUE,
         'type' => 'normal',
       ),
-      'collapsible_summary' => array(
-        'title' => t('Collapsible'),
-        'help' => t('Displays the summary in a collapsible fieldset.'),
-        'handler' => 'views_plugin_style_summary',
-        'path' => $path,
-        'theme' => 'project_views_view_collapsible_summary',
-        'theme file' => 'theme.inc',
-        'theme path' => "$project_path/views/theme",
-        // Only shows up as a summary style.
-        'type' => 'summary',
-        'uses options' => TRUE,
-      ),
     ),
     'row' => array(
       'project_node' => array(
