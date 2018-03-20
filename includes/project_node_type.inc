@@ -2,7 +2,7 @@
 
 /**
  * @file
- *  Project node types.
+ * Project node types.
  */
 
 /**
@@ -11,9 +11,7 @@
 function project_install_default_project_node_type() {
   $t = get_t();
 
-  /**
-   * Set up project-specific field for short name.
-   */
+  // Set up project-specific field for short name.
   if (!field_info_field('field_project_machine_name')) {
     $machine_name = array(
       'type' => 'machine_name',
@@ -23,10 +21,8 @@ function project_install_default_project_node_type() {
     field_create_field($machine_name);
   }
 
-  /**
-   * Set up a default project node type, which includes title, body, and short
-   * name.
-   */
+  // Set up a default project node type, which includes title, body, and short
+  // name.
   $node_type = array(
     'type' => 'project',
     'name' => $t('Project'),

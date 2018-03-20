@@ -9,12 +9,10 @@
  * Implements hook_install().
  */
 function project_install() {
-  require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
+  require_once dirname(__FILE__) . '/includes/project_node_type.inc';
   $t = get_t();
 
-  /**
-   * Set up project-specific field for project type.
-   */
+  // Set up project-specific field for project type.
   $project_type = array(
     'entity_types' => array('node'),
     'type' => 'list_text',
@@ -42,7 +40,7 @@ function project_uninstall() {
   // This kills the field and all of the field data.
   // Also, should we delete the project_node_type node type?
   if (!field_has_data('field_project_type')) {
-    require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
+    require_once dirname(__FILE__) . '/includes/project_node_type.inc';
     project_uninstall_default_project_node_type();
     field_delete_field('field_project_type');
     watchdog('project', 'Deleted the :field_name field from all content type instances.', array(':field_name' => 'field_project_type'));
@@ -114,16 +112,14 @@ function project_update_dependencies() {
  * Ensure project node type is properly set up.
  */
 function project_update_7000() {
-  require_once(dirname(__FILE__) . '/includes/project_node_type.inc');
+  require_once dirname(__FILE__) . '/includes/project_node_type.inc';
   $t = get_t();
 
   // Enable new dependencies.
   module_enable(array('machine_name', 'list'));
   drupal_flush_all_caches();
 
-  /**
-   * Set up project-specific field for project type.
-   */
+  // Set up project-specific field for project type.
   if (!field_info_field('field_project_type')) {
     $project_type = array(
       'entity_types' => array('node'),

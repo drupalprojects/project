@@ -2,7 +2,7 @@
 
 /**
  * @file
- *   Base class for Project release metrics.
+ * Base class for Project release metrics.
  */
 
 class ProjectReleaseMetric extends SamplerMetric {
