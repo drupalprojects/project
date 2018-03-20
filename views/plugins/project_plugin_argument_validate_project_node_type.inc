@@ -2,7 +2,6 @@
 
 /**
  * Validate whether an argument is a node type that is a project node type.
- *
  */
 class project_plugin_argument_validate_project_node_type extends views_plugin_argument_validate {
 

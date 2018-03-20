@@ -6,7 +6,6 @@
  *
  * In addition to some shared helper functions, this file defines the
  * interface that all CTools release_packager plugins must implement.
- *
  */
 
 interface ProjectReleasePackagerInterface {

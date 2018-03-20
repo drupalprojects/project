@@ -9,7 +9,6 @@
  * Originally based on project-usage-process.php. Rewritten for drush by Brandon Bergren.
  * @author Andrew Morton (http://drupal.org/user/34869)
  * @author Derek Wright (http://drupal.org/user/46549)
- *
  */
 
 /**

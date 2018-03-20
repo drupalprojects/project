@@ -13,7 +13,6 @@
  *   - $field->class: The safe class id to use.
  *   - $field->label: The label of the field.
  * - $row: The raw result object from the query, with all data it fetched.
- *
  */
 ?>
 <?php foreach ($fields as $id => $field): ?>
