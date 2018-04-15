@@ -335,7 +335,11 @@ function project_usage_lookup($type = 'terms') {
     $cursor = $c->find();
     foreach ($cursor as $r) {
       $row = (object) $r;
-      $data['releasedata']["{$row->uri}:{$row->version}"] = array($row->pid, $row->nid, $row->tid);
+      $data['releasedata']["{$row->uri}:{$row->version}"] = array(
+        $row->pid,
+        $row->nid,
+        $row->tid,
+      );
     }
   }
   return isset($data[$type]) ? $data[$type] : FALSE;
@@ -469,7 +473,11 @@ function project_usage_load_metadata() {
           'version' => $release->field_release_version[LANGUAGE_NONE][0]['value'],
           'tid' => isset($release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE]) ? $release->{'taxonomy_' . $api_vocabulary->machine_name}[LANGUAGE_NONE][0]['tid'] : 0,
         );
-        $data['releasedata']["{$row->uri}:{$row->version}"] = array($row->pid, $row->nid, $row->tid);
+        $data['releasedata']["{$row->uri}:{$row->version}"] = array(
+          $row->pid,
+          $row->nid,
+          $row->tid,
+        );
         if ($use_mongo) {
           // Load the row in mongo before we throw it away.
           $c->insert($row);
@@ -563,7 +571,8 @@ function project_usage_tally() {
           ->condition('timestamp', $week)
           ->execute();
         $qcount = 0;
-        $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
+        $query = db_insert('project_usage_week_project')
+          ->fields(array('nid', 'timestamp', 'tid', 'count'));
         foreach ($projects as $project => $count) {
           $qcount++;
           $query->values(array(
@@ -576,7 +585,8 @@ function project_usage_tally() {
           if ($qcount > 1000) {
             $query->execute();
             $qcount = 0;
-            $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
+            $query = db_insert('project_usage_week_project')
+              ->fields(array('nid', 'timestamp', 'tid', 'count'));
           }
         }
         if ($qcount) {
@@ -605,7 +615,8 @@ function project_usage_tally() {
     foreach ($tally as $tid => $releases) {
       if (!empty($releases)) {
         $qcount = 0;
-        $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+        $query = db_insert('project_usage_week_release')
+          ->fields(array('nid', 'timestamp', 'count'));
         foreach ($releases as $release => $count) {
           $qcount++;
           $query->values(array(
@@ -617,7 +628,8 @@ function project_usage_tally() {
           if ($qcount > 1000) {
             $query->execute();
             $qcount = 0;
-            $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+            $query = db_insert('project_usage_week_release')
+              ->fields(array('nid', 'timestamp', 'count'));
           }
         }
         if ($qcount) {
@@ -736,7 +748,8 @@ function drush_project_usage_import_usage_stats($week) {
     ->execute();
   // Load in new counts
   $qcount = 0;
-  $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+  $query = db_insert('project_usage_week_release')
+    ->fields(array('nid', 'timestamp', 'count'));
   while ($line = fgets($project_releasecounts_fh)) {
     $nid = 0 ;
     $term = 0;
@@ -769,7 +782,8 @@ function drush_project_usage_import_usage_stats($week) {
     if ($qcount > 1000) {
       $query->execute();
       $qcount = 0;
-      $query = db_insert('project_usage_week_release')->fields(array('nid', 'timestamp', 'count'));
+      $query = db_insert('project_usage_week_release')
+        ->fields(array('nid', 'timestamp', 'count'));
     }
 
   }
@@ -787,7 +801,8 @@ function drush_project_usage_import_usage_stats($week) {
     ->execute();
   // Load in new counts
   $qcount = 0;
-  $query = db_insert('project_usage_week_project')->fields(array('nid', 'timestamp', 'tid', 'count'));
+  $query = db_insert('project_usage_week_project')
+    ->fields(array('nid', 'timestamp', 'tid', 'count'));
 
   // Update the project major API counts based on the aggregated counts from the releases
   foreach ($project_api_counts as $project_machine_name => $maj_apis) {

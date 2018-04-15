@@ -1076,7 +1076,9 @@ function project_release_node_view($node, $view_mode, $langcode) {
 
     // Replace files with a view.
     list($view_name, $display_name) = explode(':', variable_get('project_release_files_view', 'project_release_files:default'));
-    $node->content['field_release_files'] = array('#markup' => views_embed_view($view_name, $display_name, $node->nid));
+    $node->content['field_release_files'] = array(
+      '#markup' => views_embed_view($view_name, $display_name, $node->nid),
+    );
 
     // Last updated release file.
     if (!empty($node->field_release_files)) {
@@ -1823,7 +1825,11 @@ function project_release_project_behavior_settings($node_type) {
       '#default_value' => variable_get('project_release_download_base_' . $node_type, ''),
       '#size' => 50,
       '#maxlength' => 255,
-      '#description' => t("By default, all download links to releases will use the standard download path for the site. However, if you wish to host the downloads at a different location, you can specify the base of the URL that should be used for download links. For example, if you stored releases in %files_path and you want to have download links pointing to %ftp_url, you would set this to %ftp_setting. Note that if you define this, the value should end with a slash ('/').", array('%files_path' => 'files/projects/foo.tar.gz', '%ftp_url' => 'ftp://ftp.example.com/files/projects/foo.tar.gz', '%ftp_setting' => 'ftp://ftp.example.com/')),
+      '#description' => t("By default, all download links to releases will use the standard download path for the site. However, if you wish to host the downloads at a different location, you can specify the base of the URL that should be used for download links. For example, if you stored releases in %files_path and you want to have download links pointing to %ftp_url, you would set this to %ftp_setting. Note that if you define this, the value should end with a slash ('/').", array(
+        '%files_path' => 'files/projects/foo.tar.gz',
+        '%ftp_url' => 'ftp://ftp.example.com/files/projects/foo.tar.gz',
+        '%ftp_setting' => 'ftp://ftp.example.com/',
+      )),
       '#element_validate' => array('_project_release_validate_download_link_base'),
     ),
     'project_release_version_format' => array(

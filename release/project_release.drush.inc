@@ -160,7 +160,12 @@ function drush_project_release_release_package($type, $project_id) {
   }
 
   if ($num_built > 0 || $type === 'branch') {
-    drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array('@project_short_name' => $project_node->field_project_machine_name[LANGUAGE_NONE][0]['value'], '!type' => $type, '!num_built' => $num_built, '!num_considered' => $num_considered)), 'ok');
+    drush_log(dt('Done packaging !type releases for @project_short_name: !num_built built, !num_considered considered.', array(
+      '@project_short_name' => $project_node->field_project_machine_name[LANGUAGE_NONE][0]['value'],
+      '!type' => $type,
+      '!num_built' => $num_built,
+      '!num_considered' => $num_considered,
+    )), 'ok');
   }
 }
 
@@ -336,7 +341,12 @@ function project_release_history_generate_project_xml($project) {
       if ($value = $release_wrapper->field_release_vcs_label->value(['sanitize' => TRUE])) {
         $xml->release->tag = $value;
       }
-      foreach (['version_major', 'version_minor', 'version_patch', 'version_extra'] as $vers_type) {
+      foreach ([
+        'version_major',
+        'version_minor',
+        'version_patch',
+        'version_extra',
+      ] as $vers_type) {
         // 0 is a totally legitimate value for any of these version fields, so
         // we need to test with isset() instead of !empty(). However, we do
         // *not* want to include anything in the release history XML if the

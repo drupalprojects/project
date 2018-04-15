@@ -274,7 +274,12 @@ function project_update_7004() {
     db_query("UPDATE {field_revision_" . $field . "} SET bundle = :newbundle WHERE bundle = :oldbundle", array(':newbundle' => 'project', ':oldbundle' => 'project_project'));
     if ($field != 'body') {
       // Update the instance config.
-      db_query("UPDATE {field_config_instance} SET bundle = :newbundle WHERE field_name = :name AND entity_type = :type AND bundle = :oldbundle", array(':newbundle' => 'project', ':name' => $field, ':type' => 'node', ':oldbundle' => 'project_project'));
+      db_query("UPDATE {field_config_instance} SET bundle = :newbundle WHERE field_name = :name AND entity_type = :type AND bundle = :oldbundle", array(
+        ':newbundle' => 'project',
+        ':name' => $field,
+        ':type' => 'node',
+        ':oldbundle' => 'project_project',
+      ));
     }
   }
   field_cache_clear();
@@ -295,7 +300,14 @@ function project_update_7005() {
     throw new DrupalUpdateException(t('Project requires the Link module during data migration. Please install it and rerun updates.'));
   }
 
-  foreach (array('homepage', 'changelog', 'demo', 'documentation', 'screenshots', 'license') as $field_name) {
+  foreach (array(
+    'homepage',
+    'changelog',
+    'demo',
+    'documentation',
+    'screenshots',
+    'license',
+  ) as $field_name) {
     $field = array(
       'translatable' => '0',
       'settings' => array(

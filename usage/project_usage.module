@@ -173,7 +173,11 @@ function project_usage_get_project_usage($nid, $tid) {
   static $usage = array();
   module_load_include('inc', 'project_usage', 'includes/date_api');
   if (!isset($usage[$nid][$tid])) {
-    $usage[$nid][$tid] = (int) db_query("SELECT count FROM {project_usage_week_project} WHERE nid = :nid AND tid = :tid AND timestamp = :timestamp", array(':nid' => $nid, ':tid' => $tid, ':timestamp' => project_usage_get_current_active_week()))->fetchField();
+    $usage[$nid][$tid] = (int) db_query("SELECT count FROM {project_usage_week_project} WHERE nid = :nid AND tid = :tid AND timestamp = :timestamp", array(
+      ':nid' => $nid,
+      ':tid' => $tid,
+      ':timestamp' => project_usage_get_current_active_week(),
+    ))->fetchField();
   }
   return $usage[$nid][$tid];
 }

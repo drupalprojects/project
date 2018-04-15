@@ -1015,7 +1015,22 @@ function project_validate_project_shortname($element, &$form_state, $form) {
   if (!empty($element['#value'])) {
     // Make sure machine name isn't already in use, or reserved.  Includes all
     // X from project/issues/X paths used in project_issues module
-    $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers', 'usage');
+    $reserved_names = array(
+      'user',
+      'issues',
+      'releases',
+      'rss',
+      'subscribe-mail',
+      'search',
+      'add',
+      'update_project',
+      'statistics',
+      'comments',
+      'autocomplete',
+      'cvs',
+      'developers',
+      'usage',
+    );
     if (in_array(strtolower($element['#value']), $reserved_names)) {
       form_error($element, t('This project short name is reserved.'));
     }
@@ -1233,7 +1248,9 @@ function project_mail($key, &$message, $params) {
   switch ($key) {
     case 'project_maintainer_new':
       $message['subject'] = token_replace(variable_get('project_maintainer_notification_mail_subject'), $params, ['clear' => TRUE]);
-      $message['body'] = [token_replace(variable_get('project_maintainer_notification_mail_body'), $params, ['clear' => TRUE])];
+      $message['body'] = [
+        token_replace(variable_get('project_maintainer_notification_mail_body'), $params, ['clear' => TRUE]),
+      ];
       break;
   }
 }

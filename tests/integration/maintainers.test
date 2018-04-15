@@ -13,7 +13,12 @@ class ProjectMaintainersTestCase extends ProjectWebTestCase {
   protected function setUp($modules = array()) {
     parent::setUp();
 
-    $perms = array('create project content', 'edit own project content', 'delete own project content', 'access user profiles');
+    $perms = array(
+      'create project content',
+      'edit own project content',
+      'delete own project content',
+      'access user profiles',
+    );
 
     $this->owner = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->owner);

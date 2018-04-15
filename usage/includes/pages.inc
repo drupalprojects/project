@@ -369,7 +369,13 @@ function project_usage_project_page($node) {
   $cache['project_rows'] = $project_rows;
   cache_set($cid, $cache, 'cache_project_usage', project_usage_cache_time());
 
-  return theme('project_usage_project_page', array('project' => $node, 'release_header' => $release_header, 'release_rows' => $release_rows, 'project_header' => $project_header, 'project_rows' => $project_rows));
+  return theme('project_usage_project_page', array(
+    'project' => $node,
+    'release_header' => $release_header,
+    'release_rows' => $release_rows,
+    'project_header' => $project_header,
+    'project_rows' => $project_rows,
+  ));
 }
 
 /**
@@ -422,7 +428,12 @@ function project_usage_release_page($node) {
   // Cache the completed page.
   cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
 
-  return theme('project_usage_release_page', array('project' => $project, 'release' => $node, 'header' => $header, 'rows' => $rows));
+  return theme('project_usage_release_page', array(
+    'project' => $project,
+    'release' => $node,
+    'header' => $header,
+    'rows' => $rows,
+  ));
 }
 
 /**
@@ -459,9 +470,17 @@ function theme_project_usage_project_page($variables) {
 
   $output .= '<h3>' . t('Weekly project usage') . '</h3>';
   $output .= theme('project_usage_chart_by_release', array('header' => $project_header, 'rows' => $project_rows));
-  $output .= theme('table', array('header' => $project_header, 'rows' => $project_rows, 'attributes' => array('id' => 'project-usage-project-api')));
+  $output .= theme('table', array(
+    'header' => $project_header,
+    'rows' => $project_rows,
+    'attributes' => array('id' => 'project-usage-project-api'),
+  ));
   $output .= '<h3>' . t('Recent release usage') . '</h3>';
-  $output .= theme('table', array('header' => $release_header, 'rows' => $release_rows, 'attributes' => array('id' => 'project-usage-project-releases')));
+  $output .= theme('table', array(
+    'header' => $release_header,
+    'rows' => $release_rows,
+    'attributes' => array('id' => 'project-usage-project-releases'),
+  ));
   return $output;
 }
 
@@ -495,7 +514,11 @@ function theme_project_usage_release_page($variables) {
   }
 
   $output .= theme('project_usage_chart_by_release', array('header' => $header, 'rows' => $rows));
-  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'project-usage-release')));
+  $output .= theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('id' => 'project-usage-release'),
+  ));
   return $output;
 }
 
@@ -583,7 +606,10 @@ function theme_project_usage_chart_by_release($variables) {
       // need to remove them because we'll use commas to separate the values
       // in the URL string. It might be better to pass in clean number values
       // and format them here rather than have to uncook them.
-      $series[$j]['data'][] = array($timestamp * 1000, (int) str_replace(',', '', $row[$tid]['data']));
+      $series[$j]['data'][] = array(
+        $timestamp * 1000,
+        (int) str_replace(',', '', $row[$tid]['data']),
+      );
     }
   }
 
