@@ -758,7 +758,7 @@ function project_release_node_presave($node) {
   if (project_release_node_is_release($node)) {
     // For new release nodes,
     if (empty($node->nid)) {
-      // set project using the menu-loaded node.
+      // Set project using the menu-loaded node.
       $project = menu_get_object('project', 3);
       $node->field_release_project[LANGUAGE_NONE][0]['target_id'] = $project->nid;
     }
@@ -1047,7 +1047,7 @@ function project_release_node_view($node, $view_mode, $langcode) {
       );
       if ($view_mode === 'full' && project_user_access($node->nid, 'administer releases')) {
         $types = project_release_release_node_types();
-        // todo this uses the first release node type. What to do if there are
+        // TODO this uses the first release node type. What to do if there are
         // multiple?
         $node->content['project_release_downloads']['links']['#links']['add_new_release'] = array(
           'title' => t('Add new release'), 'href' => 'node/add/' . str_replace('_', '-', reset($types)) . '/' . $node->nid,
@@ -1181,7 +1181,7 @@ function project_release_views_pre_render(&$view) {
   // Look for file_managed.uri fields,
   foreach ($view->display_handler->get_handlers('field') as $field) {
     if ($field->field === 'uri' && $field->table === 'file_managed') {
-      // which have a relationship to field_release_file.
+      // Which have a relationship to field_release_file.
       foreach ($view->display_handler->get_handlers('relationship') as $relationship) {
         if ($relationship->alias === $field->relationship && $relationship->table === 'field_data_field_release_file') {
           // Use the field's alias to find results.
@@ -1744,7 +1744,6 @@ function project_release_views_default_views_alter(&$views) {
  * Implements hook_ctools_plugin_directory().
  */
 function project_release_ctools_plugin_directory($module, $plugin) {
-  // todo D7, needs sampler
   if ($module == 'sampler') {
     switch ($plugin) {
       case 'metric':

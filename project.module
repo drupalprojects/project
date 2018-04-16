@@ -1085,7 +1085,7 @@ function project_get_nid_from_machinename($machinename) {
       $nids[$machinename] = $matchingnid;
     }
   }
-  // return the nid
+
   if (array_key_exists($machinename, $nids)) {
     return $nids[$machinename];
   }

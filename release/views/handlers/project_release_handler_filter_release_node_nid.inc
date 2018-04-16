@@ -4,7 +4,7 @@
  * Views filter handler for matching project release nodes.
  */
 class project_release_handler_filter_release_node_nid extends views_handler_filter {
-  // exposed filter options
+  // Exposed filter options.
   var $no_single = TRUE;
 
   function construct() {

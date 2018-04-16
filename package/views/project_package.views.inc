@@ -131,7 +131,6 @@ function project_package_views_data() {
     ),
   );
 
-  // name
   $data['project_package_remote_item']['name'] = array(
     'title' => t('Remote item name'),
     'help' => t('The name of the remote item.'),
@@ -150,7 +149,6 @@ function project_package_views_data() {
     ),
   );
 
-  // url
   $data['project_package_remote_item']['url'] = array(
     'title' => t('Remote item URL'),
     'help' => t('The URL of the remote item.'),

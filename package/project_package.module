@@ -192,7 +192,8 @@ function project_package_record_patch($package_nid, $patch_url, $item_id, $item_
       $patch_issue['patch_nid'] = $issue->nid;
       $patch_issue['patch_description_url'] = $issue->title;
 
-      // todo when [#1549280] lands, record comment ID in $patch_issue['patch_comment_id'].
+      // TODO when #1549280 lands, record comment ID in
+      // $patch_issue['patch_comment_id'].
     }
   }
 

@@ -106,7 +106,7 @@ function project_release_project_edit_form($form, $form_state, $node) {
     );
   }
   $types = project_release_release_node_types();
-  // todo this uses the first release node type. What to do if there are
+  // TODO this uses the first release node type. What to do if there are
   // multiple?
   $links['links'] = array(
     'add_new_release' => array(
