@@ -1431,6 +1431,7 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  * @param $build_types
  *   If filtering by build type, such as 'static' or 'dynamic', an array of
  *   those build types.
+ *
  * @return
  *   An associative array of stub entities, as retured by
  *   entity_create_stub_entity(). Keys are node IDs.

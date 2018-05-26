@@ -8,6 +8,7 @@ class Project_SelectionHandler_ProjectBehavior extends EntityReference_Selection
    *
    * @param $field
    *   A field datastructure.
+   *
    * @return EntityReferenceHandler
    */
   public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {

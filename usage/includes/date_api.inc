@@ -13,6 +13,7 @@
  *
  * @param $timestamp
  *   An optional, integer UNIX timestamp.
+ *
  * @return
  *   An array with results identical to PHP's getdate().
  */
@@ -66,6 +67,7 @@ function project_usage_weekly_timestamp($time = NULL, $weeks_ago = 0) {
  * @param $timestamp
  *   UNIX timestamp. The first returned timestamp will be the beginning of the
  *   week with this time in it.
+ *
  * @return
  *   An array of GMT timestamps sorted in ascending order. The first value is
  *   is the week containing $timestamp. Each subsequent value is the timestamp

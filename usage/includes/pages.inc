@@ -562,6 +562,7 @@ function theme_project_usage_header_links($variables) {
  *       A table header for the weekly usage table.
  *     rows:
  *       Table rows for the weekly usage table.
+ *
  * @return
  *   An HTML IMG element, or empty string if there is an error such as
  *   insufficent data.
@@ -672,6 +673,7 @@ function project_usage_chart_label_subset($labels, $n) {
  * @param $labels
  *   Array keyed by axis (x, t, y, r) the value is an array of labels for that
  *   axis.
+ *
  * @see http://code.google.com/apis/chart/labels.html#multiple_axes_labels
  */
 function project_usage_chart_axis_labels(&$args, $labels) {

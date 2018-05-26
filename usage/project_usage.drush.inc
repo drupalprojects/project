@@ -488,7 +488,9 @@ function project_usage_load_metadata() {
 
 /**
  * Open a file, transparently handling compression.
+ *
  * @param $filename
+ *
  * @return resource
  */
 function _project_usage_open_file($filename) {
