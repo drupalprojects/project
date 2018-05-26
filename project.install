@@ -209,7 +209,7 @@ function project_update_7002() {
     ->from($query)
     ->execute();
 
-  // Bulk convert sandbox -> project_type
+  // Bulk convert sandbox -> project_type.
   $query = db_select('project_projects', 'p');
   $query->innerJoin('node', 'n', 'p.nid = n.nid');
   $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));
@@ -397,7 +397,7 @@ function project_update_7005() {
       }
     }
 
-    // Bulk convert sandbox -> project_type
+    // Bulk convert sandbox -> project_type.
     $query = db_select('project_projects', 'p');
     $query->innerJoin('node', 'n', 'p.nid = n.nid');
     $query->addExpression(':entity_type', 'entity_type', array(':entity_type' => 'node'));

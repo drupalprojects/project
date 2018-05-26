@@ -1013,8 +1013,8 @@ function project_form_node_form_alter(&$form, &$form_state) {
  */
 function project_validate_project_shortname($element, &$form_state, $form) {
   if (!empty($element['#value'])) {
-    // Make sure machine name isn't already in use, or reserved.  Includes all
-    // X from project/issues/X paths used in project_issues module
+    // Make sure machine name isn't already in use, or reserved. Includes all X
+    // from project/issues/X paths used in project_issues module.
     $reserved_names = array(
       'user',
       'issues',

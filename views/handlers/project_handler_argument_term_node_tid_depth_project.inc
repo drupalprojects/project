@@ -25,7 +25,7 @@ class project_handler_argument_term_node_tid_depth_project extends views_handler
     $this->base_alias = $this->query->add_field($this->table_alias, $this->real_field);
 
     if (isset($this->argument) && is_numeric($this->argument)) {
-      // Add {term_hierarchy} table
+      // Add {term_hierarchy} table.
       $th_alias = $this->query->add_table('term_hierarchy');
 
       // Limit returned results to terms whose parent is the argument.

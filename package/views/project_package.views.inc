@@ -94,7 +94,7 @@ function project_package_views_data() {
   // have a group defined will go into this group by default.
   $data['project_package_remote_item']['table']['group'] = t('Project package remote items');
 
-  // Advertise this table as a possible base table
+  // Advertise this table as a possible base table.
   $data['project_package_remote_item']['table']['base'] = array(
     'field' => 'id',
     'title' => t('Package remote items'),

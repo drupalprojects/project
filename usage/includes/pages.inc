@@ -176,7 +176,7 @@ function project_usage_overview() {
 
       // Cache the completed page.
       cache_set($cid, $rows, 'cache_project_usage', project_usage_cache_time());
-      // Cache number of projects
+      // Cache number of projects.
       global $pager_total_items;
       cache_set('overview:total', reset($pager_total_items), 'cache_project_usage', project_usage_cache_time());
     }
@@ -350,7 +350,7 @@ function project_usage_project_page($node) {
       $project_rows[$row->timestamp][$row->tid]['data'] = $row->count;
     }
 
-    // ...and add the weekly totals across all API versions
+    // ...and add the weekly totals across all API versions.
     foreach ($project_rows as $timestamp => $row) {
       $total = 0;
       foreach ($row as $tid => $data) {

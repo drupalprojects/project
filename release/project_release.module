@@ -410,7 +410,7 @@ function project_release_check_supported_versions($pid, $tid, $major, $delete = 
 function project_release_compute_update_status($pid, $api_tid, $major, $regen = TRUE) {
   $latest_release = $recommended_release = $latest_security_release = 0;
   $insecure_nids = array();
-  // $api_tid can also be false or the empty string
+  // $api_tid can also be false or the empty string.
   if ($api_tid == '') {
     $api_tid = NULL;
   }
@@ -756,7 +756,7 @@ function project_release_get_release_project_nid($node) {
  */
 function project_release_node_presave($node) {
   if (project_release_node_is_release($node)) {
-    // For new release nodes,
+    // For new release nodes:
     if (empty($node->nid)) {
       // Set project using the menu-loaded node.
       $project = menu_get_object('project', 3);
@@ -1178,7 +1178,7 @@ function project_release_field_attach_view_alter(&$output, $context) {
  * Changes file URI if custom download base is set.
  */
 function project_release_views_pre_render(&$view) {
-  // Look for file_managed.uri fields,
+  // Look for file_managed.uri fields:
   foreach ($view->display_handler->get_handlers('field') as $field) {
     if ($field->field === 'uri' && $field->table === 'file_managed') {
       // Which have a relationship to field_release_file.

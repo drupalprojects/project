@@ -217,14 +217,13 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
 
       // This cache is awesome. Hit rate was ~92% on a one-day logfile.
       // On my laptop, it reduces execution time of the parse loop from 170
-      // seconds to 70 seconds. I feel I will be unable to top that. ~bdragon
+      // seconds to 70 seconds. I feel I will be unable to top that.
       if ($timestr != $time) {
         $timestr = $time;
         $timestamp = strtotime($time);
         $week = project_usage_weekly_timestamp($timestamp);
         // Change collections on a week boundary.
         if ($ccol != $week) {
-          //drush_log(dt("Changing week."));
           $ccol = $week;
           if ($bcnt > 0) {
             // We need to process the buffer before switching weeks.
@@ -314,7 +313,7 @@ function project_usage_lookup($type = 'terms') {
   $data = drupal_static(__FUNCTION__, array());
 
   if (empty($data)) {
-    // Terms
+    // Terms.
     $db = project_usage_mongo();
     $c = $db->selectCollection('terms');
     $cursor = $c->find();
@@ -323,14 +322,14 @@ function project_usage_lookup($type = 'terms') {
       $data['rterms'][$row['name']] = $row['tid'];
     }
 
-    // Projects
+    // Projects.
     $c = $db->selectCollection('projects');
     $cursor = $c->find();
     foreach ($cursor as $row) {
       $data['projdata'][$row['uri']] = $row['pid'];
     }
 
-    // Releases
+    // Releases.
     $c = $db->selectCollection('releases');
     $cursor = $c->find();
     foreach ($cursor as $r) {
@@ -426,7 +425,7 @@ function project_usage_load_metadata() {
   $c = $db->selectCollection("terms");
   $c->remove(array());
   foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-    // Quick ugly hack to skip drupal < 5.x
+    // Quick ugly hack to skip drupal < 5.x.
     if (strlen($term->name) == 3) {
       $c->insert(array(
         'tid' => $term->tid,
@@ -658,9 +657,9 @@ function project_usage_retrieve_metadata() {
 
   if (empty($data)) {
 
-    // Load core api versions
+    // Load core api versions.
     foreach (taxonomy_get_tree(variable_get('project_release_api_vocabulary', '')) as $term) {
-      // Quick ugly hack to skip drupal < 5.x
+      // Quick ugly hack to skip drupal < 5.x.
       if (strlen($term->name) == 3) {
         $coreterms[$term->name] = $term->tid;
       }
@@ -746,14 +745,14 @@ function drush_project_usage_import_usage_stats($week) {
   db_delete('project_usage_week_release')
     ->condition('timestamp', $week)
     ->execute();
-  // Load in new counts
+  // Load in new counts.
   $qcount = 0;
   $query = db_insert('project_usage_week_release')
     ->fields(array('nid', 'timestamp', 'count'));
   while ($line = fgets($project_releasecounts_fh)) {
     $nid = 0 ;
     $term = 0;
-    // Split up $line into its components
+    // Split up $line into its components.
     list($count, $pdata) = explode(' ', trim($line), 2);
     list($project_machine_name,$rel_ver,$maj_api) = explode('|', $pdata,3);
 
@@ -799,12 +798,13 @@ function drush_project_usage_import_usage_stats($week) {
   db_delete('project_usage_week_project')
     ->condition('timestamp', $week)
     ->execute();
-  // Load in new counts
+  // Load in new counts.
   $qcount = 0;
   $query = db_insert('project_usage_week_project')
     ->fields(array('nid', 'timestamp', 'tid', 'count'));
 
-  // Update the project major API counts based on the aggregated counts from the releases
+  // Update the project major API counts based on the aggregated counts from
+  // the releases.
   foreach ($project_api_counts as $project_machine_name => $maj_apis) {
     foreach ($maj_apis as $maj_api => $count) {
       $nid = 0;

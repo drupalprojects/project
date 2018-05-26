@@ -7,7 +7,7 @@ class project_release_handler_relationship_supported_versions extends views_hand
 
   function init(&$view, &$options) {
     parent::init($view, $options);
-    // This relationship only works with {project_release_supported_versions}
+    // This relationship only works with {project_release_supported_versions}.
     $this->definition['base'] = 'project_release_supported_versions';
   }
 
