@@ -6,7 +6,7 @@
  */
 
 /**
- * getdate() with timezone adjustment.
+ * PHP’s getdate() with timezone adjustment.
  *
  * PHP's getdate() is affected by the server's timezone. We need to cancel it
  * out so everything is GMT.
@@ -61,17 +61,17 @@ function project_usage_weekly_timestamp($time = NULL, $weeks_ago = 0) {
 }
 
 /**
- * Build an array of timestamps for the beginning (midnight Sunday) for each
- * week since a given timestamp.
+ * Generate timestamps of the beginning of each week since a timestamp.
  *
  * @param $timestamp
  *   UNIX timestamp. The first returned timestamp will be the beginning of the
  *   week with this time in it.
  *
  * @return
- *   An array of GMT timestamps sorted in ascending order. The first value is
- *   is the week containing $timestamp. Each subsequent value is the timestamp
- *   for the next week. The final value is the beginning of the current week.
+ *   An array of GMT timestamps (midnight Sunday) sorted in ascending order.
+ *   The first value is is the week containing $timestamp. Each subsequent
+ *   value is the timestamp for the next week. The final value is the beginning
+ *   of the current week.
  */
 function project_usage_get_weeks_since($timestamp) {
   $times = array();

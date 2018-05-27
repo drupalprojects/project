@@ -1175,7 +1175,7 @@ function project_release_update_7000() {
 }
 
 /**
- * project_release_download_base is now per-node-type.
+ * {project_release_download_base} is now per-node-type.
  */
 function project_release_update_7001() {
   module_load_include('module', 'project_release', 'project_release');
@@ -1194,7 +1194,7 @@ function project_release_update_7002() {
 }
 
 /**
- * project_release_default_version_format is now per-node-type.
+ * {project_release_default_version_format} is now per-node-type.
  */
 function project_release_update_7003() {
   module_load_include('module', 'project_release', 'project_release');
@@ -1753,7 +1753,7 @@ function project_release_update_7013() {
 }
 
 /**
- * Create a cache table for project release downloads
+ * Create a cache table for project release downloads.
  */
 function project_release_update_7014() {
   $system_schema = system_schema();
@@ -2029,8 +2029,7 @@ function project_release_update_7020() {
 }
 
 /**
- * Add a field to track which types of releases should be in issue version
- * options.
+ * Add field tracking types of releases in issue version options.
  */
 function project_release_update_7021() {
   // Update project node types to add field_project_issue_version_opts.

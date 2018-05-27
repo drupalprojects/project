@@ -2,8 +2,7 @@
 
 /**
  * @file
- * This module provides logging of the requests sent by core's update.module
- * to the project_release.module on updates.drupal.org.
+ * Shows statistics about each project’s usage.
  *
  * Weekly usage statistics are calculated via log file parsing, then baking
  * down the data and pushing it into weekly storage tables for both projects
@@ -17,10 +16,12 @@
  */
 
 /**
- * Date formats for month and day. We define our own rather than using core's
- * 'date_format_short' and 'date_format_long' variables because our timestamps
- * don't have hour or minute resolution so displaying that would be confusing
- * and take up extra space.
+ * Date formats for month and day.
+ *
+ * We define our own rather than using core's 'date_format_short' and
+ * 'date_format_long' variables because our timestamps don't have hour or
+ * minute resolution so displaying that would be confusing and take up extra
+ * space.
  */
 define('PROJECT_USAGE_DATE_LONG', 'F jS');
 define('PROJECT_USAGE_DATE_SHORT', 'M j');

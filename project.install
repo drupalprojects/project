@@ -162,7 +162,7 @@ function project_update_7001() {
 }
 
 /**
- * Finish renaming 'project_project' node type to 'project',
+ * Finish renaming 'project_project' node type to 'project'.
  *
  * Move some {project_projects} data into fields.
  */

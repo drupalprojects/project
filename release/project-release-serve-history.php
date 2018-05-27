@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Ultra-thin PHP wrapper to serve XML release history files to
- * the update.module ("update_status.module" in 5.x contrib).
+ * Thin wrapper to serve XML release history files to update.module.
  *
  * This script requires a local .htaccess file with the following:
  *

@@ -752,7 +752,7 @@ function project_release_get_release_project_nid($node) {
 }
 
 /**
- * hook_node_presave() implementation.
+ * Implements hook_node_presave().
  */
 function project_release_node_presave($node) {
   if (project_release_node_is_release($node)) {
@@ -981,8 +981,9 @@ function project_release_node_update($node) {
 }
 
 /**
- * Involved on node insert and update. Schedule updating supported versions and
- * packaging.
+ * Invoked on node insert and update.
+ *
+ * Schedule updating supported versions and packaging.
  */
 function project_release_node_save($node) {
   if (project_release_node_is_release($node)) {
@@ -1558,8 +1559,7 @@ function project_release_get_available_versions($project_nid) {
 }
 
 /**
- * Supply the allowed values for a version field, given the value of the project
- * entityreference field.
+ * Allowed values for the version field, given the value of the project field.
  */
 function project_release_version_allowed_values($field, $instance, $entity_type, $entity) {
   if ($entity) {
@@ -2022,8 +2022,7 @@ function project_release_node_type_update($info) {
 }
 
 /**
- * Validates a download link base for supported stream wrappers. Calls
- * form_error() on error, else returns.
+ * Validates a download link base for supported stream wrappers.
  *
  * @param $element
  *   The form element for the download link base.
@@ -2037,8 +2036,9 @@ function _project_release_validate_download_link_base($element) {
 }
 
 /**
- * Validates a version format string. Only alphanumeric characters and [-_.!%#]
- * are allowed. Calls form_error() on error, else returns.
+ * Validates a version format string.
+ *
+ * Only alphanumeric characters and [-_.!%#] are allowed.
  *
  * @param $element
  *   The form element for the format string.

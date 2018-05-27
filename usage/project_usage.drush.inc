@@ -307,6 +307,7 @@ function project_usage_mongo() {
 
 /**
  * Get a lookup table.
+ *
  * Information about cores, projects and releases are loaded once and cached in
  * memory for speed.
  */
@@ -653,7 +654,7 @@ function project_usage_tally() {
 }
 
 /**
- * Gets data about projects, releases, and core versions
+ * Gets data about projects, releases, and core versions.
  */
 function project_usage_retrieve_metadata() {
 

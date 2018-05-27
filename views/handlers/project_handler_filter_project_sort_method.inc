@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Handler for a filter that allows for different sorting methods to be
- * used for project node listings.
+ * Filter with different sorting methods to be used for project listings.
  */
 class project_handler_filter_project_sort_method extends views_handler_filter {
 
@@ -81,8 +80,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
   }
 
   /**
-   * Allow the user to select which search criteria
-   * the user should be able to pick from.
+   * Allow users to select which search criteria users should be available.
    */
   function extra_options_form(&$form, &$form_state) {
     parent::extra_options_form($form, $form_state);
@@ -146,7 +144,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
   }
 
   /**
-   * Display the filter on the administrative summary
+   * Display the filter on the administrative summary.
    */
   function admin_summary() {
     if (!empty($this->options['exposed'])) {
@@ -155,8 +153,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
   }
 
   /**
-   * When the user selects a sorting method, remove all other sort criteria
-   * that the user also chould have selected from the view.
+   * When the user selects a sorting method, remove other sort criteria.
    */
   function exposed_submit(&$form, &$form_state) {
     // Determine which sort criteria was selected.
@@ -174,8 +171,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
   }
 
   /**
-   * Since this handler isn't a "true" filter, we don't want to directly
-   * modify the query here.
+   * This handler isn't a "true" filter, we don't want to modify the query.
    */
   function query() {
   }

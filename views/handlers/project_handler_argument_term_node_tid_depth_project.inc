@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Allow taxonomy term ID(s) as argument and produces a summary which
- * prevents listing top level terms.
+ * Allow term IDs as arguments, produces a listing without top level terms.
  */
 class project_handler_argument_term_node_tid_depth_project extends views_handler_argument_term_node_tid {
 

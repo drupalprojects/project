@@ -6,8 +6,7 @@
  */
 
 /**
- * Views filter handler to show the correct set of options when using the
- * version filter.
+ * Views filter handler to show options for the version filter.
  */
 class project_release_handler_filter_version extends views_handler_filter_field_list {
   var $is_exposed = FALSE;

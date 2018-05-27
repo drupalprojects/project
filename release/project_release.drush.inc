@@ -170,8 +170,9 @@ function drush_project_release_release_package($type, $project_id) {
 }
 
 /**
- * Drush-only implementation of hook_watchdog(). Write out messages to
- * project_release_package_errors table.
+ * Drush-only implementation of hook_watchdog().
+ *
+ * Writes out messages to project_release_package_errors table.
  *
  * @param $log_entry
  *   An associative array, see hook_watchdog() for keys.
@@ -302,8 +303,7 @@ function drush_project_release_release_create_history($project_id = NULL) {
 }
 
 /**
- * Generate the XML history file for a given project name and API compatibility
- * term.
+ * Generate the XML history file for a project.
  *
  * If a history file already exists for this combination, this function will
  * generate a new history and atomically replace the old one (currently, just
@@ -311,9 +311,6 @@ function drush_project_release_release_create_history($project_id = NULL) {
  *
  * @param $project
  *   Project node entity.
- * @param $api_tid
- *   Taxonomy id (tid) of the API compatibility term to use, or NULL if
- *   all terms are considered.
  */
 function project_release_history_generate_project_xml($project) {
   $vocabularies = taxonomy_vocabulary_get_names();

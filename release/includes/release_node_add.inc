@@ -6,8 +6,7 @@
  */
 
 /**
- * Form builder for a simple form to select a project when creating a new
- * release (as the first "page", but this is not really a multi-page form).
+ * Form to select a project when creating a new release.
  */
 function project_release_pick_project_form($form, &$form_state, $node_type) {
   $form_state['node_type'] = $node_type;
