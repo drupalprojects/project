@@ -159,7 +159,7 @@ function hook_project_behavior_info() {
 /**
  * Notify when a project is promoted from sandbox to full project status.
  *
- * @param stdClass $project
+ * @param object $project
  *   The fully-loaded project node which is undergoing promotion.
  */
 function hook_project_promote_sandbox($project) {

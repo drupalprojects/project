@@ -13,7 +13,7 @@ interface ProjectReleasePackagerInterface {
   /**
    * Constructor for a packager plugin class.
    *
-   * @param stdClass $release_node
+   * @param object $release_node
    *   The fully-loaded release node to create package(s) for.
    * @param string $temp_directory
    *   The full path to a temporary directory to use during packaging.
