@@ -97,13 +97,16 @@ class project_release_handler_filter_version extends views_handler_filter_field_
   }
 
   function query() {
-    // Walk the value list and replace tid series references with lists of release version strings.
+    // Walk the value list and replace tid series references with lists of
+    // release version strings.
     foreach ($this->value as $key => $value) {
-      // A series term was passed, we need to expand it to all the applicable releases.
+      // A series term was passed, we need to expand it to all the applicable
+      // releases.
       if (substr($value, 0, 9) == '__series:') {
         $tid = substr($value, 9);
         if (!$this->view->args) {
-          // Skip filter, we can't do an all projects query for all releases in one series.
+          // Skip filter, we can't do an all projects query for all releases in
+          // one series.
           return;
         }
         // Grab the project from the arguments.

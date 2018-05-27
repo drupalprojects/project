@@ -42,11 +42,12 @@ class project_plugin_style_project_list extends views_plugin_style {
       $last_date = '';
       foreach ($this->view->result as $i => $value) {
         $date = format_date($value->$field_alias, 'custom', $date_format_string);
-        // If this date is a new date, once the granularity selected has been taken
-        // into account, set a special property in the results of the view so that
-        // later on in template_preprocess_project_views_view_row_project_node() we
-        // can flag a row as having a different changed date than the last row
-        // so that the actual date can be displayed as a header from the template.
+        // If this date is a new date, once the granularity selected has been
+        // taken into account, set a special property in the results of the
+        // view so that later on in
+        // template_preprocess_project_views_view_row_project_node() we can
+        // flag a row as having a different changed date than the last row so
+        // that the actual date can be displayed as a header from the template.
         // @TODO:  As written, this only works with second granularity.
         if ($date != $last_date) {
           $this->view->project->project_new_date[$i] = TRUE;

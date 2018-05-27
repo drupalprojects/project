@@ -162,7 +162,9 @@ function project_update_7001() {
 }
 
 /**
- * Finish renaming 'project_project' node type to 'project', move some {project_projects} data into fields.
+ * Finish renaming 'project_project' node type to 'project',
+ *
+ * Move some {project_projects} data into fields.
  */
 function project_update_7002() {
   $t = get_t();
@@ -240,7 +242,8 @@ function project_update_7002() {
     ->from($query)
     ->execute();
 
-  // Since we have manually injected data, we need to explicitly clear the field cache.
+  // Since we have manually injected data, we need to explicitly clear the
+  // field cache.
   field_cache_clear();
 
   // Also ensure the node types cache is rebuilt.
@@ -434,12 +437,13 @@ function project_update_7005() {
       ->execute();
   }
 
-  // Since we have manually injected data, we need to explicitly clear the field cache.
+  // Since we have manually injected data, we need to explicitly clear the
+  // field cache.
   field_cache_clear();
 }
 
 /**
- * If present, make sure pathauto is enabled, and set default patterns for projects.
+ * If present, make sure pathauto is enabled, set default patterns for projects.
  */
 function project_update_7006() {
   if (variable_get('project_enable_alias', TRUE) && module_enable(array('pathauto'))) {

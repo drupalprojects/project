@@ -1427,7 +1427,8 @@ function project_release_find_latest_releases($project_nid, $api_tid, $major, $a
  *   the accurate values regardless of access, and consumers of this data are
  *   responsible for ensuring access.
  * @param $dev_last
- *   Return the development releases at the bottom of the list instead of the top.
+ *   Return the development releases at the bottom of the list instead of the
+ *   top.
  * @param $build_types
  *   If filtering by build type, such as 'static' or 'dynamic', an array of
  *   those build types.
@@ -1855,8 +1856,8 @@ function project_release_node_type_update($info) {
     case 'project_issue':
       // Synchronize field configuration.
       if (!field_info_field('field_issue_version')) {
-        // The field_issue_version field is missing entirely, create it and attach
-        // it to all the issue types.
+        // The field_issue_version field is missing entirely, create it and
+        // attach it to all the issue types.
         $field = array(
           'cardinality' => '1',
           'entity_types' => array(),
@@ -1870,8 +1871,8 @@ function project_release_node_type_update($info) {
           'module' => 'list',
           'settings' => array(
             'allowed_values' => array(),
-            // We use a custom allowed values function that looks at which project
-            // the issue is targeting.
+            // We use a custom allowed values function that looks at which
+            // project the issue is targeting.
             'allowed_values_function' => 'project_release_version_allowed_values',
             'entityreference_field' => 'field_project',
           ),

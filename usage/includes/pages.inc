@@ -295,8 +295,8 @@ function project_usage_project_page($node) {
       }
     }
 
-    // Build a table of the weekly usage data with a column for each API version.
-    // Get an array of the weeks going back as far as we have data...
+    // Build a table of the weekly usage data with a column for each API
+    // version. Get an array of the weeks going back as far as we have data.
     $oldest = db_query("SELECT MIN(puwp.timestamp) FROM {project_usage_week_project} puwp WHERE puwp.nid = :nid", array(':nid' => $node->nid))->fetchField();
     if ($oldest === NULL) {
       $weeks = array();

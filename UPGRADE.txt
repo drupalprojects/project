@@ -40,8 +40,12 @@ Required steps:
 1. Upgrade Drupal Core from D6 to D7 the normal way
 
 2. Enable modules with Drush:
-2.1 drush dl advanced_help ctools entity entityreference field_collection flot libraries link machine_name project project_release project_usage views views_ui
-2.2 drush en advanced_help ctools entity entityreference field_collection flot libraries link machine_name project project_release project_usage views views_ui
+2.1 drush dl advanced_help ctools entity entityreference field_collection flot
+  libraries link machine_name project project_release project_usage views
+  views_ui
+2.2 drush en advanced_help ctools entity entityreference field_collection flot
+  libraries link machine_name project project_release project_usage views
+  views_ui
 
 3. If image module has been used to attach image nodes to project nodes:
 3.1 Run "drush -y en field_convert image_legacy"
@@ -67,14 +71,16 @@ Required steps:
      - Mode: Simple (with optional filter by bundle)
      - Target bundles: Image
      - Sort by: Don't sort
-3.13 Configure "Attached images" in "Default" view (admin/structure/types/manage/project/display)
+3.13 Configure "Attached images" in "Default" view
+     (admin/structure/types/manage/project/display)
      - Move field to the top
      - Set "label" to "<hidden>"
      - Format: Image attach basic
        - No image node title
        - Image style: Medium (220x220)
        - Link image to: Nothing
-3.14 Configure "Attached images" in "Teaser" view (admin/structure/types/manage/project/display/teaser)
+3.14 Configure "Attached images" in "Teaser" view
+     (admin/structure/types/manage/project/display/teaser)
      - Move field after "Project types" field
      - Set "label" to "<hidden>"
      - Format: Image attach basic

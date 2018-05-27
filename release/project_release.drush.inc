@@ -480,7 +480,8 @@ function project_release_history_generate_project_xml($project) {
           }
           else {
             $xml->supported_majors = implode(',', $supported_majors);
-            // To avoid confusing existing clients, include <default_major>, too.
+            // To avoid confusing existing clients, include <default_major>,
+            // too.
             $xml->default_major = min($supported_majors);
           }
         }
@@ -489,7 +490,8 @@ function project_release_history_generate_project_xml($project) {
       $xml->link = url('node/' . $project->nid, array('absolute' => TRUE));
 
       // To prevent the update(_status) module from having problems parsing the
-      // XML, the terms need to be at the end of the information for the project.
+      // XML, the terms need to be at the end of the information for the
+      // project.
       $tids = array();
       foreach (taxonomy_get_vocabularies() as $vocabulary) {
         if (isset($project->{'taxonomy_' . $vocabulary->machine_name}[LANGUAGE_NONE])) {
@@ -562,7 +564,8 @@ function _project_release_compatibility_term($project) {
  *   The API compatibility version the history is for.
  */
 function project_release_history_write_xml($xml, $project = NULL, $api_version = NULL) {
-  // Dublin core namespace according to http://dublincore.org/documents/dcmi-namespace/
+  // Dublin core namespace according to
+  // http://dublincore.org/documents/dcmi-namespace/
   $dc_namespace = 'xmlns:dc="http://purl.org/dc/elements/1.1/"';
   $full_xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
   if (is_null($project)) {

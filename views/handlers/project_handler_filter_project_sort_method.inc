@@ -7,7 +7,7 @@
 class project_handler_filter_project_sort_method extends views_handler_filter {
 
   /**
-   * Since we're not using the operator option, we have to override parent::init().
+   * Since we're not using the operator option, override parent::init().
    */
   function init(&$view, $options) {
     views_handler::init($view, $options);
@@ -28,7 +28,8 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
     // Make this filter be exposed by default.
     $options['exposed'] = array('default' => TRUE);
 
-    // Provide a select box for selecting the sort methods to expose to the user.
+    // Provide a select box for selecting the sort methods to expose to the
+    // user.
     $options['sort_methods'] = array('default' => array());
 
     // We don't need an operator for this filter.

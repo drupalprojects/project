@@ -51,8 +51,10 @@ class Project_SelectionHandler_ProjectBehavior extends EntityReference_Selection
 
   /**
    * Build an EntityFieldQuery to get referencable entities.
-   * Almost the same as EntityReference_SelectionHandler_Generic::buildEntityFieldQuery,
-   * but the bundles are dynamic.
+   *
+   * Almost the same as
+   * EntityReference_SelectionHandler_Generic::buildEntityFieldQuery, but the
+   * bundles are dynamic.
    */
   protected function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
     $query = new EntityFieldQuery();

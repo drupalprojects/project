@@ -2,11 +2,12 @@
 
 /**
  * @file
- * Update the project_usage statistics incrementally from varnish webserver logs.
+ * Update the project_usage statistics incrementally from logs.
  *
  * @author Brandon Bergren (http://drupal.org/user/53081)
  *
- * Originally based on project-usage-process.php. Rewritten for drush by Brandon Bergren.
+ * Originally based on project-usage-process.php. Rewritten for drush by
+ * Brandon Bergren.
  * @author Andrew Morton (http://drupal.org/user/34869)
  * @author Derek Wright (http://drupal.org/user/46549)
  */
@@ -206,12 +207,11 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
   $buffer = array();
   $bcnt = 0;
   while ($line = fgets($handle)) {
-    // 127.0.0.1 - - [02/Nov/2009:11:11:44 -0600] "GET http://updates.drupal.org/release-history/drupal/6.x?site_key=ffffffffffffffffffffffffffffffff&version=6.14 HTTP/1.0" 200 119 "-" "Drupal (+http://drupal.org/)"
     $regex = variable_get('project_usage_updates_regex', '@\[([^\]]+)\] "?(?:GET|HEAD) ' . $updates_url . '([^/]+)/([^\?]+)\?([^ ]+) @');
     if (preg_match($regex, $line, $matches)) {
       // We are cheating on url parsing a bit for speed reasons. We have a lot
-      // of log to get through as fast as possible. None of the "sane" entries will
-      // have stuff like anchors in the url.
+      // of log to get through as fast as possible. None of the "sane" entries
+      // will have stuff like anchors in the url.
       list(, $time, $project, $core, $query) = $matches;
       $ip = substr($line, 0, strpos($line, " "));
 
@@ -259,12 +259,13 @@ function _project_usage_process_varnish_file($filename = NULL, $updates_url = NU
           $bcnt++;
           $buffer[$qdata['site_key']][] = $entry;
 
-          // Tune the 32768 as necessary. Sites checking in will generally leave their hits
-          // in the logfile in close proximity. We can often aggregate several of the hits
-          // from a site into a single update, if they appear in the same "chunk".
-          // This is purely for efficiency reasons, using the "wrong" number will at worst
-          // slow down statistics processing. 32768 was found to do reasonably well
-          // for updates.drupal.org.
+          // Tune the 32768 as necessary. Sites checking in will generally
+          // leave their hits in the logfile in close proximity. We can often
+          // aggregate several of the hits from a site into a single update, if
+          // they appear in the same "chunk". This is purely for efficiency
+          // reasons, using the "wrong" number will at worst slow down
+          // statistics processing. 32768 was found to do reasonably well for
+          // updates.drupal.org.
           if ($bcnt >= 32768) {
             project_usage_process_batch($c, $buffer, $st);
             $bcnt = 0;
@@ -502,8 +503,9 @@ function _project_usage_open_file($filename) {
 
 /**
  * Remove old site records from mongo.
- * (Only bother with the last 3 expired ones, if
- * stats haven't been run in more than 3 weeks, you can delete the rest yourself.)
+ *
+ * (Only bother with the last 3 expired ones, if stats haven't been run in more
+ * than 3 weeks, you can delete the rest yourself.)
  */
 function project_usage_expire_statfiles() {
   $db = project_usage_mongo();
@@ -603,9 +605,9 @@ function project_usage_tally() {
       }
     }
     if ($updateweek) {
-      // If we have release data for this week, then clear out the week in the database
-      // to avoid duplicate key errors.
-      // Do the update in a transaction to prevent glitches if someone requests stats while we're writing.
+      // If we have release data for this week, then clear out the week in the
+      // database to avoid duplicate key errors. Do the update in a transaction
+      // to prevent glitches if someone requests stats while we're writing.
       db_query("START TRANSACTION");
 
       db_delete('project_usage_week_release')
@@ -684,7 +686,8 @@ function project_usage_retrieve_metadata() {
       foreach (array_chunk($result['node'], 100) as $projects) {
         foreach ($projects as $project) {
           field_attach_load('node', array($project->nid => $project), FIELD_LOAD_CURRENT, array('field_id' => $machine_name_id[$project->type]));
-          // Language 'und' is very d.o. specific. loading the language takes time for 19000 nodes.
+          // Language 'und' is very d.o. specific. loading the language takes
+          // time for 19000 nodes.
           $project_name = $project->field_project_machine_name['und'][0]['value'];
           $projnames[$project->nid] = $project_name;
 
@@ -776,8 +779,6 @@ function drush_project_usage_import_usage_stats($week) {
         'timestamp' => $week,
         'count' => $count,
       ));
-    } else {
-      // This is a project that we dont support, or we dont know its major version.
     }
 
     if ($qcount > 1000) {
@@ -823,9 +824,6 @@ function drush_project_usage_import_usage_stats($week) {
           'tid' => $term,
           'count' => $count,
         ));
-      }
-      else {
-        // This is a project that we dont support, or we dont know its major version.
       }
 
       if ($qcount > 1000) {

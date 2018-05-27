@@ -14,10 +14,10 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
     $time = REQUEST_TIME;
     $parts = project_usage_gmgetdate($time);
 
-    // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
-    // should subtract the timezone from the timestamp to cancel it out. We
-    // can compare the input to the timestamp in the returned array and make
-    // sure they differ by the timezone offset.
+    // PHP's getdate() takes the timezone into account.
+    // project_usage_gmgetdate() should subtract the timezone from the
+    // timestamp to cancel it out. We can compare the input to the timestamp in
+    // the returned array and make sure they differ by the timezone offset.
     $offset = date('Z', $time);
     $expected = $time - $offset;
 
@@ -31,10 +31,10 @@ class ProjectUsageGetDateTests extends DrupalTestCase {
     $time = REQUEST_TIME;
     $parts = project_usage_gmgetdate();
 
-    // PHP's getdate() takes the timezone into account. project_usage_gmgetdate()
-    // should subtract the timezone from the timestamp to cancel it out. We
-    // can compare the input to the timestamp in the returned array and make
-    // sure they differ by the timezone offset.
+    // PHP's getdate() takes the timezone into account.
+    // project_usage_gmgetdate() should subtract the timezone from the
+    // timestamp to cancel it out. We can compare the input to the timestamp in
+    // the returned array and make sure they differ by the timezone offset.
     $offset = date('Z', $time);
     $expected = $time - $offset;
 
