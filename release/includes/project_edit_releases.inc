@@ -132,7 +132,7 @@ function theme_project_release_edit_table($v) {
     t('Supported'),
   );
   foreach (element_children($v['api']) as $tid) {
-    $output .= '<h3>'. $v['api'][$tid]['#api_term_name'] .'</h3>';
+    $output .= '<h3>' . $v['api'][$tid]['#api_term_name'] . '</h3>';
     $rows = array();
     krsort($v['api'][$tid]['major']);
     foreach (element_children($v['api'][$tid]['major']) as $major) {

@@ -10,7 +10,7 @@
  */
 function project_release_install() {
   // Load the code to define the default project_release node type and run it.
-  require_once dirname(__FILE__)  . '/includes/project_release_node_type.inc';
+  require_once dirname(__FILE__) . '/includes/project_release_node_type.inc';
   _project_release_create_release_node_type();
 }
 

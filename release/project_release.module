@@ -28,7 +28,7 @@ function project_release_init() {
   <tr><td><code>#</code></td><td><code>-</code></td></tr>
   <tr><td><code>!</code></td><td><em>none</em></td></tr>
 </table>
-<p>For example, <code>!major%minor#patch</code> will accept <code>[major][.minor][-patch]</code>, such as <code>2.3-4</code>. Any variable in the format string may be omitted in the version number.</p>") .' <p>'. PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG . '</p>');
+<p>For example, <code>!major%minor#patch</code> will accept <code>[major][.minor][-patch]</code>, such as <code>2.3-4</code>. Any variable in the format string may be omitted in the version number.</p>") . ' <p>' . PROJECT_RELEASE_VERSION_FORMAT_VALID_MSG . '</p>');
 }
 
 /**

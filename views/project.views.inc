@@ -122,7 +122,7 @@ function project_views_data_alter(&$data) {
  */
 function project_views_plugins() {
   $project_path = drupal_get_path('module', 'project');
-  $path = drupal_get_path('module', 'project') .'/views/plugins';
+  $path = drupal_get_path('module', 'project') . '/views/plugins';
   return array(
     'module' => 'project',
     'style' => array(

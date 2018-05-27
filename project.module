@@ -153,7 +153,7 @@ function project_type_load($name) {
 function project_views_api() {
   return array(
     'api' => '3.0',
-    'path' => drupal_get_path('module', 'project') .'/views',
+    'path' => drupal_get_path('module', 'project') . '/views',
   );
 }
 

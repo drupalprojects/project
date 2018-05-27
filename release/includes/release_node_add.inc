@@ -90,7 +90,7 @@ function project_release_autocomplete_project($string) {
     $title = $project->title;
     // Commas and quotes in terms are special cases, so encode 'em.
     if (strpos($title, ',') !== FALSE || strpos($title, '"') !== FALSE) {
-      $title = '"'. str_replace('"', '""', $project->title) .'"';
+      $title = '"' . str_replace('"', '""', $project->title) . '"';
     }
     $matches[$title] = check_plain($project->title);
   }

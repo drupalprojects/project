@@ -50,9 +50,9 @@ $safe_project_name = preg_replace($whitelist_regexp, '#', $project_name);
 $safe_api_vers = preg_replace($whitelist_regexp, '#', $api_version);
 
 // Figure out the filename for the release history we want to serve.
-$project_dir = HISTORY_ROOT .'/'. $safe_project_name;
-$filename = $safe_project_name .'-'. $safe_api_vers .'.xml';
-$full_path = $project_dir .'/'. $filename;
+$project_dir = HISTORY_ROOT . '/' . $safe_project_name;
+$filename = $safe_project_name . '-' . $safe_api_vers . '.xml';
+$full_path = $project_dir . '/' . $filename;
 
 if (!is_file($full_path)) {
   if (!is_dir($project_dir)) {
@@ -67,7 +67,7 @@ if (!is_file($full_path)) {
 // we're going to need this as soon as we start collecting stats.
 $stat = stat($full_path);
 $mtime = $stat[9];
-header('Last-Modified: '. gmdate('D, d M Y H:i:s', $mtime) .' GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
 header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
 header("Cache-Control: store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", FALSE);
@@ -76,7 +76,7 @@ header("Cache-Control: post-check=0, pre-check=0", FALSE);
 $file = file_get_contents($full_path);
 // Old release xml files are missing the encoding. Prepend one if necessary.
 if (substr($file, 0, 5) != '<?xml') {
-  echo '<?xml version="1.0" encoding="utf-8"?>' ."\n";
+  echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
 }
 echo $file;
 
@@ -91,7 +91,7 @@ function _check_plain($text) {
  * Generate an error and exit.
  */
 function error($text) {
-  echo '<?xml version="1.0" encoding="utf-8"?>'. "\n";
-  echo '<error>'. $text ."</error>\n";
+  echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
+  echo '<error>' . $text . "</error>\n";
   exit(1);
 }
