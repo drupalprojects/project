@@ -6,7 +6,7 @@ class ProjectTestCase extends ProjectWebTestCase {
     return array(
       'name' => 'Project creation functionality',
       'description' => 'Test Project module functionality.',
-      'group' => 'Project'
+      'group' => 'Project',
     );
   }
 

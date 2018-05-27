@@ -89,23 +89,23 @@ class ProjectWebTestCase extends DrupalWebTestCase {
         LANGUAGE_NONE => array(
           0 => array(
             'value' => $this->randomString(128),
-            'format' => filter_default_format()
-          )
-        )
+            'format' => filter_default_format(),
+          ),
+        ),
       ),
       'field_project_type' => array(
         LANGUAGE_NONE => array(
           0 => array(
             'value' => 'full',
           ),
-        )
+        ),
       ),
       'field_project_machine_name' => array(
         LANGUAGE_NONE => array(
           0 => array(
             'value' => $this->randomName(),
           ),
-        )
+        ),
       ),
       'field_project_components' => array(
         LANGUAGE_NONE => array(
@@ -125,7 +125,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
             'value' => $this->randomName(),
             'format' => NULL,
           ),
-        )
+        ),
       ),
     );
 

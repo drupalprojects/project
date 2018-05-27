@@ -72,7 +72,7 @@ function hook_project_maintainer_save($nid, $uid, $permissions) {
     ->key(array('nid' => $nid, 'uid' => $uid))
     ->fields(array(
       'some_project_permission' => $permissions['some project permission'],
-      'another_permission' => $permissions['another permission']
+      'another_permission' => $permissions['another permission'],
     ))
     ->execute();
 }

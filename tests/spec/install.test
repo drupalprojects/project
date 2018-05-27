@@ -6,7 +6,7 @@ class ProjectInstallTestCase extends ProjectWebTestCase {
     return array(
       'name' => 'Project installation functionality',
       'description' => 'Test Project module functionality.',
-      'group' => 'Project'
+      'group' => 'Project',
     );
   }
 

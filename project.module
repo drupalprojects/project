@@ -760,7 +760,7 @@ function project_maintainer_save($nid, $uid, $permissions = array()) {
     ->key(array('nid' => $nid, 'uid' => $uid))
     ->fields(array(
       'update_project' => $permissions['update project'],
-      'administer_maintainers' => $permissions['administer maintainers']
+      'administer_maintainers' => $permissions['administer maintainers'],
     ))
     ->execute();
 

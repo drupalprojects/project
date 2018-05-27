@@ -16,7 +16,7 @@ function project_release_drush_command() {
       'description' => 'Package files for release nodes.',
       'arguments' => array(
         'type' => '"branch" or "tag", required.',
-        'project_id' => 'Project, either a Node ID or machine name. Omit to build all projects.'
+        'project_id' => 'Project, either a Node ID or machine name. Omit to build all projects.',
       ),
       'required-arguments' => TRUE,
     ),
