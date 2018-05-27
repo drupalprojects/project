@@ -796,7 +796,7 @@ function project_maintainer_remove($nid, $uid) {
  * @return
  *   Array of maintainer info for the given project.
  *
- * @see hook_project_maintainer_project_load().
+ * @see hook_project_maintainer_project_load()
  */
 function project_maintainer_project_load($nid) {
   $maintainers = array();

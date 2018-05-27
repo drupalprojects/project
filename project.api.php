@@ -39,8 +39,8 @@ function hook_project_permission_info($project = NULL) {
  * @param $project
  *   The project for which permissions are being fetched.
  *
- * @see hook_project_permission_info().
- * @see project_permission_load().
+ * @see hook_project_permission_info()
+ * @see project_permission_load()
  * @see drupal_alter()
  */
 function hook_project_permission_alter(&$permissions, $project = NULL) {
