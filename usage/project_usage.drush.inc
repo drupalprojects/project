@@ -24,14 +24,19 @@ function project_usage_drush_help($section) {
   switch ($section) {
     case 'meta:project_usage:title':
       return dt('Project Usage Statistics commands');
+
     case 'meta:project_usage:summary':
       return dt('Commands for processing usage statistics');
+
     case 'project_usage:process-varnish-files':
       return dt('Process all files matching a glob as varnish logs.');
+
     case 'project_usage:process-varnish-file':
       return dt('Process a specific log file as a varnish log.');
+
     case 'project_usage:tally-usage-stats':
       return dt('Tally processed update statistics data.');
+
     case 'project_usage:import-usage-stats':
       return dt('Import pre-aggregated usage stats.');
   }

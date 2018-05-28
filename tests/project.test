@@ -12,6 +12,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
 
   /**
    * Assert that a field in the current page is enabled.
+   *
    * @TODO Remove this when http://drupal.org/node/882564 is committed.
    *
    * @param $name
@@ -29,6 +30,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
 
   /**
    * Assert that a field in the current page is disabled.
+   *
    * @TODO Remove this when http://drupal.org/node/882564 is committed.
    *
    * @param $name
@@ -67,6 +69,7 @@ class ProjectWebTestCase extends DrupalWebTestCase {
    *   name of field to assert.
    * @param $message
    *   Message to display.
+   *
    * @return
    *   TRUE on pass, FALSE on fail.
    */

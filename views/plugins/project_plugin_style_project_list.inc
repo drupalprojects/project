@@ -4,6 +4,7 @@
  * Style plugin to render a list of projects.
  */
 class project_plugin_style_project_list extends views_plugin_style {
+
   /**
    * Store the project type term being browsed for later usage.
    */
@@ -20,21 +21,27 @@ class project_plugin_style_project_list extends views_plugin_style {
         case 'second':
           $date_format_string = 'YmdHis';
           break;
+
         case 'minute':
           $date_format_string = 'YmdHi';
           break;
+
         case 'hour':
           $date_format_string = 'YmdH';
           break;
+
         case 'day':
           $date_format_string = 'Ymd';
           break;
+
         case 'month':
           $date_format_string = 'Ym';
           break;
+
         case 'year':
           $date_format_string = 'Y';
           break;
+
         default:
           $date_format_string = 'Ymd';
       }
@@ -57,4 +64,5 @@ class project_plugin_style_project_list extends views_plugin_style {
     }
     parent::pre_render($result);
   }
+
 }

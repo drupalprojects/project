@@ -81,6 +81,7 @@ class ProjectUsageUsageDailyTimestampTests extends DrupalTestCase {
 
     $this->assertEqual($expected, $actual, $this->format_date($time) . ' should round to ' . $this->format_date($expected) . ' got ' . $this->format_date($actual));
   }
+
 }
 
 class ProjectUsageUsageWeeklyTimestampTests extends DrupalTestCase {

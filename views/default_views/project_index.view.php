@@ -4,6 +4,7 @@
  * @file
  * An index of all projects of a certain project type by title.
  */
+
 $view = new view();
 $view->name = 'project_index';
 $view->description = 'Listing of all projects by title';
