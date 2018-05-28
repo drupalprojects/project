@@ -95,7 +95,7 @@ class project_handler_filter_project_sort_method extends views_handler_filter {
     );
 
     $weights = array();
-    foreach ($sorts as $id=> $value) {
+    foreach ($sorts as $id => $value) {
       $handler = views_get_handler($sorts[$id]['table'], $sorts[$id]['field'], 'sort');
       $weights[$id] = isset($sort_method_options[$id]['weight']) ? $sort_method_options[$id]['weight'] : 0;
       $rows[$id]['enabled'] = array(

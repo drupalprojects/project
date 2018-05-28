@@ -1841,9 +1841,8 @@ function project_release_project_behavior_settings($node_type) {
       '#maxlength' => 255,
       '#description' => PROJECT_RELEASE_VERSION_FORMAT_HELP,
       '#element_validate' => array('_project_release_validate_format_string'),
-      // @todo Fix this -- it's only required when we're working with release
-      // node types.
-      //'#required' => TRUE,
+      // @todo Should be required when we're working with release node types.
+      // '#required' => TRUE,
     ),
   );
 }

@@ -363,7 +363,7 @@ function project_usage_process_batch(&$c, $buffer, &$st) {
       drush_log(dt("Skipping corrupted site!"), 'warning');
       continue;
     }
-    $lasthit = $data[count($data) -1];
+    $lasthit = $data[count($data) - 1];
     $changed = FALSE;
     $record = $c->findOne(array('site_key' => $site_key));
     if (!$record) {
@@ -683,12 +683,11 @@ function project_usage_retrieve_metadata() {
       ->fieldCondition('field_project_type', 'value', 'full', '=')
       ->fieldCondition('field_project_has_releases', 'value', '1', '=')
       ->execute();
-    foreach (project_project_node_types() as $bundle){
+    foreach (project_project_node_types() as $bundle) {
       $fields = field_info_instances('node', $bundle);
-      $machine_name_id[$bundle] =  $fields['field_project_machine_name']['field_id'];
+      $machine_name_id[$bundle] = $fields['field_project_machine_name']['field_id'];
     }
     if (isset($result['node'])) {
-
       foreach (array_chunk($result['node'], 100) as $projects) {
         foreach ($projects as $project) {
           field_attach_load('node', array($project->nid => $project), FIELD_LOAD_CURRENT, array('field_id' => $machine_name_id[$project->type]));
@@ -745,8 +744,6 @@ function drush_project_usage_import_usage_stats($week) {
   ini_set('memory_limit', '-1');
   $metadata = project_usage_retrieve_metadata();
 
-
-
   // Project release counts.
   drush_log(dt("Importing Release stats."));
 
@@ -761,16 +758,17 @@ function drush_project_usage_import_usage_stats($week) {
   $query = db_insert('project_usage_week_release')
     ->fields(array('nid', 'timestamp', 'count'));
   while ($line = fgets($project_releasecounts_fh)) {
-    $nid = 0 ;
+    $nid = 0;
     $term = 0;
     // Split up $line into its components.
     list($count, $pdata) = explode(' ', trim($line), 2);
-    list($project_machine_name,$rel_ver,$maj_api) = explode('|', $pdata,3);
+    list($project_machine_name, $rel_ver, $maj_api) = explode('|', $pdata, 3);
 
     // Skip projects that are not ours.
-    if (substr($rel_ver,0,2) !== substr($maj_api,0,2) || empty($metadata['releases'][$project_machine_name][$rel_ver])){
+    if (substr($rel_ver, 0, 2) !== substr($maj_api, 0, 2) || empty($metadata['releases'][$project_machine_name][$rel_ver])) {
       continue;
-    } else {
+    }
+    else {
       // Add up major api counts.
       $project_api_counts[$project_machine_name][$maj_api] += $count;
     }

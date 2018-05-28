@@ -44,7 +44,7 @@ class ProjectReleaseMetricNewReleases extends ProjectReleaseMetric {
     // Pull all release nodes created during the specified time.
     $nodes = $query->execute();
     foreach ($nodes as $node) {
-      $this->currentSample->values[$node->pid]['releases'] = (int)$node->releases;
+      $this->currentSample->values[$node->pid]['releases'] = (int) $node->releases;
     }
   }
 
