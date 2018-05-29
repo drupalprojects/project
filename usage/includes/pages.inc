@@ -303,9 +303,11 @@ function project_usage_project_page($node) {
     }
     else {
       $weeks = project_usage_get_weeks_since($oldest);
-      // ...ignore the current week, since we won't have usage data for that and
-      // reverse the order so it's newest to oldest.
-      array_pop($weeks);
+      // Ignore current & recent weeks, since we may not have usage data yet.
+      if (($offset = array_search(project_usage_get_current_active_week(), $weeks)) !== FALSE) {
+        array_splice($weeks, $offset + 1);
+      }
+      // Reverse the order so it's newest to oldest.
       $weeks = array_reverse($weeks);
     }
 
