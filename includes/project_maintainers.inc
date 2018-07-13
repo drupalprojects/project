@@ -217,6 +217,7 @@ function project_maintainers_form_submit($form, &$form_state) {
       }
       project_maintainer_save($project_nid, $uid, $perms);
     }
+    module_invoke_all('project_maintainer_save_all', $form['#project']);
   }
 
   // See if we need to insert a record for a new maintainer.
